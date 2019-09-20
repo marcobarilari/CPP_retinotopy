@@ -11,15 +11,15 @@ function img = PrettyPattern(lambda, phase, width)
 % The function returns the new image.
 %
 
-%% Grating
+% Grating
 % Parameters for all pixels
-[X Y] = meshgrid(-width/2:width/2-1, -width/2:width/2-1);
-[T R] = cart2pol(X,Y);
+[X, Y] = meshgrid(-width/2:width/2-1, -width/2:width/2-1);
+[~, R] = cart2pol(X,Y);
 
 % Luminance modulation at each pixel
 G = R .* (cos(2*pi .* (sind(X) + cosd(Y)) ./ lambda + phase));
 
-%% Image matrix
+% Image matrix
 img = uint8(G);
 
-
+end

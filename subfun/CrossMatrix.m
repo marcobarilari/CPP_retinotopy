@@ -1,4 +1,4 @@
-function cm = cross_matrix(len)
+function cm = CrossMatrix(len)
 %cm = cross_matrix(len)
 %
 % Generates a binary matrix of a cross with side length len.
