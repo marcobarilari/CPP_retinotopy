@@ -75,16 +75,11 @@ Parameters.Rotate_Stimulus=true;    % Does image rotate?
 Parameters.viewDist = viewingDist; % viewing distance from eyes to screen
 Parameters.xWidthScreen = 35; % horizontal width of screen
 Parameters.FOV = 2* atan(Parameters.xWidthScreen/2/Parameters.viewDist)*180/pi; % left-to-right angle of visual field in scanner in degree
+
 % Load stimulus movie
-load(Stim);
-if strcmpi(Stim, 'Checkerboard')
-    Parameters.Stimulus(:,:,1)=Stimulus;
-    Parameters.Stimulus(:,:,2)=uint8(InvertContrastCogent(CogentImage(Stimulus))*255);
-else
-    Parameters.Stimulus=Stimulus;
-end
+Parameters = LoadStim(Stim, Parameters);
+
 Parameters.Rotate_Stimulus=true;   % Image rotates
-Parameters.Refreshs_per_Stim=StimFrames;  % Video frames per stimulus frame
 Parameters.Sine_Rotation=0;  % No rotation back & forth 
 
 %% Various parameters

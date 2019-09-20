@@ -16,29 +16,18 @@ if nargin == 0
 end
 
 
-if isempty(Subj);
-
-    SubjNb = input('Subject number? ');
-    
-    Run = input('Retinotopic run number? ');
-    
-    Subj = ['Subject_', sprintf('%2.2d', SubjNb), '_Run_' num2str(Run)];
-    
-    %strcat(sprintf('DemoTest_Subject_%3.3d', info_general.SubjID), '_Date_', datestr(now, DateFormat), '.mat'));
-       
-else
-    Subj = Subj; %#ok<ASGSL>
-    SubjNb = '0';
-    viewingDist = 25; %#ok<NASGU>
-    
-end;
+if isempty(Subj)
+    SubjNb = input('Subject number? ');  
+    Run = input('Retinotopic run number? ');  
+    Subj = ['Sub-', sprintf('%2.2d', SubjNb), '_Run_' num2str(Run)];    
+end
 
 
-if ismac;
+if ismac
     saveDir = fullfile(pwd, 'Subjects_Data', strcat('Subject_', sprintf('%2.2d', SubjNb)));
-elseif ispc;
+elseif ispc
     % saveDir = '\\uni\trohe\w2kdata\PhD\Experiments\Exp1_VE_fMRI\Retinotopy\Retinotopy_StimToolbox\Results\';
-end;
+end
 
 % Create the mandatory folders if not already present
 if ~exist(saveDir, 'dir')
@@ -85,15 +74,9 @@ Parameters.xWidthScreen = 21.5; % horizontal width of screen
 Parameters.FOV = 2* atan(Parameters.xWidthScreen/2/Parameters.viewDist)*180/pi; % left-to-right angle of visual field in scanner in degree
 
 % Load stimulus movie
-load(Stim);
-if strcmpi(Stim, 'Checkerboard')
-    Parameters.Stimulus(:,:,1)=Stimulus;
-    Parameters.Stimulus(:,:,2)=uint8(InvertContrastCogent(CogentImage(Stimulus))*255);
-else
-    Parameters.Stimulus=Stimulus;
-end
+Parameters = LoadStim(Stim, Parameters);
+
 Parameters.Rotate_Stimulus=false;   % Image rotates
-Parameters.Refreshs_per_Stim=StimFrames;  % Video frames per stimulus frame
 Parameters.Sine_Rotation=2;  % Rotating movie back & forth by this angle
 
 %% Various parameters
