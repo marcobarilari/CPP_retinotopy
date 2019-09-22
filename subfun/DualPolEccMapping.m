@@ -1,4 +1,4 @@
-function DualPolEcc_Mapping(Parameters, Emulate, SaveAps)
+function DualPolEccMapping(Parameters, Emulate, SaveAps)
 %DualPolEcc_Mapping(Parameters, Emulate, SaveAps)
 %
 % Runs a dual polar & eccentricity mapping.
@@ -41,48 +41,11 @@ end
 
 %% Initialize randomness & keycodes
 SetupRand;
-SetupKeyCodes;
 
-%% Behavioural data
-Behaviour = struct;
-Behaviour.EventTime = [];
-Behaviour.Response = [];
-Behaviour.ResponseTime = [];
-
-%% Event timings 
-Events = CreateEventsTiming(Parameters)
-
-%% Configure scanner 
-[TrigStr, Parameters] = ConfigScanner(Emulate, Parameters);
-
-%% Initialize PTB
-[Win, Rect] = Screen('OpenWindow', Parameters.Screen, Parameters.Background, Parameters.Resolution, 32); 
-Screen('TextFont', Win, Parameters.FontName);
-Screen('TextSize', Win, Parameters.FontSize);
-Screen('BlendFunction', Win, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-HideCursor;
-RefreshDur = Screen('GetFlipInterval',Win);
-Slack = RefreshDur / 2;
-
-%% Various variables
 Results = [];
 CurrVolume = 0;
 Slice_Duration = Parameters.TR / Parameters.Number_of_Slices;
 StartExpmt = NaN;
-
-%% Initialization
-% Load background movie
-StimRect = [0 0 repmat(size(Parameters.Stimulus,1), 1, 2)];
-BgdTextures = [];
-if length(size(Parameters.Stimulus)) < 4
-    for f = 1:size(Parameters.Stimulus, 3)
-        BgdTextures(f) = Screen('MakeTexture', Win, Parameters.Stimulus(:,:,f));
-    end
-else
-    for f = 1:size(Parameters.Stimulus, 4)
-        BgdTextures(f) = Screen('MakeTexture', Win, Parameters.Stimulus(:,:,:,f));
-    end
-end
 
 % Background variables
 CurrFrame = 0;
@@ -92,6 +55,36 @@ CurrStim = 1;
 Angle_per_Vol = 360 / Volumes_per_Cycle(1);  % Angle steps per volume
 Pixels_per_Vol = StimRect(3) / Volumes_per_Cycle(2);  % Steps in ring width per volume
 
+
+%% Behavioural data
+Behaviour = struct;
+Behaviour.EventTime = [];
+Behaviour.Response = [];
+Behaviour.ResponseTime = [];
+
+%% Event timings 
+Events = CreateEventsTiming(Parameters);
+
+%% Configure scanner 
+[TrigStr, Parameters] = ConfigScanner(Emulate, Parameters);
+
+%% Initialize PTB
+    if Debug
+        PsychDebugWindowConfiguration
+    end
+    
+    SetupKeyCodes;
+    
+    [Win, Rect, oldRes, ifi] = InitPTB(Parameters);
+
+
+
+%% Initialization
+% Load background movie
+StimRect = [0 0 repmat(size(Parameters.Stimulus,1), 1, 2)];
+BgdTextures = LoadBckGrnd(Parameters, Win);
+
+
 % Initialize circular Aperture
 CircAperture = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
 if SaveAps
@@ -99,10 +92,14 @@ if SaveAps
     SavWin = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
 end
 
+    HideCursor;
+    Priority(MaxPriority(win));
+
 %% Standby screen
 Screen('FillRect', Win, Parameters.Background, Rect);
 DrawFormattedText(Win, [Parameters.Welcome '\n \n' Parameters.Instruction '\n \n' TrigStr], 'center', 'center', Parameters.Foreground); 
 Screen('Flip', Win);
+
 if Emulate
     WaitSecs(0.1);
     KbWait;

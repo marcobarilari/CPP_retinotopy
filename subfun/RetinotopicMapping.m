@@ -44,40 +44,14 @@ try
     if Debug
         PsychDebugWindowConfiguration
     end
+    
     SetupKeyCodes;
     
-    screenid = Parameters.Screen;
-    
-    noScreens = length(Screen('Screens'));
-    if ismac && noScreens > 1 % only if projector is also a screen
-        oldRes = Screen('Resolution', screenid, 800,600,60);
-    end
-    
-    [Win, Rect] = Screen('OpenWindow', Parameters.Screen, Parameters.Background);
-    Screen('TextFont', Win, Parameters.FontName);
-    Screen('TextSize', Win, Parameters.FontSize);
-    Screen('BlendFunction', Win, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    % frames per second
-    fps = Screen('FrameRate',win);
-    % interframe interval
-    ifi = Screen('GetFlipInterval', win);
-    if fps == 0
-        fps = 1/ifi;
-    end
+    [Win, Rect, oldRes, ifi] = InitPTB(Parameters);
     
     %% Load background movie
     StimRect = [0 0 size(Parameters.Stimulus,2) size(Parameters.Stimulus,1)];
-    BgdTextures = [];
-    if length(size(Parameters.Stimulus)) < 4
-        for f = 1:size(Parameters.Stimulus, 3)
-            BgdTextures(f) = Screen('MakeTexture', Win, Parameters.Stimulus(:,:,f)); %#ok<*AGROW>
-        end
-    else
-        for f = 1:size(Parameters.Stimulus, 4)
-            BgdTextures(f) = Screen('MakeTexture', Win, Parameters.Stimulus(:,:,:,f));
-        end
-    end
+    BgdTextures = LoadBckGrnd(Parameters, Win);
     
     %% Create fixation cross
     FixCross = CrossMatrix(16) * 255;

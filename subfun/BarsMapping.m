@@ -1,4 +1,4 @@
-function Bars_Mapping(Parameters, Emulate, SaveAps)
+function BarsMapping(Parameters, Emulate, SaveAps)
 %Bars_Mapping(Parameters, Emulate, SaveAps)
 %
 % Runs the drifting bar protocol for mapping population receptive fields.
@@ -14,55 +14,51 @@ if ~exist([cd filesep 'Results'], 'dir')
     mkdir('Results');
 end
 
-%% Initialize randomness & keycodes
-SetupRand;
-SetupKeyCodes;
+%% Initialize
+SetupRand
 
-%% Behavioural data
+% Background variables
+CurrFrame = 0;
+CurrStim = 1;
+
+% Behavioural
 Behaviour = struct;
 Behaviour.EventTime = [];
 Behaviour.Response = [];
 Behaviour.ResponseTime = [];
 
+% Various variables
+Results = [];
+CurrVolume = 0;
+Slice_Duration = Parameters.TR / Parameters.NumberOfSlices;
+Start_of_Expmt = NaN;
+
+
 %% Event timings 
-Events = CreateEventsTiming(Parameters)
+Events = CreateEventsTiming(Parameters);
+
 
 %% Configure scanner 
 [TrigStr, Parameters] = ConfigScanner(Emulate, Parameters);
 
+
 %% Initialize PTB
-[Win, Rect] = Screen('OpenWindow', Parameters.Screen, Parameters.Background, Parameters.Resolution, 32); 
-Screen('TextFont', Win, Parameters.FontName);
-Screen('TextSize', Win, Parameters.FontSize);
-Screen('BlendFunction', Win, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-HideCursor;
-RefreshDur = Screen('GetFlipInterval',Win);
-Slack = RefreshDur / 2;
+    if Debug
+        PsychDebugWindowConfiguration
+    end
+    
+    SetupKeyCodes;
+    
+    [Win, Rect, oldRes, ifi] = InitPTB(Parameters);
 
-%% Various variables
-Results = [];
-CurrVolume = 0;
-Slice_Duration = Parameters.TR / Parameters.Number_of_Slices;
-Start_of_Expmt = NaN;
 
-% Load background movie
+%% Load background movie
 StimRect = [0 0 repmat(size(Parameters.Stimulus,1), 1, 2)];
-BgdTextures = [];
-if length(size(Parameters.Stimulus)) < 4
-    for f = 1:size(Parameters.Stimulus, 3)
-        BgdTextures(f) = Screen('MakeTexture', Win, Parameters.Stimulus(:,:,f));
-    end
-else
-    for f = 1:size(Parameters.Stimulus, 4)
-        BgdTextures(f) = Screen('MakeTexture', Win, Parameters.Stimulus(:,:,:,f));
-    end
-end
+DriftPerVol = StimRect(3) / Parameters.VolumesPerTrial;
+BarPos = [0 : DriftPerVol : StimRect(3)-DriftPerVol] + (Rect(3)/2-StimRect(3)/2) + DriftPerVol/2;
+BgdTextures = LoadBckGrnd(Parameters, Win);
 
-%% Background variables
-CurrFrame = 0;
-CurrStim = 1;
-Drift_per_Vol = StimRect(3) / Parameters.Volumes_per_Trial;
-BarPos = [0 : Drift_per_Vol : StimRect(3)-Drift_per_Vol] + (Rect(3)/2-StimRect(3)/2) + Drift_per_Vol/2;
+
 
 %% Initialize circular Aperture
 CircAperture = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
@@ -71,10 +67,14 @@ if SaveAps
     SavWin = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
 end
 
+    HideCursor;
+    Priority(MaxPriority(win));
+
 %% Standby screen
 Screen('FillRect', Win, Parameters.Background, Rect);
 DrawFormattedText(Win, [Parameters.Welcome '\n \n' Parameters.Instruction '\n \n' TrigStr], 'center', 'center', Parameters.Foreground); 
 Screen('Flip', Win);
+
 if Emulate
     WaitSecs(0.1);
     KbWait;
@@ -116,7 +116,7 @@ for Trial = 1 : length(Parameters.Conditions)
         CurrSlice = ceil(CurrSliceTime / Slice_Duration);
     else  % Triggered start
         % Current slice    
-        [CurrSlice CurrSliceTime] = getslice(Port);
+        [CurrSlice, CurrSliceTime] = getslice(Port);
     end
 
     % Current volume 
