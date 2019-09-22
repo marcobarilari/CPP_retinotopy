@@ -36,20 +36,8 @@ Slack = RefreshDur / 2;
 Results = [];
 CurrVolume = 0;
 Slice_Duration = Parameters.TR / Parameters.Number_of_Slices;
-Start_of_Expmt = NaN;
+StartExpmt = NaN;
 
-% Custom initialization
-if exist('Initialization.m') == 2
-    Initialization;
-end
-
-%%% CHANGE THIS TO WHATEVER CODE YOU USE TO TRIGGER YOUR SCRIPT!!! %%%
-% If scanning use Cogent
-if Emulate == 0
-    config_serial;
-    start_cogent;
-    Port = 1;
-end
 
 %% Loop through blocks
 for Block = 0 : Parameters.Blocks_per_Expmt-1
@@ -86,21 +74,17 @@ for Block = 0 : Parameters.Blocks_per_Expmt-1
         Screen('FillRect', Win, Parameters.Background, Rect);
         DrawFormattedText(Win, 'Experiment was aborted!', 'center', 'center', Parameters.Foreground); 
         Screen('Flip', Win);
-        WaitSecs(0.5);
-        ShowCursor;
-        Screen('CloseAll');
-        new_line;
+
+        CleanUp
+        
         disp('Experiment aborted by user!'); 
-        new_line;
+
         % Experiment duration
         EndExpmt = GetSecs;
-        new_line;
-        ExpmtDur = End_of_Expmt - Start_of_Expmt;
-        ExpmtDurMin = floor(ExpmtDur/60);
-        ExpmtDurSec = mod(ExpmtDur, 60);
-        disp(['Experiment lasted ' n2s(ExpmtDurMin) ' minutes, ' n2s(ExpmtDurSec) ' seconds']);
-        new_line;
-        return;
+
+        DispExpDur(EndExpmt, StartExpmt)
+
+        return
     end
     Screen('FillRect', Win, Parameters.Background, Rect);
     Screen('Flip', Win);
@@ -124,12 +108,11 @@ for Block = 0 : Parameters.Blocks_per_Expmt-1
             % Abort screen
             Screen('FillRect', Win, Parameters.Background, Rect);
             DrawFormattedText(Win, 'Experiment was aborted mid-block!', 'center', 'center', Parameters.Foreground); 
-            WaitSecs(0.5);
-            ShowCursor;
-            Screen('CloseAll');
-            new_line; 
+            
+            CleanUp
+            
             disp('Experiment aborted by user mid-block!'); 
-            new_line;
+            
             % Experiment duration
             EndExpmt = GetSecs;
             DispExpDur(EndExpmt, StartExpmt)
@@ -156,19 +139,14 @@ for Block = 0 : Parameters.Blocks_per_Expmt-1
     save(['Results' filesep Parameters.Session_name]);
 end
 
-%%% REMOVE THIS IF YOU DON'T USE COGENT!!! %%%
-% Turn off Cogent
-if Emulate == 0
-    stop_cogent;
-end
 
 %% Farewell screen
 Screen('FillRect', Win, Parameters.Background, Rect);
 DrawFormattedText(Win, 'Thank you!', 'center', 'center', Parameters.Foreground); 
 Screen('Flip', Win);
 WaitSecs(Parameters.TR * Parameters.Overrun);
-ShowCursor;
-Screen('CloseAll');
+
+CleanUp
 
 %% Experiment duration
 DispExpDur(EndExpmt, StartExpmt)

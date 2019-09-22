@@ -63,7 +63,7 @@ Events = [Events; Inf];
 [TrigStr, Parameters] = ConfigScanner(Emulate, Parameters);
 
 %% Initialize PTB
-[Win Rect] = Screen('OpenWindow', Parameters.Screen, Parameters.Background, Parameters.Resolution, 32); 
+[Win, Rect] = Screen('OpenWindow', Parameters.Screen, Parameters.Background, Parameters.Resolution, 32); 
 Screen('TextFont', Win, Parameters.FontName);
 Screen('TextSize', Win, Parameters.FontSize);
 Screen('BlendFunction', Win, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -75,7 +75,7 @@ Slack = RefreshDur / 2;
 Results = [];
 CurrVolume = 0;
 Slice_Duration = Parameters.TR / Parameters.Number_of_Slices;
-Start_of_Expmt = NaN;
+StartExpmt = NaN;
 
 %% Initialization
 % Load background movie
@@ -106,13 +106,6 @@ if SaveAps
     SavWin = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
 end
 
-% If scanning use Cogent
-if Emulate == 0
-    config_serial;
-    start_cogent;
-    Port = 1;
-end
-
 %% Standby screen
 Screen('FillRect', Win, Parameters.Background, Rect);
 DrawFormattedText(Win, [Parameters.Welcome '\n \n' Parameters.Instruction '\n \n' TrigStr], 'center', 'center', Parameters.Foreground); 
@@ -134,15 +127,15 @@ if bk(KeyCodes.Escape)
     Screen('FillRect', Win, Parameters.Background, Rect);
     DrawFormattedText(Win, 'Experiment was aborted!', 'center', 'center', Parameters.Foreground); 
     Screen('Flip', Win);
-    WaitSecs(0.5);
-    ShowCursor;
-    Screen('CloseAll');
+    
+    CleanUp
 
     disp('Experiment aborted by user!'); 
 
     % Experiment duration
+    EndExpmt = GetSecs;
     DispExpDur(EndExpmt, StartExpmt)
-    return;
+    return
 end
 Screen('FillRect', Win, Parameters.Background, Rect);
 Screen('Flip', Win);
@@ -205,7 +198,7 @@ while CurrVolume <= length(Wedges)
     Screen('Flip', Win);
 
     % Behavioural response
-    [Keypr KeyTime Key] = KbCheck;
+    [Keypr, KeyTime, Key] = KbCheck;
     if Keypr 
         Behaviour.Response = [Behaviour.Response; find(Key)];
         Behaviour.ResponseTime = [Behaviour.ResponseTime; KeyTime - Start_of_Expmt];
@@ -216,21 +209,17 @@ while CurrVolume <= length(Wedges)
         % Abort screen
         Screen('FillRect', Win, Parameters.Background, Rect);
         DrawFormattedText(Win, 'Experiment was aborted mid-experiment!', 'center', 'center', Parameters.Foreground); 
-        WaitSecs(0.5);
-        ShowCursor;
-        Screen('CloseAll');
-        new_line; 
+
+        CleanUp
+        
         disp('Experiment aborted by user mid-experiment!'); 
-        new_line;
+
         % Experiment duration
-        End_of_Expmt = GetSecs;
-        new_line;
-        ExpmtDur = End_of_Expmt - Start_of_Expmt;
-        ExpmtDurMin = floor(ExpmtDur/60);
-        ExpmtDurSec = mod(ExpmtDur, 60);
-        disp(['Experiment lasted ' n2s(ExpmtDurMin) ' minutes, ' n2s(ExpmtDurSec) ' seconds']);
-        new_line;
-        return;
+        EndExpmt = GetSecs;
+        
+        DispExpDur(EndExpmt, StartExpmt)
+        
+        return
     end
 
     % Determine current volume
@@ -253,19 +242,14 @@ DrawFormattedText(Win, 'Saving data...', 'center', 'center', Parameters.Foregrou
 Screen('Flip', Win);
 save(['Results' filesep Parameters.Session_name]);
 
-%%% REMOVE THIS IF YOU DON'T USE COGENT!!! %%%
-% Turn off Cogent
-if Emulate == 0
-    stop_cogent;
-end
 
 %% Farewell screen
 Screen('FillRect', Win, Parameters.Background, Rect);
 DrawFormattedText(Win, 'Thank you!', 'center', 'center', Parameters.Foreground); 
 Screen('Flip', Win);
 WaitSecs(Parameters.TR * Parameters.Overrun);
-ShowCursor;
-Screen('CloseAll');
+
+CleanUp
 
 %% Experiment duration
 DispExpDur(EndExpmt, StartExpmt)
