@@ -314,10 +314,7 @@ try
     
     
     %% Farewell screen
-    Screen('FillRect', Win, Parameters.Background, Rect);
-    DrawFormattedText(Win, '', 'center', 'center', Parameters.Foreground);
-    Screen('Flip', Win);
-    WaitSecs(Parameters.TR * Parameters.Overrun);
+    FarewellScreen(Win, Parameters, Rect)
     
     CleanUp
     
