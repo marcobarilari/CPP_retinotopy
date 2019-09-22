@@ -18,55 +18,43 @@ if Debug
     PsychDebugWindowConfiguration
 end
 
+
+%% Initialize
+
+% Randomness
+SetUpRand;
+
+% Eytetracker
 ivx = EyeTrackInit(Parameters);
 
-% special center of ring stimulus because wide field mirror is used
-centerRing = [400,150];%[400,191]; % center ring at 800x600: [400,191] visible window is at 136,245 % tr 31.8.: changed to 191-8
-
-%% Behavioural data
+% Behavioural data variables
 Behaviour = struct;
 Behaviour.EventTime = [];
 Behaviour.Response = [];
 Behaviour.ResponseTime = [];
 
-%% Initialize randomness & keycodes
-SetUpRand;
-SetupKeyCodes;
 
-%% Stimulus conditions
-Volumes = [];
-% Cycle through repeats of each set
-for i = 1 : Parameters.CyclesPerExpmt
-    Volumes = [Volumes; ones(Parameters.VolsPerCycle, 1)]; %#ok<*AGROW>
-end
-VolsPerExpmt = length(Volumes);
-
+%% Configure scanner
 if Emulate
+    % Emulate scanner
+    TrigStr = 'Press key to start...';
     % In manual start there are no dummies
     Parameters.Dummies = 0;
     Parameters.Overrun = 0;
+else
+    % Real scanner
+    TrigStr = 'Stand by for scan...';
 end
 
-% Add column for volume time stamps
-Volumes = [Volumes, zeros(VolsPerExpmt,1)];
 
 %% Event timings
 e = Parameters.TR : Parameters.EventDuration : (Parameters.CyclesPerExpmt * Parameters.VolsPerCycle * Parameters.TR);
 tmp = rand(length(e),1);
 Events = e(tmp < Parameters.ProbOfEvent)';
 clear e tmp
-
 % Add a dummy event at the end of the Universe
 Events = [Events; Inf];
 
-%% Configure scanner
-if Emulate
-    % Emulate scanner
-    TrigStr = 'Press key to start...';
-else
-    % Real scanner
-    TrigStr = 'Stand by for scan...';
-end
 
 try
 
@@ -344,91 +332,44 @@ while CurrTime < CyclingEnd
     
     % Draw current video frame
     rft = Screen('Flip', Win);
-    if isnan(StartExpmt)
-        StartExpmt = rft;
+        
+        % Behavioural response
+        [Behaviour] = GetBehResp(KeyCodes, Win, Parameters, Rect, Behaviour, CyclingStart);
+        
     end
     
-    %% Behavioural response
-    [Keypr, KeyTime, Key] = KbCheck;
+    
+    %% Draw the fixation cross
+    DrawCross(Win, Parameters, FixCrossTexture, FixCrossRect)
+    EndExpmt = Screen('Flip', Win);
+    
+    
+    %% Farewell screen
+    Screen('FillRect', Win, Parameters.Background, Rect);
+    DrawFormattedText(Win, '', 'center', 'center', Parameters.Foreground);
+    Screen('Flip', Win);
+    WaitSecs(Parameters.TR * Parameters.Overrun);
+    
+    CleanUp
+    
+    %% Save workspace
+    Parameters = rmfield(Parameters, 'Stimulus');
+    clear('Apperture', 'R', 'T', 'X', 'Y');
+    Parameters.Stimulus = [];
+    save([Parameters.SessionName]);
+    
+    %% Experiment duration
+    DispExpDur(EndExpmt, StartExpmt)
 
-    if Keypr
-        
-        if Key(KeyCodes.Escape)
-            % Abort screen
-            Screen('FillRect', Win, Parameters.Background, Rect);
-            DrawFormattedText(Win, 'Experiment was aborted!', 'center', 'center', ...
-                Parameters.Foreground);
-            CleanUp
-            disp(' ');
-            disp('Experiment aborted by user!');
-            disp(' ');
-            return
-        end
-        
-        if ~PrevKeypr
-            PrevKeypr = 1;
-            keyNum = find(Key);
-            keyNum = keyNum(1);% prevent that trigger+response or double response spoil Behaviour.Response dimensions!!
-            Behaviour.Response = [Behaviour.Response; keyNum];
-            Behaviour.ResponseTime = [Behaviour.ResponseTime; KeyTime - CyclingStart];
-        end
-        
-    else
-        if PrevKeypr
-            PrevKeypr = 0;
-        end
+    WaitSecs(1);
+    
+    if Emulate ~= 1
+        IOPort('ConfigureSerialPort', MyPort, ['StopBackgroundRead']);
+        IOPort('Close', MyPort);
     end
     
-end
-
-
-%% Draw the fixation cross
-Screen('DrawTexture', Win, FixCrossTexture);
-EndExpmt = Screen('Flip', Win);
-
-
-%% Farewell screen
-Screen('FillRect', Win, Parameters.Background, Rect);
-DrawFormattedText(Win, '', 'center', 'center', Parameters.Foreground);
-Screen('Flip', Win);
-
-%% Draw the fixation cross
-if strcmp(Parameters.Apperture,'Wedge')
-    Screen('FillRect', Win, Parameters.Background, Rect);
-    Screen('DrawTexture', Win, FixCrossTexture);
-    Screen('Flip', Win);
-elseif strcmp(Parameters.Apperture,'Ring')
-    Screen('FillRect', Win, Parameters.Background, Rect);
-    Screen('DrawTexture', Win, FixCrossTexture, [0 0 fh fw], fixCrossRect);
-    Screen('Flip', Win);
-end
-WaitSecs(Parameters.TR * Parameters.Overrun);
-
-CleanUp
-
-%% Save workspace
-Parameters = rmfield(Parameters, 'Stimulus');
-clear('Apperture', 'R', 'T', 'X', 'Y');
-Parameters.Stimulus = [];
-save([Parameters.SessionName]);
-
-%% Experiment duration
-disp(' ');
-ExpmtDur = EndExpmt - StartExpmt;
-ExpmtDurMin = floor(ExpmtDur/60);
-ExpmtDurSec = mod(ExpmtDur, 60);
-disp(['Cycling lasted ' num2str(ExpmtDurMin) ' minutes, ' num2str(ExpmtDurSec) ' seconds']);
-disp(' ');
-
-WaitSecs(1);
-
-if Emulate ~= 1
-    IOPort('ConfigureSerialPort', MyPort, ['StopBackgroundRead']);
-    IOPort('Close', MyPort);
-end
-
-EyeTrackStop(ivx)
-
+    EyeTrackStop(ivx)
+    
 catch
     CleanUp
     psychrethrow(psychlasterror);
