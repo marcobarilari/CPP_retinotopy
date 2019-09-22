@@ -238,7 +238,7 @@ for Trial = 1 : length(Parameters.Conditions)
 end
 
 % Clock after experiment
-End_of_Expmt = GetSecs;
+EndExpmt = GetSecs;
 
 %% Save results of current block
 Parameters = rmfield(Parameters, 'Stimulus');  
@@ -262,12 +262,7 @@ ShowCursor;
 Screen('CloseAll');
 
 %% Experiment duration
-new_line;
-ExpmtDur = End_of_Expmt - Start_of_Expmt;
-ExpmtDurMin = floor(ExpmtDur/60);
-ExpmtDurSec = mod(ExpmtDur, 60);
-disp(['Experiment lasted ' n2s(ExpmtDurMin) ' minutes, ' n2s(ExpmtDurSec) ' seconds']);
-new_line;
+DispExpDur(EndExpmt, StartExpmt)
 
 %% Save apertures
 if SaveAps

@@ -70,15 +70,14 @@ for Block = 0 : Parameters.Blocks_per_Expmt-1
     if Emulate
         WaitSecs(0.1);
         KbWait;
-        [bkp Start_of_Block(Block+1) bk] = KbCheck;           
+        [bkp, Start_of_Block(Block+1), bk] = KbCheck;           
     else
-        %%% CHANGE THIS TO WHATEVER CODE YOU USE TO TRIGGER YOUR SCRIPT!!! %%%
-        CurrSlice = waitslice(Port, Parameters.Dummies * Parameters.Number_of_Slices + 1);  
+        %%% CHANGE THIS TO WHATEVER CODE YOU USE TO TRIGGER YOUR SCRIPT!!! %%% 
         Start_of_Block(Block+1) = GetSecs;
         bk = zeros(1,256);
     end
-    if isnan(Start_of_Expmt)
-        Start_of_Expmt = Start_of_Block(Block+1);
+    if isnan(StartExpmt)
+        StartExpmt = Start_of_Block(Block+1);
     end
     
     % Abort if Escape was pressed
@@ -94,7 +93,7 @@ for Block = 0 : Parameters.Blocks_per_Expmt-1
         disp('Experiment aborted by user!'); 
         new_line;
         % Experiment duration
-        End_of_Expmt = GetSecs;
+        EndExpmt = GetSecs;
         new_line;
         ExpmtDur = End_of_Expmt - Start_of_Expmt;
         ExpmtDurMin = floor(ExpmtDur/60);
@@ -132,14 +131,9 @@ for Block = 0 : Parameters.Blocks_per_Expmt-1
             disp('Experiment aborted by user mid-block!'); 
             new_line;
             % Experiment duration
-            End_of_Expmt = GetSecs;
-            new_line;
-            ExpmtDur = End_of_Expmt - Start_of_Expmt;
-            ExpmtDurMin = floor(ExpmtDur/60);
-            ExpmtDurSec = mod(ExpmtDur, 60);
-            disp(['Experiment lasted ' n2s(ExpmtDurMin) ' minutes, ' n2s(ExpmtDurSec) ' seconds']);
-            new_line;
-            return;
+            EndExpmt = GetSecs;
+            DispExpDur(EndExpmt, StartExpmt)
+            return
         end
         
         % Reaction to response
@@ -153,7 +147,7 @@ for Block = 0 : Parameters.Blocks_per_Expmt-1
     end
     
     % Clock after experiment
-    End_of_Expmt = GetSecs;
+    EndExpmt = GetSecs;
 
     %% Save results of current block
     Screen('FillRect', Win, Parameters.Background, Rect);
@@ -177,10 +171,5 @@ ShowCursor;
 Screen('CloseAll');
 
 %% Experiment duration
-new_line;
-ExpmtDur = End_of_Expmt - Start_of_Expmt;
-ExpmtDurMin = floor(ExpmtDur/60);
-ExpmtDurSec = mod(ExpmtDur, 60);
-disp(['Experiment lasted ' n2s(ExpmtDurMin) ' minutes, ' n2s(ExpmtDurSec) ' seconds']);
-new_line;
+DispExpDur(EndExpmt, StartExpmt)
 

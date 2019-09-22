@@ -120,7 +120,7 @@ Screen('Flip', Win);
 if Emulate
     WaitSecs(0.1);
     KbWait;
-    [bkp Start_of_Expmt bk] = KbCheck;           
+    [bkp, StartExpmt, bk] = KbCheck;           
 else
     %%% CHANGE THIS TO WHATEVER CODE YOU USE TO TRIGGER YOUR SCRIPT!!! %%%
     CurrSlice = waitslice(Port, Parameters.Dummies * Parameters.Number_of_Slices + 1);  
@@ -137,17 +137,11 @@ if bk(KeyCodes.Escape)
     WaitSecs(0.5);
     ShowCursor;
     Screen('CloseAll');
-    new_line;
+
     disp('Experiment aborted by user!'); 
-    new_line;
+
     % Experiment duration
-    End_of_Expmt = GetSecs;
-    new_line;
-    ExpmtDur = End_of_Expmt - Start_of_Expmt;
-    ExpmtDurMin = floor(ExpmtDur/60);
-    ExpmtDurSec = mod(ExpmtDur, 60);
-    disp(['Experiment lasted ' n2s(ExpmtDurMin) ' minutes, ' n2s(ExpmtDurSec) ' seconds']);
-    new_line;
+    DispExpDur(EndExpmt, StartExpmt)
     return;
 end
 Screen('FillRect', Win, Parameters.Background, Rect);
@@ -250,7 +244,7 @@ TrialOutput.TrialOffset = GetSecs;
 Results = [Results; TrialOutput];
 
 % Clock after experiment
-End_of_Expmt = GetSecs;
+EndExpmt = GetSecs;
 
 %% Save results
 Parameters = rmfield(Parameters, 'Stimulus');  % Remove stimulus from data
@@ -274,12 +268,7 @@ ShowCursor;
 Screen('CloseAll');
 
 %% Experiment duration
-new_line;
-ExpmtDur = End_of_Expmt - Start_of_Expmt;
-ExpmtDurMin = floor(ExpmtDur/60);
-ExpmtDurSec = mod(ExpmtDur, 60);
-disp(['Experiment lasted ' n2s(ExpmtDurMin) ' minutes, ' n2s(ExpmtDurSec) ' seconds']);
-new_line;
+DispExpDur(EndExpmt, StartExpmt)
 
 %% Save apertures
 if SaveAps
