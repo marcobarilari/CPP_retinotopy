@@ -22,7 +22,7 @@ SetupRand;
 %% Various variables
 Results = [];
 CurrVolume = 0;
-Slice_Duration = Parameters.TR / Parameters.Number_of_Slices;
+Slice_Duration = Parameters.TR / Parameters.NumberOfSlices;
 StartExpmt = NaN;
 
 
@@ -99,6 +99,7 @@ for Block = 0 : Parameters.Blocks_per_Expmt-1
     
     %% Run stimulus sequence
     for Trial = 1 : length(Parameters.Conditions)
+        
         % Current volume
         CurrVolume = ceil((GetSecs - Start_of_Block(Block+1)) / Parameters.Number_of_Slices) - Parameters.Dummies;
         
@@ -109,7 +110,9 @@ for Block = 0 : Parameters.Blocks_per_Expmt-1
         
         % Call stimulation sequence
         CurrCondit = Parameters.Conditions(Reshuffling(Trial));
-        eval(Parameters.Stimulus_Sequence);  % Custom script for each experiment!
+        
+        % Custom script for each experiment!
+        eval(Parameters.Stimulus_Sequence);  
         
         % Abort if Escape was pressed
         if find(TrialOutput.Key) == KeyCodes.Escape

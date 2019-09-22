@@ -130,6 +130,7 @@ for Trial = 1 : length(Parameters.Conditions)
     %% Stimulation sequence
     CurrCondit = Parameters.Conditions(Trial);
     CurrVolume = 1; 
+    
     while CurrVolume <= Parameters.Volumes_per_Trial
         % Determine current frame 
         CurrFrame = CurrFrame + 1;
@@ -142,8 +143,10 @@ for Trial = 1 : length(Parameters.Conditions)
         end
 
         % Create Aperture
-        Screen('FillRect', CircAperture, [127 127 127]);    
+        Screen('FillRect', CircAperture, [127 127 127]);  
+        
         Screen('FillOval', CircAperture, [0 0 0 0], CenterRect([0 0 repmat(StimRect(3), 1, 2)], Rect));
+        
         if mod(CurrCondit, 90) ~= 0 & CurrVolume > Parameters.Volumes_per_Trial/2
             Screen('FillRect', CircAperture, [127 127 127]);    
         else    
@@ -156,17 +159,22 @@ for Trial = 1 : length(Parameters.Conditions)
 
         % Draw movie frame
         Screen('DrawTexture', Win, BgdTextures(CurrStim), StimRect, CenterRect(StimRect, Rect), BgdAngle+CurrCondit-90);
+        
         % Draw aperture (and save if desired)
         Screen('DrawTexture', Win, CircAperture, Rect, Rect, CurrCondit-90);
+        
         if SaveAps             
             Screen('DrawTexture', SavWin, CircAperture, Rect, Rect, CurrCondit-90);
             CurApImg = Screen('GetImage', SavWin, CenterRect(StimRect, Rect));
             CurApImg = ~CurApImg(:,:,1);
             ApFrm(:,:,Parameters.Volumes_per_Trial*(Trial-1)+CurrVolume) = imresize(CurApImg, [100 100]);
         end
+        
         % Draw fixation cross 
         CurrEvents = Events - (GetSecs - Start_of_Expmt);
-        Screen('FillOval', Win, Parameters.Background, CenterRect([0 0 20 20], Rect));    
+        
+        Screen('FillOval', Win, Parameters.Background, CenterRect([0 0 20 20], Rect));  
+        
         if sum(CurrEvents > 0 & CurrEvents < Parameters.Event_Duration)
             % This is an event
             Screen('FillOval', Win, [0 0 255], CenterRect([0 0 10 10], Rect));    
@@ -174,16 +182,20 @@ for Trial = 1 : length(Parameters.Conditions)
             % This is not an event
             Screen('FillOval', Win, [255 0 0], CenterRect([0 0 10 10], Rect));    
         end
+        
         % Flip screen
         Screen('Flip', Win);
 
         % Behavioural response
         [Keypr, KeyTime, Key] = KbCheck;
+        
         if Keypr 
             Behaviour.Response = [Behaviour.Response; find(Key)];
             Behaviour.ResponseTime = [Behaviour.ResponseTime; KeyTime - Start_of_Expmt];
         end
+        
         TrialOutput.Key = Key;
+        
         % Abort if Escape was pressed
         if find(TrialOutput.Key) == KeyCodes.Escape
             % Abort screen

@@ -64,6 +64,7 @@ Behaviour.ResponseTime = [];
 
 %% Event timings 
 Events = CreateEventsTiming(Parameters);
+Behaviour.EventTime = Events;
 
 %% Configure scanner 
 [TrigStr, Parameters] = ConfigScanner(Emulate, Parameters);
@@ -97,7 +98,9 @@ end
 
 %% Standby screen
 Screen('FillRect', Win, Parameters.Background, Rect);
-DrawFormattedText(Win, [Parameters.Welcome '\n \n' Parameters.Instruction '\n \n' TrigStr], 'center', 'center', Parameters.Foreground); 
+DrawFormattedText(Win, ...
+    [Parameters.Welcome '\n \n' Parameters.Instruction '\n \n' TrigStr], ...
+    'center', 'center', Parameters.Foreground); 
 Screen('Flip', Win);
 
 if Emulate
@@ -127,11 +130,9 @@ if bk(KeyCodes.Escape)
     DispExpDur(EndExpmt, StartExpmt)
     return
 end
+
 Screen('FillRect', Win, Parameters.Background, Rect);
 Screen('Flip', Win);
-
-% Behaviour structure
-Behaviour.EventTime = Events;
 
 % Begin trial
 TrialOutput = struct;
@@ -141,6 +142,7 @@ TrialOutput.TrialOffset = NaN;
 %% Stimulus movie
 CurrVolume = 1;
 while CurrVolume <= length(Wedges)
+    
     % Determine current frame 
     CurrFrame = CurrFrame + 1;
     if CurrFrame > Parameters.Refreshs_per_Stim 
@@ -154,11 +156,14 @@ while CurrVolume <= length(Wedges)
     % Create Aperture
     Screen('FillRect', CircAperture, [127 127 127]);
     CurrWidth = Rings(CurrVolume) * Pixels_per_Vol;
+    
     if RingVisible(CurrVolume) 
         Screen('FillOval', CircAperture, [0 0 0 0], CenterRect([0 0 repmat(CurrWidth,1,2)], Rect));
         Screen('FillOval', CircAperture, [Parameters.Background 255], CenterRect([0 0 repmat(CurrWidth - Pixels_per_Vol + 1,1,2)], Rect));
     end
+    
     CurrAngle = Wedges(CurrVolume) * Angle_per_Vol - Angle_per_Vol * 1.5 + 90;
+    
     if WedgeVisible(CurrVolume)
         Screen('FillArc', CircAperture, [0 0 0 0], CenterRect([0 0 repmat(StimRect(4),1,2)], Rect), CurrAngle, Angle_per_Vol);
     end
@@ -167,6 +172,7 @@ while CurrVolume <= length(Wedges)
 
     % Draw movie frame
     Screen('DrawTexture', Win, BgdTextures(CurrStim), StimRect, CenterRect(StimRect, Rect), BgdAngle+CurrAngle);
+    
     % Draw aperture
     Screen('DrawTexture', Win, CircAperture, Rect, Rect);
     if SaveAps             
@@ -175,6 +181,7 @@ while CurrVolume <= length(Wedges)
         CurApImg = ~CurApImg(:,:,1);
         ApFrm(:,:,CurrVolume) = imresize(CurApImg, [100 100]);
     end
+    
     % Draw fixation cross 
     CurrEvents = Events - (GetSecs - Start_of_Expmt);
     if sum(CurrEvents > 0 & CurrEvents < Parameters.Event_Duration)
@@ -184,6 +191,7 @@ while CurrVolume <= length(Wedges)
         % This is not an event
         Screen('FillOval', Win, [255 0 0], CenterRect([0 0 10 10], Rect));    
     end
+    
     % Flip screen
     Screen('Flip', Win);
 
@@ -193,7 +201,9 @@ while CurrVolume <= length(Wedges)
         Behaviour.Response = [Behaviour.Response; find(Key)];
         Behaviour.ResponseTime = [Behaviour.ResponseTime; KeyTime - Start_of_Expmt];
     end
+    
     TrialOutput.Key = Key;
+    
     % Abort if Escape was pressed
     if find(TrialOutput.Key) == KeyCodes.Escape
         % Abort screen
