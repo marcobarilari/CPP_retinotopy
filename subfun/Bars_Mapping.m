@@ -25,14 +25,7 @@ Behaviour.Response = [];
 Behaviour.ResponseTime = [];
 
 %% Event timings 
-Events = [];
-for e = Parameters.TR : Parameters.Event_Duration : (length(Parameters.Conditions) * Parameters.Volumes_per_Trial * Parameters.TR)
-    if rand < Parameters.Prob_of_Event
-        Events = [Events; e];
-    end
-end
-% Add a dummy event at the end of the Universe
-Events = [Events; Inf];
+Events = CreateEventsTiming(Parameters)
 
 %% Configure scanner 
 [TrigStr, Parameters] = ConfigScanner(Emulate, Parameters);

@@ -35,12 +35,7 @@ Behaviour.ResponseTime = [];
 
 
 %% Event timings
-e = Parameters.TR : Parameters.EventDuration : (Parameters.CyclesPerExpmt * Parameters.VolsPerCycle * Parameters.TR);
-tmp = rand(length(e),1);
-Events = e(tmp < Parameters.ProbOfEvent)';
-clear e tmp
-% Add a dummy event at the end of the Universe
-Events = [Events; Inf];
+Events = CreateEventsTiming(Parameters)
 
 
 try
