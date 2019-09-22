@@ -51,4 +51,6 @@ Parameters.Refreshs_per_Stim = StimFrames;  % Video frames per stimulus frame
 Parameters.Sine_Rotation = 4;  % Rotating movie back & forth by this angle
 
 %% Run the experiment
-DualPolEcc_Mapping(Parameters, Emul);
+DualPolEccMapping(Parameters, Emul);
+
+end

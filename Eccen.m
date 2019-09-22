@@ -76,13 +76,12 @@ Parameters.FOV = 2* atan(Parameters.xWidthScreen/2/Parameters.viewDist)*180/pi; 
 % Load stimulus movie
 Parameters = LoadStim(Stim, Parameters);
 
-Parameters.Rotate_Stimulus=false;   % Image rotates
-Parameters.Sine_Rotation=2;  % Rotating movie back & forth by this angle
+%% Run the experiment
+RetinotopicMapping(Parameters, Emul);
 
 %% Various parameters
 Parameters.Instruction='Bitte immer Kreuz fixieren!\n\nDruecke bei rotem Kreis!';
 [Parameters.Session Parameters.Session_name]=CurrentSession([saveDir filesep nameFile]); % Determine current session CurrentSession([saveDir Subj '_' Stim '_Eccen' Direc]); % Determine current session
 Parameters.Subj = Subj;
 
-%% Run the experiment
-Retinotopic_Mapping(Parameters, Emul);
+end

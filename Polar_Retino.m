@@ -84,8 +84,8 @@ Parameters.Sine_Rotation=0;  % No rotation back & forth
 
 %% Various parameters
 Parameters.Instruction='Bitte immer Kreuz fixieren!\n\nDruecke bei rotem Kreis!';
-[Parameters.Session Parameters.Session_name]=CurrentSession([saveDir '/' nameFile]); % Determine current session
+[Parameters.Session, Parameters.Session_name]=CurrentSession([saveDir '/' nameFile]); % Determine current session
 Parameters.Subj = Subj;
 
 %% Run the experiment
- Retinotopic_Mapping(Parameters, Emul);
+ RetinotopicMapping(Parameters, Emul);

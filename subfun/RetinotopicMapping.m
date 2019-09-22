@@ -35,7 +35,7 @@ Behaviour.ResponseTime = [];
 
 
 %% Event timings
-Events = CreateEventsTiming(Parameters)
+Events = CreateEventsTiming(Parameters);
 
 
 try

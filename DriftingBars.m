@@ -48,4 +48,4 @@ Parameters.Refreshs_per_Stim = StimFrames;  % Video frames per stimulus frame
 Parameters.Sine_Rotation = 0;  % Rotating movie back & forth by this angle
 
 %% Run the experiment
-Bars_Mapping(Parameters, Emul);
+BarsMapping(Parameters, Emul);
