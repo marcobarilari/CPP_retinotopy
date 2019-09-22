@@ -21,19 +21,10 @@ SetupRand;
 SetupKeyCodes;
 
 %% Configure scanner 
-if Emulate 
-    % Emulate scanner
-    TrigStr = 'Press key to start...';    % Trigger string
-    % In manual start there are no dummies
-    Parameters.Dummies = 0;
-    Parameters.Overrun = 0;
-else
-    % Real scanner
-    TrigStr = 'Stand by for scan...';    % Trigger string
-end
+[TrigStr, Parameters] = ConfigScanner(Emulate, Parameters);
 
 %% Initialize PTB
-[Win Rect] = Screen('OpenWindow', Parameters.Screen, Parameters.Background, Parameters.Resolution, 32); 
+[Win, Rect] = Screen('OpenWindow', Parameters.Screen, Parameters.Background, Parameters.Resolution, 32); 
 Screen('TextFont', Win, Parameters.FontName);
 Screen('TextSize', Win, Parameters.FontSize);
 Screen('BlendFunction', Win, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
