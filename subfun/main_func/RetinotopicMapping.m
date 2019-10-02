@@ -87,7 +87,7 @@ try
         [MyPort] = WaitForScanTrigger(Parameters);
     end
     
-    EyetrackStart(ivx)   
+    EyeTrackStart(ivx, Parameters)   
     
     %% Begin main experiment
     FrameTimes = [];  % Time stamp of each frame
