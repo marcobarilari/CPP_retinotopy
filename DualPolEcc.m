@@ -1,4 +1,4 @@
-function DualPolEcc(Subj_ID, Direc, Stim, Emul)
+function DualPolEcc(Subj, Direc, Stim, Emul)
 %DualPolEcc(Subj_ID, Direc, Stim, Emul)
 %
 % Dual mapping stimulus combining polar and eccentricity mapping. 
@@ -10,47 +10,52 @@ function DualPolEcc(Subj_ID, Direc, Stim, Emul)
 %
 
 if nargin == 0
-    Subj_ID = 'Demo';
-    Direc = '+';
-    Stim = 'ColRipples';
+    Subj = 66;
+    Run = 1;
+    Direc = '-';
+    Stim = 'Checkerboard';
     Emul = 1;
+    Debug = 1;
 end
-addpath('Common_Functions');
-Parameters = struct;    % Initialize the parameters variable
 
-%% Engine parameters
-Parameters.Screen=0;    % Main screen
-Parameters.Resolution=[0 0 1920 1200];   % Resolution
-Parameters.Foreground=[0 0 0];  % Foreground colour
-Parameters.Background=[127 127 127];    % Background colour
-Parameters.FontSize = 20;   % Size of font
-Parameters.FontName = 'Comic Sans MS';  % Font to use
+if isempty(Subj)
+    Subj = input('Subject number? ');  
+    Run = input('Retinotopic run number? ');    
+end
 
-%% Scanner parameters
-Parameters.TR=3.06;    % Seconds per volume
-Parameters.Number_of_Slices=36; % Number of slices
-Parameters.Dummies=4;   % Dummy volumes
-Parameters.Overrun=0.5;   % Dummy volumes at end
+Subj = ['sub-', sprintf('%2.2d', Subj)]; 
 
-%% Subject & session 
-Parameters.Subj_ID = Subj_ID;   % Subject ID
-[Parameters.Session Parameters.Session_name] = CurrentSession([Parameters.Subj_ID '_PolEcc' Direc]);   % Determine next session
-Parameters.Welcome = 'Please fixate the red dot at all times!';   % Welcome message
-Parameters.Instruction = 'Press the button everytime it turns blue!';  % Instruction message
+% Create the mandatory folders if not already present
+OutputDir = fullfile(pwd, 'output', Subj, 'func');
+if ~exist(OutputDir, 'dir')
+    mkdir(OutputDir);
+end
+
+
+DateFormat = 'yyyy_mm_dd_HH_MM';
+
+NameFile = [Subj, '_task-retinotopypoleccen_run_', num2str(Run), datestr(now, DateFormat)];
+
+addpath(genpath(fullfile(pwd, 'subfun')));
+
+[Parameters] = SetParameters(Subj);
+[Parameters.Session, Parameters.SessionName] = CurrentSession([Parameters.Subj '_polecc-' Direc], OutputDir);   % Determine next session
+Parameters.OutputDir = OutputDir;
+
 
 %% Experimental Parameters
 Parameters.Repetitions = 2; % Number of times a whole set of cycles is repeated per run
 Parameters.Blanks = true;  % Whether or not blanks are included
+
 Parameters.Direction = Direc;   % Direction of cycling
-Parameters.Prob_of_Event = 0.05;  % Probability of a target event
-Parameters.Event_Duration = 0.2;  % Duration of a target event
-% Load stimulus movie
-load(Stim);
-Parameters.Stimulus = Stimulus; % Stimulus movie
-Parameters.Refreshs_per_Stim = StimFrames;  % Video frames per stimulus frame
 Parameters.Sine_Rotation = 4;  % Rotating movie back & forth by this angle
 
+% Load stimulus movie
+Parameters = LoadStim(Stim, Parameters);
+
+
+
 %% Run the experiment
-DualPolEccMapping(Parameters, Emul);
+DualPolEccMapping(Parameters, Emul, Debug);
 
 end
