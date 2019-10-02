@@ -45,7 +45,7 @@ try
         PsychDebugWindowConfiguration
     end
     
-    SetupKeyCodes;
+    KeyCodes = SetupKeyCodes;
     
     [Win, Rect, oldRes, ifi] = InitPTB(Parameters);
     
