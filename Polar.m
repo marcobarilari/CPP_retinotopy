@@ -39,8 +39,8 @@ NameFile = [Subj, '_task-retinotopypolar_run_', num2str(Run), datestr(now, DateF
 addpath(genpath(fullfile(pwd, 'subfun')));
 
 [Parameters] = SetParameters(Subj);
-
 [Parameters.Session, Parameters.SessionName] = CurrentSession([Parameters.Subj '_pol-' Direc], OutputDir);   % Determine next session
+Parameters.OutputDir = OutputDir;
 
 
 %% Experiment parameters
@@ -53,7 +53,6 @@ Parameters.SineRotation = 5; % No rotation back & forth
 
 % Load stimulus movie
 Parameters = LoadStim(Stim, Parameters);
-
 
 
 %% Run the experiment
