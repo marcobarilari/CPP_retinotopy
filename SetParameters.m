@@ -31,6 +31,10 @@ Parameters.EventDuration = 0.2; % Duration of a target event
 Parameters.EventSize = 15; % Width of target circle
 Parameters.EventColor = [255 0 0]; % rgb
 
+%% Experiment parameters for drifting bar
+Parameters.VolumesPerTrial = 12;
+Parameters.NumberSlices = 40;
+
 %% Eyetracker parameters
 Parameters.Eyetracker.Do = 0;
 Parameters.Eyetracker.Host = '10.41.111.213';  % SMI machine ip: '10.41.111.213'
