@@ -9,7 +9,7 @@ function Polar(Subj, Direc, Stim, Emul, Debug)
 %
 
 if nargin == 0
-    Subj=1;
+    Subj = 66;
     Run = 1;
     Direc = '-';
     Stim = 'Checkerboard';
@@ -18,29 +18,29 @@ if nargin == 0
 end
 
 if isempty(Subj)
-    SubjNb = input('Subject number? ');  
-    Run = input('Retinotopic run number? ');  
-    Subj = ['Sub-', sprintf('%2.2d', SubjNb), '_Run_' num2str(Run)];    
+    Subj = input('Subject number? ');  
+    Run = input('Retinotopic run number? ');    
 end
+
+Subj = ['sub-', sprintf('%2.2d', Subj)]; 
 
 
 % Create the mandatory folders if not already present
-saveDir = fullfile(pwd, strcat('sub-', sprintf('%2.2d', SubjNb)), 'func');
-if ~exist(saveDir, 'dir')
-    mkdir(saveDir);
+OutputDir = fullfile(pwd, 'output', ['sub-', sprintf('%2.2d', Subj)], 'func');
+if ~exist(OutputDir, 'dir')
+    mkdir(OutputDir);
 end
 
 
 DateFormat = 'yyyy_mm_dd_HH_MM';
 
-nameFile = strcat('Retinotopy_Subject_', sprintf('%2.2d', SubjNb), '_Run_', num2str(Run), '_', Stim, '_Polar_', Direc, '_', datestr(now, DateFormat));
+NameFile = [Subj, '_task-retinotopypolar_run_', num2str(Run), datestr(now, DateFormat)];
 
-
-addpath(fullfile(pwd, 'subfun'));
+addpath(genpath(fullfile(pwd, 'subfun')));
 
 [Parameters] = SetParameters(Subj);
 
-[Parameters.Session, Parameters.SessionName] = CurrentSession([Parameters.Subj '_Pol' Direc]);   % Determine next session
+[Parameters.Session, Parameters.SessionName] = CurrentSession([Parameters.Subj '_pol-' Direc], OutputDir);   % Determine next session
 
 
 %% Experiment parameters
