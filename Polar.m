@@ -12,7 +12,7 @@ if nargin == 0
     Subj = 66;
     Run = 1;
     Direc = '-';
-    Stim = 'Checkerboard';
+    Stim = 'Checkerboard.mat';
     Emul = 1;
     Debug = 1;
 end
@@ -52,7 +52,7 @@ Parameters.RotateStimulus = true; % Does image rotate?
 Parameters.SineRotation = 5; % No rotation back & forth 
 
 % Load stimulus movie
-Parameters = LoadStim(Stim, Parameters);
+Parameters = LoadStim(fullfile(pwd, 'input', Stim), Parameters);
 
 
 %% Run the experiment
