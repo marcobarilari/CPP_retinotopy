@@ -1,4 +1,4 @@
-function EyeTrackStart(ivx)
+function EyeTrackStart(ivx, Parameters)
 % start iView eye tracker
 if Parameters.Eyetracker.Do == 1
     % to clear data buffer
