@@ -59,21 +59,13 @@ try
     FixCross(:,:,2) = FixCross;   % alpha layer
     FixCross(:,:,1) = InvertContrast(FixCross(:,:,1));
     FixCrossTexture = Screen('MakeTexture', Win, FixCross);
-    if strcmp(Parameters.Apperture,'Wedge')
-        FixCrossRect = CenterRectOnPoint([0 0 fh fw],Rect(3)/2,Rect(4)/2);
-    elseif strcmp(Parameters.Apperture,'Ring')
-        FixCrossRect = CenterRectOnPoint([0 0 fh fw],centerRing(1),centerRing(2));
-    end
-    
+    FixCrossRect = CenterRectOnPoint([0 0 fh fw], Rect(3)/2, Rect(4)/2);
+
     %% Stand by screen
     Screen('FillRect', Win, Parameters.Background, Rect);
-    if strcmpi(Parameters.Apperture, 'Wedge')
-        DrawFormattedText(Win, [Parameters.Instruction '\n \n' TrigStr], ...
-            'center', 'center', Parameters.Foreground);
-    elseif strcmpi(Parameters.Apperture, 'Ring')
-        DrawFormattedText(Win, [Parameters.Instruction '\n \n' TrigStr], ...
-            centerRing(1)-100, centerRing(2)-50, Parameters.Foreground);
-    end
+    DrawFormattedText(Win, [Parameters.Instruction '\n \n' TrigStr], ...
+        'center', 'center', Parameters.Foreground);
+
     Screen('Flip', Win);
     
     HideCursor;
@@ -205,9 +197,11 @@ try
         %% Create apperture texture
         Screen('Fillrect', AppTexture, Parameters.Background);
         if strcmpi(Parameters.Apperture, 'Ring')
-            Screen('FillOval', AppTexture, [0 0 0 0], CenterRectOnPoint([0 0 repmat(CurrScale,1,2)],centerRing(1),centerRing(2)));
+            Screen('FillOval', AppTexture, [0 0 0 0], ...
+                CenterRectOnPoint([0 0 repmat(CurrScale,1,2)], Rect(3)/2, Rect(4)/2 ));
             
-            Screen('FillOval', AppTexture, [Parameters.Background 255], CenterRectOnPoint([0 0 repmat(CurrScaleInner,1,2)],centerRing(1),centerRing(2)));
+            Screen('FillOval', AppTexture, [Parameters.Background 255], ...
+                CenterRectOnPoint([0 0 repmat(CurrScaleInner,1,2)], Rect(3)/2, Rect(4)/2 ));
             
             % Wrapping around?
             %         %WrapAround = CurrScale+CurrRingWidth-StimRect(4);
@@ -218,7 +212,8 @@ try
             %         %Screen('FillOval', AppTexture, [0 0 0 0], CenterRect([0 0 repmat(WrapAround,1,2)], Rect));
             %         Screen('FillOval', AppTexture, [0 0 0 0], CenterRectOnPoint([0 0 repmat(WrapAround,1,2)],centerRing(1),centerRing(2)));
         elseif strcmpi(Parameters.Apperture, 'Wedge')
-            Screen('FillArc', AppTexture, [0 0 0 0], CenterRect([0 0 repmat(StimRect(4),1,2)], Rect), CurrAngle, Parameters.AppertureWidth);
+            Screen('FillArc', AppTexture, [0 0 0 0], ...
+                CenterRect([0 0 repmat(StimRect(4),1,2)], Rect), CurrAngle, Parameters.AppertureWidth);
         end
         
         %% Stimulus presentation
@@ -232,17 +227,12 @@ try
         % Rotate background movie?
         SineRotate = cos(CurrTime) * Parameters.SineRotation;
         
-        if strcmp(Parameters.Apperture,'Wedge')
-            Screen('DrawTexture', Win, BgdTextures(CurrFrame), StimRect, ...
-                CenterRect(StimRect, Rect), BgdAngle+SineRotate);
-        elseif strcmp(Parameters.Apperture,'Ring')
-            Screen('DrawTexture', Win, BgdTextures(CurrFrame), StimRect, ...
-                CenterRectOnPoint(StimRect, centerRing(1), centerRing(2)), BgdAngle+SineRotate);
-        end
+        Screen('DrawTexture', Win, BgdTextures(CurrFrame), StimRect, ...
+            CenterRect(StimRect, Rect), BgdAngle+SineRotate);
         
         % Draw aperture
         Screen('DrawTexture', Win, AppTexture);
-        DrawCross(Win, Parameters, FixCrossTexture, FixCrossRect)
+        DrawCross(Win, Parameters, FixCrossTexture, fh, fw, FixCrossRect)
         
         
         % Is this an event?
@@ -279,14 +269,9 @@ try
             end
             
             % tr
-            if strcmpi(Parameters.Apperture, 'Wedge')
-                X = Rect(3)/2-X;
-                Y = Rect(4)/2-Y;
-            elseif strcmpi(Parameters.Apperture, 'Ring')
-                X = X + Rect(3)/2;
-                Y = centerRing(2) - Y;
-            end
-            
+            X = Rect(3)/2-X;
+            Y = Rect(4)/2-Y;
+
             % Draw event
             Screen('FillOval', Win, ...
                 Parameters.EventColor,...
@@ -310,7 +295,7 @@ try
     
     
     %% Draw the fixation cross
-    DrawCross(Win, Parameters, FixCrossTexture, FixCrossRect)
+    DrawCross(Win, Parameters, FixCrossTexture, fh, fw, FixCrossRect)
     EndExpmt = Screen('Flip', Win);
     
     
@@ -323,7 +308,7 @@ try
     Parameters = rmfield(Parameters, 'Stimulus');
     clear('Apperture', 'R', 'T', 'X', 'Y');
     Parameters.Stimulus = [];
-    save([Parameters.SessionName]);
+    save(fullfile(Parameters.OutputDir, [Parameters.SessionName '.mat']));
     
     %% Experiment duration
     DispExpDur(EndExpmt, StartExpmt)
