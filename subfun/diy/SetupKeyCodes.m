@@ -1,4 +1,4 @@
-function SetupKeyCodes
+function KeyCodes = SetupKeyCodes
 % Setup keycode structure for typical keys
 KbName('UnifyKeyNames')
 KeyCodes.Left = KbName('LeftArrow');
