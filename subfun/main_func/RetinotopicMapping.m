@@ -95,6 +95,7 @@ try
     CurrRefresh = 0;   % Current video refresh
     CurrAngle = 0;  % Current angle of wedge
     CurrScale = 0;  % Current inner radius of ring
+    PrevKeypr = 0;
     maxEcc = Parameters.FOV/2 + Parameters.AppertureWidth + log(Parameters.FOV/2+1) ; % currentScale is scale of outer ring (exceeding screen until innter ring reaches window boarder)
     csFuncFact = 1/((maxEcc+exp(1))*log(maxEcc+exp(1))- (maxEcc+exp(1))) ; % csFuncFact is used to expand with log increasing speed so that ring is at maxEcc at end of cycle
     CurrRingWidthVA = Parameters.AppertureWidth;%maxEcc -  Parameters.FOV/2;
@@ -303,7 +304,7 @@ try
         rft = Screen('Flip', Win, rft+ifi);
         
         % Behavioural response
-        [Behaviour] = GetBehResp(KeyCodes, Win, Parameters, Rect, Behaviour, CyclingStart);
+        [Behaviour] = GetBehResp(KeyCodes, Win, Parameters, Rect, PrevKeypr, Behaviour, CyclingStart);
         
     end
     

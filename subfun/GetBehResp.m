@@ -1,4 +1,4 @@
-function [Behaviour] = GetBehResp(KeyCodes, Win, Parameters, Rect, Behaviour, CyclingStart)
+function [Behaviour] = GetBehResp(KeyCodes, Win, Parameters, Rect, PrevKeypr, Behaviour, CyclingStart)
 [Keypr, KeyTime, Key] = KbCheck;
 
 if Keypr
