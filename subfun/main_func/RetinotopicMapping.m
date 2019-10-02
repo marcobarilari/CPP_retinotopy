@@ -10,10 +10,6 @@ function RetinotopicMapping(Parameters, Emulate, Debug)
 %                   1 for manual trigger
 %
 
-% special center of ring stimulus because wide field mirror is used
-centerRing = [400,150];%[400,191]; % center ring at 800x600: [400,191] visible window is at 136,245 % tr 31.8.: changed to 191-8
-
-
 
 %% Initialize
 
