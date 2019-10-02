@@ -1,5 +1,7 @@
 width = 1400;  % Define here the height of the screen minus a few pixels
-Phases = 0:5:355;
+Phases = 0:10:355;
+
+addpath(genpath(fullfile(pwd, 'subfun')));
 
 Stimulus = zeros(width, width, length(Phases));
 [X, Y] = meshgrid([-width/2:-1 1:width/2], [-width/2:-1 1:width/2]);
