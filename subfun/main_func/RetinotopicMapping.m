@@ -77,7 +77,7 @@ try
     Screen('Flip', Win);
     
     HideCursor;
-    Priority(MaxPriority(win));
+    Priority(MaxPriority(Win));
     
     %% Wait for start of experiment
     if Emulate == 1

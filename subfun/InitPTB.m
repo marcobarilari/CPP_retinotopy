@@ -12,6 +12,6 @@ screenid = Parameters.Screen;
     Screen('BlendFunction', Win, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     % interframe interval
-    ifi = Screen('GetFlipInterval', win);
+    ifi = Screen('GetFlipInterval', Win);
 
 end

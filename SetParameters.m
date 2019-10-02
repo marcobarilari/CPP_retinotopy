@@ -24,7 +24,7 @@ Parameters.Overrun = 10; % Dummy volumes at end
 %% Experiment parameters
 Parameters.viewDist = 30; % viewing distance from eyes to screen
 Parameters.xWidthScreen = 21.5; % horizontal width of screen
-Parameters.CyclesPerExpmt = 9; % Stimulus cycles per run
+Parameters.CyclesPerExpmt = 1; % Stimulus cycles per run
 Parameters.VolsPerCycle = ceil(60/Parameters.TR); % Volumes per cycle , standard is to have noVolsPerCycle * TR ~ 1 min
 Parameters.ProbOfEvent = 0.05; % Probability of a target event
 Parameters.EventDuration = 0.2; % Duration of a target event
