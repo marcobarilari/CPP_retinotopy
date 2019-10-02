@@ -1,4 +1,4 @@
-function EyeTrackStop(ivx)
+function EyeTrackStop(ivx, Parameters)
 % stop iView eye tracker
 
 if Parameters.Eyetracker.Do == 1

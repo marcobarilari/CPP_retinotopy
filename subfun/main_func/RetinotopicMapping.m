@@ -334,7 +334,7 @@ try
         IOPort('Close', MyPort);
     end
     
-    EyeTrackStop(ivx)
+    EyeTrackStop(ivx, Parameters)
     
 catch
     CleanUp
