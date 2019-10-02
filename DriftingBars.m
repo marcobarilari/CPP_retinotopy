@@ -1,4 +1,4 @@
- function DriftingBars(Subj_ID, Stim, Emul)
+ function DriftingBars(Subj, Stim, Emul)
 %DriftingBars(Subj_ID, Stim, Emul)
 %
 % Drifting bars for mapping population receptive fields
@@ -8,44 +8,50 @@
 %
 
 if nargin == 0
-    Subj_ID = 'Demo';
-    Stim = 'Ripples';
+    Subj = 66;
+    Run = 1;
+    Direc = '-';
+    Stim = 'Ripples.mat';
     Emul = 1;
+    Debug = 1;
 end
-addpath('Common_Functions');
-Parameters = struct;    % Initialize the parameters variable
 
-%% Engine parameters
-Parameters.Screen=0;    % Main screen
-Parameters.Resolution=[ 0 0 1920 1200];  % Resolution
-Parameters.Foreground=[0 0 0];  % Foreground colour
-Parameters.Background=[127 127 127];    % Background colour
-Parameters.FontSize = 20;   % Size of font
-Parameters.FontName = 'Comic Sans MS';  % Font to use
+if isempty(Subj)
+    Subj = input('Subject number? ');  
+    Run = input('Retinotopic run number? ');    
+end
 
-%% Scanner parameters
-Parameters.TR=3.06;    % Seconds per volume
-Parameters.Number_of_Slices=36; % Number of slices
-Parameters.Dummies=4;   % Dummy volumes
-Parameters.Overrun=0.5;   % Dummy volumes at end
+Subj = ['sub-', sprintf('%2.2d', Subj)]; 
 
-%% Subject & session 
-Parameters.Subj_ID = Subj_ID;   % Subject ID
-[Parameters.Session Parameters.Session_name] = CurrentSession([Parameters.Subj_ID '_pRF']);   % Determine next session
-Parameters.Welcome = 'Please fixate the red dot at all times!';   % Welcome message
-Parameters.Instruction = 'Press the button everytime it turns blue!';  % Instruction message
+
+% Create the mandatory folders if not already present
+OutputDir = fullfile(pwd, 'output', ['sub-', sprintf('%2.2d', Subj)], 'func');
+if ~exist(OutputDir, 'dir')
+    mkdir(OutputDir);
+end
+
+
+DateFormat = 'yyyy_mm_dd_HH_MM';
+
+NameFile = [Subj, '_task-retinotopydriftbar_run_', num2str(Run), datestr(now, DateFormat)];
+
+addpath(genpath(fullfile(pwd, 'subfun')));
+
+[Parameters] = SetParameters(Subj);
+[Parameters.Session, Parameters.SessionName] = CurrentSession([Parameters.Subj '_driftbars-' Direc], OutputDir);   % Determine next session
+Parameters.OutputDir = OutputDir;
+
+
 
 %% Experimental Parameters
 Parameters.Volumes_per_Trial = 20;  % Duration of trial in volumes
-Parameters.Bar_Width = 120; % Width of bar in pixels
+Parameters.BarWidth = 120; % Width of bar in pixels
 Parameters.Conditions = [90 45 0 135 270 225 180 315];  % Stimulus conditions in each block defined by number
-Parameters.Prob_of_Event = 0.01;  % Probability of a target event
-Parameters.Event_Duration = 0.2;  % Duration of a target event
+
 % Load stimulus movie
-load(Stim);
-Parameters.Stimulus = Stimulus; % Stimulus movie
-Parameters.Refreshs_per_Stim = StimFrames;  % Video frames per stimulus frame
-Parameters.Sine_Rotation = 0;  % Rotating movie back & forth by this angle
+Parameters = LoadStim(fullfile(pwd, 'input', Stim), Parameters);
+
+Parameters.SineRotation = 0;  % Rotating movie back & forth by this angle
 
 %% Run the experiment
-BarsMapping(Parameters, Emul);
+BarsMapping(Parameters, Emul, Debug)
