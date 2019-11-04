@@ -25,6 +25,13 @@ Behaviour.EventTime = [];
 Behaviour.Response = [];
 Behaviour.ResponseTime = [];
 
+switch Parameters.Apperture
+    case 'Ring'
+        IsRing = true;
+    otherwise
+        IsRing = false;
+end
+
 
 %% Configure scanner
 [TrigStr, Parameters] = ConfigScanner(Emulate, Parameters);
@@ -84,13 +91,13 @@ try
     CurrScale = 0;  % Current inner radius of ring
     PrevKeypr = 0;
     
-    if strcmpi(Parameters.Apperture, 'Ring')
+    if IsRing
         % currentScale is scale of outer ring (exceeding screen until inner ring reaches window boarder)
         MaxEcc = Parameters.FOV / 2 + Parameters.AppertureWidth + log(Parameters.FOV/2 + 1) ;
         % csFuncFact is used to expand with log increasing speed so that ring is at maxEcc at end of cycle
         CsFuncFact = 1 / ((MaxEcc + exp(1)) * log(MaxEcc + exp(1)) - (MaxEcc + exp(1))) ;
         % Current ring width in visual angle
-        CurrRingWidthVA = Parameters.AppertureWidth; 
+        CurrRingWidthVA = Parameters.AppertureWidth;
     end
     
     
@@ -148,38 +155,41 @@ try
         
         %% Determine size & angle
         % Rotation of apperture
-        if strcmpi(Parameters.Direction, '+')
-            CurrAngle = 90 - Parameters.AppertureWidth/2 + (CurrTime/CycleDuration) * 360;
-        elseif strcmpi(Parameters.Direction, '-')
-            CurrAngle = 90 - Parameters.AppertureWidth/2 - (CurrTime/CycleDuration) * 360;
+        switch Parameters.Direction
+            case '+'
+                CurrAngle = 90 - Parameters.AppertureWidth/2 + (CurrTime/CycleDuration) * 360;
+            case '-'
+                CurrAngle = 90 - Parameters.AppertureWidth/2 - (CurrTime/CycleDuration) * 360;
         end
-        % Size of apperture (CurrScale only influences  ring)
-        if strcmpi(Parameters.Direction, '+')
-            %CurrScale = 0 + mod(CurrTime, CycleDuration)/CycleDuration * StimRect(4);
+        
+        if IsRing
+            % Size of apperture (CurrScale only influences  ring)
+            if strcmpi(Parameters.Direction, '+')
+                %CurrScale = 0 + mod(CurrTime, CycleDuration)/CycleDuration * StimRect(4);
+                
+                %---tr: vary CurrScale so that expansion speed is log over eccentricity
+                % cf. Tootell 1997; Swisher 2007; Warnking 2002 etc;
+                CurrScaleVA = 0 + mod(CurrTime, CycleDuration)/CycleDuration * MaxEcc; % current visual angle linear in time
+                % ensure some foveal stimulation at beginning (which is hidden by fixation cross otherwise)
+                if CurrScaleVA < 0.5
+                    CurrScaleVA = 0.5;
+                end
+            elseif strcmpi(Parameters.Direction, '-')
+                %CurrScale = StimRect(4) - mod(CurrTime, CycleDuration)/CycleDuration * StimRect(4);
+                CurrScaleVA = MaxEcc - mod(CurrTime, CycleDuration)/CycleDuration * MaxEcc;
+                if CurrScaleVA > MaxEcc - 0.5
+                    CurrScaleVA = MaxEcc - 0.5;
+                end
+            end
             
-            %---tr: vary CurrScale so that expansion speed is log over eccentricity
-            % cf. Tootell 1997; Swisher 2007; Warnking 2002 etc;
-            CurrScaleVA = 0 + mod(CurrTime, CycleDuration)/CycleDuration * MaxEcc; % current visual angle linear in time
-            % ensure some foveal stimulation at beginning (which is hidden by fixation cross otherwise)
-            if CurrScaleVA < 0.5
-                CurrScaleVA = 0.5;
-            end
-        elseif strcmpi(Parameters.Direction, '-')
-            %CurrScale = StimRect(4) - mod(CurrTime, CycleDuration)/CycleDuration * StimRect(4);
-            CurrScaleVA = MaxEcc - mod(CurrTime, CycleDuration)/CycleDuration * MaxEcc;
-            if CurrScaleVA > MaxEcc - 0.5
-                CurrScaleVA = MaxEcc - 0.5;
-            end
-        end
-        
-        % near-exp visual angle
-        CurrScaleVA2 = ((CurrScaleVA+exp(1)) * log(CurrScaleVA+exp(1)) - (CurrScaleVA+exp(1))) * MaxEcc * CsFuncFact;
-        CurrScaleCm = tan(CurrScaleVA2*pi/180)* Parameters.viewDist; % in cm  on screen
-        CurrScale = CurrScaleCm / (Parameters.xWidthScreen/2) * (StimRect(4)/2) * 2;% in pixel
-        
-        %--tr width of apperture changes logarithmically with eccentricity of inner ring, cf.
-        %authors above
-        if strcmpi(Parameters.Apperture, 'Ring')
+            % near-exp visual angle
+            CurrScaleVA2 = ((CurrScaleVA+exp(1)) * log(CurrScaleVA+exp(1)) - (CurrScaleVA+exp(1))) * MaxEcc * CsFuncFact;
+            CurrScaleCm = tan(CurrScaleVA2*pi/180)* Parameters.viewDist; % in cm  on screen
+            CurrScale = CurrScaleCm / (Parameters.xWidthScreen/2) * (StimRect(4)/2) * 2;% in pixel
+            
+            %--tr width of apperture changes logarithmically with eccentricity of inner ring, cf.
+            %authors above
+            
             oldScaleInnerVA = CurrScaleVA - CurrRingWidthVA;
             if oldScaleInnerVA < 0
                 oldScaleInnerVA = 0;
@@ -193,35 +203,32 @@ try
             end
         end
         
-        % Current frame time & condition
-        if strcmpi(Parameters.Apperture, 'Ring')
-            FrameTimes = [FrameTimes; CurrTime CurrFrame CurrAngle CurrScale CurrScaleVA2 CurrScaleInner CurrScaleInnerVA];
-        elseif strcmpi(Parameters.Apperture, 'Wedge')
-            FrameTimes = [FrameTimes; CurrTime CurrFrame CurrAngle CurrScale];
-        end
-        
         
         %% Create apperture texture
         Screen('Fillrect', AppTexture, Parameters.Background);
-        if strcmpi(Parameters.Apperture, 'Ring')
+        
+        if IsRing
+            
             Screen('FillOval', AppTexture, [0 0 0 0], ...
                 CenterRectOnPoint([0 0 repmat(CurrScale,1,2)], Rect(3)/2, Rect(4)/2 ));
             
             Screen('FillOval', AppTexture, [Parameters.Background 255], ...
                 CenterRectOnPoint([0 0 repmat(CurrScaleInner,1,2)], Rect(3)/2, Rect(4)/2 ));
             
-            % Wrapping around?
-            %         %WrapAround = CurrScale+CurrRingWidth-StimRect(4);
-            %         WrapAround = CurrScale+ wrapAroundPix -StimRect(4);
-            %         if WrapAround < 0
-            %             WrapAround = 0;
-            %         end
-            %         %Screen('FillOval', AppTexture, [0 0 0 0], CenterRect([0 0 repmat(WrapAround,1,2)], Rect));
-            %         Screen('FillOval', AppTexture, [0 0 0 0], CenterRectOnPoint([0 0 repmat(WrapAround,1,2)],centerRing(1),centerRing(2)));
-        elseif strcmpi(Parameters.Apperture, 'Wedge')
+            FrameTimesUpdate = [CurrTime CurrFrame CurrAngle CurrScale CurrScaleVA2 CurrScaleInner CurrScaleInnerVA];
+            
+        else
+            
             Screen('FillArc', AppTexture, [0 0 0 0], ...
                 CenterRect([0 0 repmat(StimRect(4),1,2)], Rect), CurrAngle, Parameters.AppertureWidth);
+            
+            
+            FrameTimesUpdate = [CurrTime CurrFrame CurrAngle];
+            
         end
+        
+        % Current frame time & condition
+        FrameTimes = [FrameTimes; FrameTimesUpdate]; %#ok<AGROW>
         
         
         %% Draw stimulus
@@ -255,10 +262,10 @@ try
         
         CurrEvents = Events - CurrTime;
         
-        if strcmp(Parameters.Apperture,'Wedge') && sum(CurrEvents > 0 && CurrEvents < Parameters.EventDuration)
+        if all([~IsRing ; CurrEvents > 0 ; CurrEvents < Parameters.EventDuration])
             IsEvent = true;
             Events2 = [Events2, GetSecs-CyclingStart]; % for relating shown events and responses in ring runs
-        elseif strcmp(Parameters.Apperture,'Ring') && (CurrScaleInnerVA > 10) && sum(CurrEvents > 0 & CurrEvents < Parameters.EventDuration)
+        elseif  all([IsRing ; CurrScaleInnerVA > 10 ; CurrEvents > 0 ; CurrEvents < Parameters.EventDuration] )
             IsEvent = true;
             Events2 = [Events2, GetSecs-CyclingStart];
         else
@@ -271,7 +278,7 @@ try
                 RndAngle = RandOri;
                 % if ring is presented under wide V FOV condition, target
                 % appears only @ 0 or 180 degree (tr)
-                if strcmpi(Parameters.Apperture, 'Ring')
+                if IsRing
                     possAngle = [0,180];
                     RndAngle = possAngle(randi(2,[1 1]));
                 end
@@ -279,11 +286,11 @@ try
                 WasEvent = true;
             end
             
-            if strcmpi(Parameters.Apperture, 'Wedge')
-                [X, Y] = pol2cart((90 + CurrAngle + Parameters.AppertureWidth/2) / 180*pi, RndScale);
-            elseif strcmpi(Parameters.Apperture, 'Ring')
+            if IsRing
                 % target always on horizontal meridian
                 [X, Y] = pol2cart(RndAngle/180*pi,(CurrScale/2 + CurrScaleInner/2)/2);
+            else
+                [X, Y] = pol2cart((90 + CurrAngle + Parameters.AppertureWidth/2) / 180*pi, RndScale);
             end
             
             % tr
@@ -308,7 +315,7 @@ try
         rft = Screen('Flip', Win, rft+ifi);
         
         %% Behavioural response
-        [Behaviour, QUIT] = GetBehResp(KeyCodes, Win, Parameters, Rect, PrevKeypr, Behaviour, CyclingStart);
+        [Behaviour, PrevKeypr, QUIT] = GetBehResp(KeyCodes, Win, Parameters, Rect, PrevKeypr, Behaviour, CyclingStart);
         
         if QUIT
             return
