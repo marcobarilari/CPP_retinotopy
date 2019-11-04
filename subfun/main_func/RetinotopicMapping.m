@@ -84,11 +84,14 @@ try
     CurrScale = 0;  % Current inner radius of ring
     PrevKeypr = 0;
     
-    % currentScale is scale of outer ring (exceeding screen until innter ring reaches window boarder)
-    maxEcc = Parameters.FOV/2 + Parameters.AppertureWidth + log(Parameters.FOV/2+1) ;
-    % csFuncFact is used to expand with log increasing speed so that ring is at maxEcc at end of cycle
-    csFuncFact = 1/ ((maxEcc+exp(1))*log(maxEcc+exp(1)) - (maxEcc+exp(1))) ;
-    CurrRingWidthVA = Parameters.AppertureWidth;
+    if strcmpi(Parameters.Apperture, 'Ring')
+        % currentScale is scale of outer ring (exceeding screen until inner ring reaches window boarder)
+        MaxEcc = Parameters.FOV / 2 + Parameters.AppertureWidth + log(Parameters.FOV/2 + 1) ;
+        % csFuncFact is used to expand with log increasing speed so that ring is at maxEcc at end of cycle
+        CsFuncFact = 1 / ((MaxEcc + exp(1)) * log(MaxEcc + exp(1)) - (MaxEcc + exp(1))) ;
+        % Current ring width in visual angle
+        CurrRingWidthVA = Parameters.AppertureWidth; 
+    end
     
     
     %% Initialize apperture texture
