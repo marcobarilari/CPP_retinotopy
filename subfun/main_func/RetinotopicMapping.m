@@ -77,6 +77,7 @@ try
     
     EyeTrackStart(ivx, Parameters)   
     
+    
     %% Begin main experiment
     FrameTimes = [];  % Time stamp of each frame
     CurrFrame = 1;  % Current stimulus frame
@@ -84,9 +85,13 @@ try
     CurrAngle = 0;  % Current angle of wedge
     CurrScale = 0;  % Current inner radius of ring
     PrevKeypr = 0;
-    maxEcc = Parameters.FOV/2 + Parameters.AppertureWidth + log(Parameters.FOV/2+1) ; % currentScale is scale of outer ring (exceeding screen until innter ring reaches window boarder)
-    csFuncFact = 1/((maxEcc+exp(1))*log(maxEcc+exp(1))- (maxEcc+exp(1))) ; % csFuncFact is used to expand with log increasing speed so that ring is at maxEcc at end of cycle
-    CurrRingWidthVA = Parameters.AppertureWidth;%maxEcc -  Parameters.FOV/2;
+    
+    % currentScale is scale of outer ring (exceeding screen until innter ring reaches window boarder)
+    maxEcc = Parameters.FOV/2 + Parameters.AppertureWidth + log(Parameters.FOV/2+1) ; 
+    % csFuncFact is used to expand with log increasing speed so that ring is at maxEcc at end of cycle
+    csFuncFact = 1/ ((maxEcc+exp(1))*log(maxEcc+exp(1)) - (maxEcc+exp(1))) ; 
+    CurrRingWidthVA = Parameters.AppertureWidth;
+    
     
     %% Initialize apperture texture
     AppTexture = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
@@ -97,7 +102,7 @@ try
     CycleDuration = Parameters.TR * Parameters.VolsPerCycle;
     CyclingEnd = CycleDuration * Parameters.CyclesPerExpmt;
     CyclingStart = GetSecs;
-    CurrTime = GetSecs-CyclingStart;
+    CurrTime = GetSecs - CyclingStart;
     IsEvent = false;
     WasEvent = false;
     Events2 = [];
@@ -117,6 +122,8 @@ try
     
     % Loop until the end of last cycle
     while CurrTime < CyclingEnd
+        
+        
         %% Update frame number
         CurrRefresh = CurrRefresh + 1;
         if CurrRefresh == Parameters.RefreshPerStim
@@ -190,6 +197,7 @@ try
             FrameTimes = [FrameTimes; CurrTime CurrFrame CurrAngle CurrScale];
         end
         
+        
         %% Create apperture texture
         Screen('Fillrect', AppTexture, Parameters.Background);
         if strcmpi(Parameters.Apperture, 'Ring')
@@ -212,7 +220,9 @@ try
                 CenterRect([0 0 repmat(StimRect(4),1,2)], Rect), CurrAngle, Parameters.AppertureWidth);
         end
         
-        %% Stimulus presentation
+        
+        %% Draw stimulus
+        
         % Display background
         if Parameters.RotateStimulus
             BgdAngle = CurrAngle;
@@ -231,14 +241,16 @@ try
         DrawCross(Win, Parameters, FixCrossTexture, fh, fw, FixCrossRect)
         
         
-        % Is this an event?
+        %% Draw target
+        
         CurrEvents = Events - CurrTime;
+        
         if strcmp(Parameters.Apperture,'Wedge') && sum(CurrEvents > 0 & CurrEvents < Parameters.EventDuration)
             IsEvent = true;
-            Events2 = [Events2,GetSecs-CyclingStart]; % for relating shown events and responses in ring runs
+            Events2 = [Events2, GetSecs-CyclingStart]; % for relating shown events and responses in ring runs
         elseif strcmp(Parameters.Apperture,'Ring') && (CurrScaleInnerVA > 10) && sum(CurrEvents > 0 & CurrEvents < Parameters.EventDuration)
             IsEvent = true;
-            Events2 = [Events2,GetSecs-CyclingStart];
+            Events2 = [Events2, GetSecs-CyclingStart];
         else
             IsEvent = false;
         end
@@ -258,7 +270,7 @@ try
             end
             
             if strcmpi(Parameters.Apperture, 'Wedge')
-                [X, Y] = pol2cart((90+CurrAngle+Parameters.AppertureWidth/2)/180*pi, RndScale);
+                [X, Y] = pol2cart((90 + CurrAngle + Parameters.AppertureWidth/2) / 180*pi, RndScale);
             elseif strcmpi(Parameters.Apperture, 'Ring')
                 % target always on horizontal meridian
                 [X, Y] = pol2cart(RndAngle/180*pi,(CurrScale/2 + CurrScaleInner/2)/2);
@@ -281,10 +293,10 @@ try
             
         end
         
-        % Draw current video frame
+        %% Draw current video frame
         rft = Screen('Flip', Win, rft+ifi);
         
-        % Behavioural response
+        %% Behavioural response
         [Behaviour] = GetBehResp(KeyCodes, Win, Parameters, Rect, PrevKeypr, Behaviour, CyclingStart);
         
     end

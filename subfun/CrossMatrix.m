@@ -1,7 +1,7 @@
 function cm = CrossMatrix(len)
 %cm = cross_matrix(len)
 %
-% Generates a binary matrix of a cross with side length len.
+% Generates a binary matrix of a cross with side length len (in pixels).
 %
 
 cm = zeros(len,len);
