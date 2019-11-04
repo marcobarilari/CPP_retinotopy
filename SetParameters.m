@@ -24,7 +24,7 @@ Parameters.Screen = max(Screen('Screens')); % Main screen
 Parameters.Resolution = [0 0 800 600]; % Resolution
 Parameters.Foreground = [0 0 0]; % Foreground colour
 Parameters.Background = [127 127 127]; % Background colour
-Parameters.FontSize = 20; % Size of font
+Parameters.FontSize = 40; % Size of font
 Parameters.FontName = 'Comic Sans MS'; % Font to use
 
 
@@ -33,6 +33,7 @@ Parameters.TR = 3; % Seconds per volume
 Parameters.NumberOfSlices = 36; % Number of slices
 Parameters.Dummies = 0; % Dummy volumes
 Parameters.Overrun = 10; % Dummy volumes at end
+
 
 %% Experiment parameters
 Parameters.viewDist = 30; % viewing distance from eyes to screen
@@ -43,7 +44,7 @@ Parameters.ProbOfEvent = 0.05; % Probability of a target event
 Parameters.EventDuration = 0.2; % Duration of a target event
 Parameters.EventSize = 1; % diameter of target circle in degrees VA
 Parameters.EventColor = [255 0 0]; % rgb
-Parameters.FixCrossSize = 1; % in degrees VA
+Parameters.FixationSize = .5; % in degrees VA
 
 
 %% Experiment parameters for drifting bar

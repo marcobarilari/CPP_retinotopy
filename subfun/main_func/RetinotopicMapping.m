@@ -48,27 +48,17 @@ try
     PPD = GetPPD(Rect, Parameters.xWidthScreen , Parameters.viewDist);
     
     EventSizePix = Parameters.EventSize * PPD;
-    FixCrossSizePix = Parameters.FixCrossSize * PPD;
+    FixationSizePix = Parameters.FixationSize * PPD;
     
     %% Load background movie
     StimRect = [0 0 size(Parameters.Stimulus,2) size(Parameters.Stimulus,1)];
     BgdTextures = LoadBckGrnd(Parameters, Win);
     
-    
-    %% Create fixation cross
-    FixCross = CrossMatrix(FixCrossSizePix) * 255;
-    [fh, fw] = size(FixCross);
-    FixCross(:,:,2) = FixCross;   % alpha layer
-    FixCross(:,:,1) = InvertContrast(FixCross(:,:,1));
-    FixCrossTexture = Screen('MakeTexture', Win, FixCross);
-    FixCrossRect = CenterRectOnPoint([0 0 fh fw], Rect(3)/2, Rect(4)/2);
-
-    
     %% Stand by screen
     Screen('FillRect', Win, Parameters.Background, Rect);
     DrawFormattedText(Win, [Parameters.Instruction '\n \n' TrigStr], ...
         'center', 'center', Parameters.Foreground);
-
+    
     Screen('Flip', Win);
     
     HideCursor;
@@ -82,7 +72,7 @@ try
         [MyPort] = WaitForScanTrigger(Parameters);
     end
     
-    EyeTrackStart(ivx, Parameters)   
+    EyeTrackStart(ivx, Parameters)
     
     
     %% Begin main experiment
@@ -94,9 +84,9 @@ try
     PrevKeypr = 0;
     
     % currentScale is scale of outer ring (exceeding screen until innter ring reaches window boarder)
-    maxEcc = Parameters.FOV/2 + Parameters.AppertureWidth + log(Parameters.FOV/2+1) ; 
+    maxEcc = Parameters.FOV/2 + Parameters.AppertureWidth + log(Parameters.FOV/2+1) ;
     % csFuncFact is used to expand with log increasing speed so that ring is at maxEcc at end of cycle
-    csFuncFact = 1/ ((maxEcc+exp(1))*log(maxEcc+exp(1)) - (maxEcc+exp(1))) ; 
+    csFuncFact = 1/ ((maxEcc+exp(1))*log(maxEcc+exp(1)) - (maxEcc+exp(1))) ;
     CurrRingWidthVA = Parameters.AppertureWidth;
     
     
@@ -116,16 +106,20 @@ try
     
     save([Parameters.OutputFilename '.mat']);
     
-    
-    %% Draw the fixation cross
     Screen('FillRect', Win, Parameters.Background, Rect);
     
-    Screen('DrawTexture', Win, FixCrossTexture, [0 0 fh fw], FixCrossRect);
+    % Draw fixation
+    Screen('FillOval', Win, ...
+        [255 255 255],...
+        [Rect(3)/2-FixationSizePix/2 ...
+        Rect(4)/2-FixationSizePix/2 ...
+        Rect(3)/2+FixationSizePix/2 ...
+        Rect(4)/2+FixationSizePix/2]);
     
     rft = Screen('Flip', Win);
     
     StartExpmt = rft;   % Time when cycling starts
-
+    
     
     % Loop until the end of last cycle
     while CurrTime < CyclingEnd
@@ -245,7 +239,14 @@ try
         
         % Draw aperture
         Screen('DrawTexture', Win, AppTexture);
-        DrawCross(Win, Parameters, FixCrossTexture, fh, fw, FixCrossRect)
+        
+        % Draw fixation
+        Screen('FillOval', Win, ...
+            Parameters.Foreground,...
+            [Rect(3)/2-FixationSizePix/2 ...
+            Rect(4)/2-FixationSizePix/2 ...
+            Rect(3)/2+FixationSizePix/2 ...
+            Rect(4)/2+FixationSizePix/2]);
         
         
         %% Draw target
@@ -286,7 +287,7 @@ try
             % tr
             X = Rect(3)/2-X;
             Y = Rect(4)/2-Y;
-
+            
             % Draw event
             Screen('FillOval', Win, ...
                 Parameters.EventColor,...
@@ -310,7 +311,12 @@ try
     
     
     %% Draw the fixation cross
-    DrawCross(Win, Parameters, FixCrossTexture, fh, fw, FixCrossRect)
+    Screen('FillOval', Win, ...
+            Parameters.Foreground,...
+            [Rect(3)/2-FixationSizePix/2 ...
+            Rect(4)/2-FixationSizePix/2 ...
+            Rect(3)/2+FixationSizePix/2 ...
+            Rect(4)/2+FixationSizePix/2]);
     EndExpmt = Screen('Flip', Win);
     
     
@@ -322,7 +328,7 @@ try
     %% Save workspace
     % clear stim from structure and a few variables to save memory
     Parameters = rmfield(Parameters, 'Stimulus');
-    Parameters.Stimulus = []; 
+    Parameters.Stimulus = [];
     clear('Apperture', 'R', 'T', 'X', 'Y');
     if IsOctave
         save([Parameters.OutputFilename '.mat'], '-mat7-binary');
@@ -332,7 +338,7 @@ try
     
     %% Experiment duration
     DispExpDur(EndExpmt, StartExpmt)
-
+    
     WaitSecs(1);
     
     if Emulate ~= 1
