@@ -45,18 +45,25 @@ try
     
     [Win, Rect, ~, ifi] = InitPTB(Parameters);
     
+    PPD = GetPPD(Rect, Parameters.xWidthScreen , Parameters.viewDist);
+    
+    EventSizePix = Parameters.EventSize * PPD;
+    FixCrossSizePix = Parameters.FixCrossSize * PPD;
+    
     %% Load background movie
     StimRect = [0 0 size(Parameters.Stimulus,2) size(Parameters.Stimulus,1)];
     BgdTextures = LoadBckGrnd(Parameters, Win);
     
+    
     %% Create fixation cross
-    FixCross = CrossMatrix(16) * 255;
+    FixCross = CrossMatrix(FixCrossSizePix) * 255;
     [fh, fw] = size(FixCross);
     FixCross(:,:,2) = FixCross;   % alpha layer
     FixCross(:,:,1) = InvertContrast(FixCross(:,:,1));
     FixCrossTexture = Screen('MakeTexture', Win, FixCross);
     FixCrossRect = CenterRectOnPoint([0 0 fh fw], Rect(3)/2, Rect(4)/2);
 
+    
     %% Stand by screen
     Screen('FillRect', Win, Parameters.Background, Rect);
     DrawFormattedText(Win, [Parameters.Instruction '\n \n' TrigStr], ...
@@ -283,10 +290,10 @@ try
             % Draw event
             Screen('FillOval', Win, ...
                 Parameters.EventColor,...
-                [X-Parameters.EventSize/2 ...
-                Y-Parameters.EventSize/2 ...
-                X+Parameters.EventSize/2 ...
-                Y+Parameters.EventSize/2]);
+                [X-EventSizePix/2 ...
+                Y-EventSizePix/2 ...
+                X+EventSizePix/2 ...
+                Y+EventSizePix/2]);
             
         elseif IsEvent == false
             WasEvent = false;
