@@ -16,8 +16,8 @@ Parameters.TargetDir = fullfile(fileparts(mfilename), 'output');
 
 
 %% Splash screens
-Parameters.Welcome = 'Please fixate the red dot at all times!';   % Welcome message
-Parameters.Instruction = 'Press the button everytime it turns blue!';  % Instruction message
+Parameters.Welcome = 'Please fixate the black dot at all times!';   % Welcome message
+Parameters.Instruction = 'Press the button everytime it turns red!';  % Instruction message
 
 %% Engine parameters
 Parameters.Screen = max(Screen('Screens')); % Main screen
@@ -38,13 +38,14 @@ Parameters.Overrun = 10; % Dummy volumes at end
 %% Experiment parameters
 Parameters.viewDist = 30; % viewing distance from eyes to screen
 Parameters.xWidthScreen = 21.5; % horizontal width of screen
-Parameters.CyclesPerExpmt = 1; % Stimulus cycles per run
+Parameters.CyclesPerExpmt = 2; % Stimulus cycles per run
 Parameters.VolsPerCycle = ceil(10/Parameters.TR); % Volumes per cycle , standard is to have VolsPerCycle * TR ~ 1 min
-Parameters.ProbOfEvent = 0.05; % Probability of a target event
-Parameters.EventDuration = 0.2; % Duration of a target event
+Parameters.ProbOfEvent = 0.6; % Probability of a target event
+Parameters.EventDuration = 0.15; % Duration of a target event
 Parameters.EventSize = 1; % diameter of target circle in degrees VA
-Parameters.EventColor = [255 0 0]; % rgb
-Parameters.FixationSize = .5; % in degrees VA
+Parameters.EventColor = [255 127 127]; % rgb
+Parameters.EventCentral = false;
+Parameters.FixationSize = .25; % in degrees VA
 
 
 %% Experiment parameters for drifting bar

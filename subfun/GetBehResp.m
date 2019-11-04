@@ -20,11 +20,13 @@ if Keypr
     
     if ~PrevKeypr
         PrevKeypr = 1;
-        keyNum = find(Key);
-        % prevent that trigger+response or double response spoil Behaviour.Response dimensions!!
-        keyNum = keyNum(1);
-        Behaviour.Response = [Behaviour.Response; keyNum];
-        Behaviour.ResponseTime = [Behaviour.ResponseTime; KeyTime - CyclingStart];
+        if Key(KeyCodes.Resp)
+            keyNum = find(Key);
+            % prevent that trigger+response or double response spoil Behaviour.Response dimensions!!
+            keyNum = keyNum(1);
+            Behaviour.Response = [Behaviour.Response; keyNum];
+            Behaviour.ResponseTime = [Behaviour.ResponseTime; KeyTime - CyclingStart];
+        end
     end
     
 else

@@ -11,7 +11,7 @@ function Eccen(Subj, Direc, Stim, Emul)
 if nargin == 0
     Subj = 66;
     Run = 1;
-    Direc = '-';
+    Direc = '+';
     Stim = 'Checkerboard.mat';
     Emul = 1;
     Debug = 1;
@@ -31,7 +31,7 @@ Parameters = SetParameters(Subj, Run, Task, Stim);
 
 %% Experiment parameters
 Parameters.Apperture='Ring';    % Stimulus type
-Parameters.AppertureWidth = 0.5;  % Width of ring in degree of visual field at time = 0
+Parameters.AppertureWidth = 1;  % Width of ring in degree of visual field at time = 0
 Parameters.Direction = Direc; % Direction of cycling
 
 Parameters.RotateStimulus = false;   % Image rotates
