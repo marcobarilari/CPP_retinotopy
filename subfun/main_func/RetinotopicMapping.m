@@ -64,6 +64,7 @@ try
     HideCursor;
     Priority(MaxPriority(Win));
     
+    
     %% Wait for start of experiment
     if Emulate == 1
         KbPressWait
@@ -131,7 +132,7 @@ try
             
             CurrRefresh = 0;
             CurrFrame = CurrFrame + 1;
-
+            
             if CurrFrame > size(Parameters.Stimulus, ndims(Parameters.Stimulus))
                 CurrFrame = 1;
             end
@@ -229,11 +230,11 @@ try
             BgdAngle = 0;
         end
         
-        % Rotate background movie?
+        % Rotate background movie
         SineRotate = cos(CurrTime) * Parameters.SineRotation;
         
         Screen('DrawTexture', Win, BgdTextures(CurrFrame), StimRect, ...
-            CenterRect(StimRect, Rect), BgdAngle+SineRotate);
+            CenterRect(StimRect, Rect), BgdAngle + SineRotate);
         
         % Draw aperture
         Screen('DrawTexture', Win, AppTexture);
@@ -251,7 +252,7 @@ try
         
         CurrEvents = Events - CurrTime;
         
-        if strcmp(Parameters.Apperture,'Wedge') && sum(CurrEvents > 0 & CurrEvents < Parameters.EventDuration)
+        if strcmp(Parameters.Apperture,'Wedge') && sum(CurrEvents > 0 && CurrEvents < Parameters.EventDuration)
             IsEvent = true;
             Events2 = [Events2, GetSecs-CyclingStart]; % for relating shown events and responses in ring runs
         elseif strcmp(Parameters.Apperture,'Ring') && (CurrScaleInnerVA > 10) && sum(CurrEvents > 0 & CurrEvents < Parameters.EventDuration)
@@ -295,6 +296,7 @@ try
                 Y+EventSizePix/2]);
             
         elseif IsEvent == false
+            
             WasEvent = false;
             
         end
@@ -303,18 +305,22 @@ try
         rft = Screen('Flip', Win, rft+ifi);
         
         %% Behavioural response
-        [Behaviour] = GetBehResp(KeyCodes, Win, Parameters, Rect, PrevKeypr, Behaviour, CyclingStart);
+        [Behaviour, QUIT] = GetBehResp(KeyCodes, Win, Parameters, Rect, PrevKeypr, Behaviour, CyclingStart);
+        
+        if QUIT
+            return
+        end
         
     end
     
     
     %% Draw the fixation cross
     Screen('FillOval', Win, ...
-            Parameters.Foreground,...
-            [Rect(3)/2-FixationSizePix/2 ...
-            Rect(4)/2-FixationSizePix/2 ...
-            Rect(3)/2+FixationSizePix/2 ...
-            Rect(4)/2+FixationSizePix/2]);
+        Parameters.Foreground,...
+        [Rect(3)/2-FixationSizePix/2 ...
+        Rect(4)/2-FixationSizePix/2 ...
+        Rect(3)/2+FixationSizePix/2 ...
+        Rect(4)/2+FixationSizePix/2]);
     EndExpmt = Screen('Flip', Win);
     
     

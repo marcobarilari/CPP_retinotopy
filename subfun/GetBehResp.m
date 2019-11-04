@@ -1,5 +1,7 @@
-function [Behaviour] = GetBehResp(KeyCodes, Win, Parameters, Rect, PrevKeypr, Behaviour, CyclingStart)
+function [Behaviour, QUIT] = GetBehResp(KeyCodes, Win, Parameters, Rect, PrevKeypr, Behaviour, CyclingStart)
 [Keypr, KeyTime, Key] = KbCheck;
+
+QUIT = false;
 
 if Keypr
     
