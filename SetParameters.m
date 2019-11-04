@@ -85,4 +85,7 @@ Parameters.FOV = GetFOV(Parameters);
 % Load stimulus movie
 Parameters = LoadStim(Parameters);
 
+% for octave
+more off
+
 end
