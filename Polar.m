@@ -22,25 +22,11 @@ if isempty(Subj)
     Run = input('Retinotopic run number? ');    
 end
 
-Subj = ['sub-', sprintf('%2.2d', Subj)]; 
-
-
-% Create the mandatory folders if not already present
-OutputDir = fullfile(pwd, 'output', ['sub-', sprintf('%2.2d', Subj)], 'func');
-if ~exist(OutputDir, 'dir')
-    mkdir(OutputDir);
-end
-
-
-DateFormat = 'yyyy_mm_dd_HH_MM';
-
-NameFile = [Subj, '_task-retinotopypolar_run_', num2str(Run), datestr(now, DateFormat)];
-
 addpath(genpath(fullfile(pwd, 'subfun')));
 
-[Parameters] = SetParameters(Subj);
-[Parameters.Session, Parameters.SessionName] = CurrentSession([Parameters.Subj '_pol-' Direc], OutputDir);   % Determine next session
-Parameters.OutputDir = OutputDir;
+Task = 'retinotopypolar';
+
+Parameters = SetParameters(Subj, Run, Task, Stim);
 
 
 %% Experiment parameters
@@ -49,10 +35,7 @@ Parameters.AppertureWidth = 70; % Width of wedge in degrees
 Parameters.Direction = Direc; % Direction of cycling
 
 Parameters.RotateStimulus = true; % Does image rotate?
-Parameters.SineRotation = 5; % No rotation back & forth 
-
-% Load stimulus movie
-Parameters = LoadStim(fullfile(pwd, 'input', Stim), Parameters);
+Parameters.SineRotation = 5; % Angle rotation back & forth 
 
 
 %% Run the experiment

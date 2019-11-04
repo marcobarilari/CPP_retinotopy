@@ -22,24 +22,11 @@ if isempty(Subj)
     Run = input('Retinotopic run number? ');    
 end
 
-Subj = ['sub-', sprintf('%2.2d', Subj)]; 
-
-% Create the mandatory folders if not already present
-OutputDir = fullfile(pwd, 'output', Subj, 'func');
-if ~exist(OutputDir, 'dir')
-    mkdir(OutputDir);
-end
-
-
-DateFormat = 'yyyy_mm_dd_HH_MM';
-
-NameFile = [Subj, '_task-retinotopyeccen_run_', num2str(Run), datestr(now, DateFormat)];
-
 addpath(genpath(fullfile(pwd, 'subfun')));
 
-[Parameters] = SetParameters(Subj);
-[Parameters.Session, Parameters.SessionName] = CurrentSession([Parameters.Subj '_ecc-' Direc], OutputDir);   % Determine next session
-Parameters.OutputDir = OutputDir;
+Task = 'retinotopyeccen';
+
+Parameters = SetParameters(Subj, Run, Task, Stim);
 
 
 %% Experiment parameters
@@ -49,9 +36,6 @@ Parameters.Direction = Direc; % Direction of cycling
 
 Parameters.RotateStimulus = false;   % Image rotates
 Parameters.SineRotation = 2;  % Rotating movie back & forth by this angle
-
-% Load stimulus movie
-Parameters = LoadStim(fullfile(pwd, 'input', Stim), Parameters);
 
 
 %% Run the experiment

@@ -43,7 +43,7 @@ try
     
     KeyCodes = SetupKeyCodes;
     
-    [Win, Rect, oldRes, ifi] = InitPTB(Parameters);
+    [Win, Rect, ~, ifi] = InitPTB(Parameters);
     
     %% Load background movie
     StimRect = [0 0 size(Parameters.Stimulus,2) size(Parameters.Stimulus,1)];
@@ -102,7 +102,7 @@ try
     WasEvent = false;
     Events2 = [];
     
-    save([Parameters.SessionName]);
+    save([Parameters.OutputFilename '.mat']);
     
     
     %% Draw the fixation cross
@@ -247,7 +247,7 @@ try
             
             if WasEvent == false
                 RndAngle = RandOri;
-                % because ring is presented under wide V FOV condition, target
+                % if ring is presented under wide V FOV condition, target
                 % appears only @ 0 or 180 degree (tr)
                 if strcmpi(Parameters.Apperture, 'Ring')
                     possAngle = [0,180];
@@ -301,10 +301,15 @@ try
     CleanUp
     
     %% Save workspace
+    % clear stim from structure and a few variables to save memory
     Parameters = rmfield(Parameters, 'Stimulus');
+    Parameters.Stimulus = []; 
     clear('Apperture', 'R', 'T', 'X', 'Y');
-    Parameters.Stimulus = [];
-    save(fullfile(Parameters.OutputDir, [Parameters.SessionName '.mat']));
+    if IsOctave
+        save([Parameters.OutputFilename '.mat'], '-mat7-binary');
+    else
+        save([Parameters.OutputFilename '.mat'], '-v7.3');
+    end
     
     %% Experiment duration
     DispExpDur(EndExpmt, StartExpmt)
@@ -312,7 +317,7 @@ try
     WaitSecs(1);
     
     if Emulate ~= 1
-        IOPort('ConfigureSerialPort', MyPort, ['StopBackgroundRead']);
+        IOPort('ConfigureSerialPort', MyPort, 'StopBackgroundRead');
         IOPort('Close', MyPort);
     end
     

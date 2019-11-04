@@ -1,6 +1,7 @@
-function Parameters = LoadStim(Stim, Parameters)
-load(Stim);
-if strcmpi(Stim, 'Checkerboard')
+function Parameters = LoadStim(Parameters)
+load(Parameters.StimFile);
+[~, file] = fileparts(Parameters.StimFile);
+if strcmpi(file, 'Checkerboard')
     Parameters.Stimulus(:,:,1) = Stimulus;
     Parameters.Stimulus(:,:,2) = uint8(InvertContrastCogent(CogentImage(Stimulus))*255);
 else
