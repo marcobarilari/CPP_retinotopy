@@ -159,21 +159,21 @@ try
             
             %---tr: vary CurrScale so that expansion speed is log over eccentricity
             % cf. Tootell 1997; Swisher 2007; Warnking 2002 etc;
-            CurrScaleVA = 0 + mod(CurrTime, CycleDuration)/CycleDuration * maxEcc; % current visual angle linear in time
+            CurrScaleVA = 0 + mod(CurrTime, CycleDuration)/CycleDuration * MaxEcc; % current visual angle linear in time
             % ensure some foveal stimulation at beginning (which is hidden by fixation cross otherwise)
             if CurrScaleVA < 0.5
                 CurrScaleVA = 0.5;
             end
         elseif strcmpi(Parameters.Direction, '-')
             %CurrScale = StimRect(4) - mod(CurrTime, CycleDuration)/CycleDuration * StimRect(4);
-            CurrScaleVA = maxEcc - mod(CurrTime, CycleDuration)/CycleDuration * maxEcc;
-            if CurrScaleVA > maxEcc - 0.5
-                CurrScaleVA = maxEcc - 0.5;
+            CurrScaleVA = MaxEcc - mod(CurrTime, CycleDuration)/CycleDuration * MaxEcc;
+            if CurrScaleVA > MaxEcc - 0.5
+                CurrScaleVA = MaxEcc - 0.5;
             end
         end
         
         % near-exp visual angle
-        CurrScaleVA2 = ((CurrScaleVA+exp(1)) * log(CurrScaleVA+exp(1)) - (CurrScaleVA+exp(1))) * maxEcc * csFuncFact;
+        CurrScaleVA2 = ((CurrScaleVA+exp(1)) * log(CurrScaleVA+exp(1)) - (CurrScaleVA+exp(1))) * MaxEcc * CsFuncFact;
         CurrScaleCm = tan(CurrScaleVA2*pi/180)* Parameters.viewDist; % in cm  on screen
         CurrScale = CurrScaleCm / (Parameters.xWidthScreen/2) * (StimRect(4)/2) * 2;% in pixel
         
