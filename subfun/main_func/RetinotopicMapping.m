@@ -128,18 +128,16 @@ try
         %% Update frame number
         CurrRefresh = CurrRefresh + 1;
         if CurrRefresh == Parameters.RefreshPerStim
+            
             CurrRefresh = 0;
             CurrFrame = CurrFrame + 1;
-            if length(size(Parameters.Stimulus)) < 4
-                if CurrFrame > size(Parameters.Stimulus,3)
-                    CurrFrame = 1;
-                end
-            else
-                if CurrFrame > size(Parameters.Stimulus,4)
-                    CurrFrame = 1;
-                end
+
+            if CurrFrame > size(Parameters.Stimulus, ndims(Parameters.Stimulus))
+                CurrFrame = 1;
             end
+            
         end
+        
         % Current time stamp
         CurrTime = GetSecs-CyclingStart;
         
