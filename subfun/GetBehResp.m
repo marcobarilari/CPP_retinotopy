@@ -14,6 +14,7 @@ if Keypr
         disp(' ');
         disp('Experiment aborted by user!');
         disp(' ');
+        QUIT = true;
         return
     end
     
