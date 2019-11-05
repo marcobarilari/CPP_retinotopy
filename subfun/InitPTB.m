@@ -4,7 +4,8 @@ screenid = Parameters.Screen;
 
 noScreens = length(Screen('Screens'));
 if ismac && noScreens > 1 % only if projector is also a screen
-    oldRes = Screen('Resolution', screenid, 800,600,60);
+    oldRes = Screen('Resolution', screenid, ...
+    Parameters.Resolution(1), Parameters.Resolution(2), Parameters.Resolution(3));
 end
 
 [Win, Rect] = Screen('OpenWindow', Parameters.Screen, Parameters.Background);

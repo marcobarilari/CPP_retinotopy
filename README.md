@@ -1,6 +1,6 @@
 # RETINOTOPIC MAPPING STIMULUS
 
-Original verion by [Sam Schwarzkopf](https://sampendu.net/sam-schwarzkopf/) (27th July 2010)
+Original version by [Sam Schwarzkopf](https://sampendu.net/sam-schwarzkopf/) (27th July 2010)
 
 Some modifications (esp for eye tracking) have been done by [Tim Rohe](https://scholar.google.de/citations?user=mFO_FSAAAAAJ&hl=de).
 
@@ -14,8 +14,11 @@ Code cleaning and refactoring was done by Rémi Gau.
 | or [Octave](https://www.gnu.org/software/octave/)        | 4.?          |
 | [Psychtoolbox](http://psychtoolbox.org/)                 | v3.?         |
 
+## Do it yourself
 
-I use Cogent 2000 to trigger the program via the scanner pulse. This functionality is marked by comments and you can change these parts of the code to suit your needs.
+Some things will need to be changed to match your needs. Most of it should be in the `SetParameters.m` function.
+
+Some other issues
 
 ## Running the experiment
 

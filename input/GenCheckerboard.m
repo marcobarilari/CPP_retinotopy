@@ -2,12 +2,14 @@ clear
 close all 
 clc
 
-width = 2560;    % Define here the height of the screen 
+height = 1440;    % Define here the height of the screen 
 
-addpath(genpath(fullfile(pwd, 'subfun')));
+addpath(genpath(fullfile(fileparts(mfilename), '..', 'subfun')));
 
-Stimulus = RadialCheckerBoard([width/2 0], [-180 180], [7 5]);
+Stimulus = RadialCheckerBoard([height/2 0], [-180 180], [7 5]);
 
 StimFrames = 8;
 
-save(fullfile(pwd, 'input', 'Checkerboard.mat'), 'Stimulus', 'StimFrames');
+save(fullfile(fileparts(mfilename), '..', 'input', 'Checkerboard.mat'), 'Stimulus', 'StimFrames');
+
+fprintf('Done\n')

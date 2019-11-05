@@ -1,14 +1,18 @@
-function RetinotopicMapping(Parameters, Emulate, Debug)
-%Retinotopic_Mapping(Parameters, Emulate)
+function RetinotopicMapping(PARAMETERS, Emulate, Debug)
+%Retinotopic_Mapping(PARAMETERS, Emulate)
 %
 % Cyclic presentation with a rotating and/or expanding aperture.
 % Behind the aperture a background is displayed as a movie.
 %
-% Parameters:
-%   Parameters :    Struct containing various parameters
+% PARAMETERS:
+%   PARAMETERS :    Struct containing various parameters
 %   Emulate :       0 for scanning
 %                   1 for manual trigger
+%   Debug : will play the experiment with PTB transparency
 
+% BEHAVIOUR: structure to collect behavioural responses and target presentation time
+% CURRENT: structure to keep track of which frame, refreshcycle, time, angle...
+% RING: structure to keep of several information about the annulus size
 
 %% Initialize
 
@@ -16,15 +20,15 @@ function RetinotopicMapping(Parameters, Emulate, Debug)
 SetUpRand;
 
 % Eytetracker
-ivx = EyeTrackInit(Parameters);
+ivx = EyeTrackInit(PARAMETERS);
 
 % Behavioural data variables
-Behaviour = struct;
-Behaviour.EventTime = [];
-Behaviour.Response = [];
-Behaviour.ResponseTime = [];
+BEHAVIOUR = struct;
+BEHAVIOUR.EventTime = [];
+BEHAVIOUR.Response = [];
+BEHAVIOUR.ResponseTime = [];
 
-switch Parameters.Apperture
+switch PARAMETERS.Apperture
     case 'Ring'
         IsRing = true;
     otherwise
@@ -33,12 +37,14 @@ end
 
 
 %% Configure scanner
-[TrigStr, Parameters] = ConfigScanner(Emulate, Parameters);
+[TrigStr, PARAMETERS] = ConfigScanner(Emulate, PARAMETERS);
 
 
 %% Event timings
-Events = CreateEventsTiming(Parameters);
-Behaviour.EventTime = Events;
+% Events is a vector that says when (in seconds from the start of the
+% experiment) a target should be presented.
+Events = CreateEventsTiming(PARAMETERS);
+BEHAVIOUR.EventTime = Events;
 
 try
     
@@ -47,57 +53,62 @@ try
         PsychDebugWindowConfiguration
     end
     
+    % Define escapte key and response button
     KeyCodes = SetupKeyCodes;
     
-    [Win, Rect, ~, ifi] = InitPTB(Parameters);
+    [Win, Rect, ~, ifi] = InitPTB(PARAMETERS);
     
-    % compute pixels per degree
-    PPD = GetPPD(Rect, Parameters.xWidthScreen , Parameters.viewDist);
-    Target.EventSizePix = Parameters.EventSize * PPD;
-    FixationSizePix = Parameters.FixationSize * PPD;
+    % compute pixels per degree and apply conversion
+    PPD = GetPPD(Rect, PARAMETERS.xWidthScreen , PARAMETERS.viewDist);
+    TARGET.EventSizePix = PARAMETERS.EventSize * PPD;
+    FixationSizePix = PARAMETERS.FixationSize * PPD;
+    
     
     %% Load background movie
-    StimRect = [0 0 size(Parameters.Stimulus,2) size(Parameters.Stimulus,1)];
-    BgdTextures = LoadBckGrnd(Parameters, Win);
+    StimRect = [0 0 size(PARAMETERS.Stimulus,2) size(PARAMETERS.Stimulus,1)];
+    BgdTextures = LoadBckGrnd(PARAMETERS, Win);
+    
     
     %% Stand by screen
-    Screen('FillRect', Win, Parameters.Background, Rect);
-    DrawFormattedText(Win, [Parameters.Instruction '\n \n' TrigStr], ...
-        'center', 'center', Parameters.Foreground);
+    Screen('FillRect', Win, PARAMETERS.Background, Rect);
+    DrawFormattedText(Win, [PARAMETERS.Instruction '\n \n' TrigStr], ...
+        'center', 'center', PARAMETERS.Foreground);
     
     Screen('Flip', Win);
     
     HideCursor;
+    
+    % Tell PTB we want to hoag a max of ressources
     Priority(MaxPriority(Win));
     
     
     %% Wait for start of experiment
     if Emulate == 1
         KbPressWait
-        WaitSecs(Parameters.TR*Parameters.Dummies);
+        WaitSecs(PARAMETERS.TR*PARAMETERS.Dummies);
     else
-        [MyPort] = WaitForScanTrigger(Parameters);
+        [MyPort] = WaitForScanTrigger(PARAMETERS);
     end
     
-    EyeTrackStart(ivx, Parameters)
+    EyeTrackStart(ivx, PARAMETERS)
     
     
     %% Begin main experiment
     FrameTimes = [];  % Time stamp of each frame
-    Current.Frame = 1;  % Current stimulus Frame
-    Current.Refresh = 0;   % Current video Refresh
-    Current.Angle = 0;  % Current Angle of wedge
-    Ring.ScalePix = 0;  % Current inner radius of ring
+    CURRENT.Frame = 1;  % CURRENT stimulus Frame
+    CURRENT.Refresh = 0;   % CURRENT video Refresh
+    CURRENT.Angle = 0;  % CURRENT Angle of wedge
+    RING.ScalePix = 0;  % CURRENT inner radius of ring
     
     PrevKeypr = 0;
     
     if IsRing
         % currentScale is scale of outer ring (exceeding screen until inner ring reaches window boarder)
-        Ring.MaxEcc = Parameters.FOV / 2 + Parameters.AppertureWidth + log(Parameters.FOV/2 + 1) ;
-        % Ring.CsFuncFact is used to expand with log increasing speed so that ring is at Ring.MaxEcc at end of cycle
-        Ring.CsFuncFact = 1 / ( (Ring.MaxEcc + exp(1)) * log(Ring.MaxEcc + exp(1)) - (Ring.MaxEcc + exp(1)) ) ;
-        % Current ring width in visual Current.Angle
-        Ring.RingWidthVA = Parameters.AppertureWidth;
+        RING.MaxEcc = PARAMETERS.FOV / 2 + PARAMETERS.AppertureWidth + log(PARAMETERS.FOV/2 + 1) ;
+        % RING.CsFuncFact is used to expand with log increasing speed so that ring is at RING.MaxEcc at end of cycle
+        RING.CsFuncFact = 1 / ( (RING.MaxEcc + exp(1)) * log(RING.MaxEcc + exp(1)) - (RING.MaxEcc + exp(1)) ) ;
+        % CURRENT ring width in visual angle
+        RING.RingWidthVA = PARAMETERS.AppertureWidth;
     end
     
     
@@ -106,17 +117,18 @@ try
     
     
     %% Start cycling the stimulus
-    CycleDuration = Parameters.TR * Parameters.VolsPerCycle;
-    CyclingEnd = CycleDuration * Parameters.CyclesPerExpmt;
+    CycleDuration = PARAMETERS.TR * PARAMETERS.VolsPerCycle;
+    CyclingEnd = CycleDuration * PARAMETERS.CyclesPerExpmt;
     CyclingStart = GetSecs;
-    Current.Time = 0;
-    Ring.ScaleInnerVA = 0;
-    Target.WasEvent = false;
+    
+    CURRENT.Time = 0;
+    RING.ScaleInnerVA = 0;
+    TARGET.WasEvent = false;
     Events2 = [];
     
-    save([Parameters.OutputFilename '.mat']);
+    save([PARAMETERS.OutputFilename '.mat']);
     
-    Screen('FillRect', Win, Parameters.Background, Rect);
+    Screen('FillRect', Win, PARAMETERS.Background, Rect);
     
     % Draw fixation
     Screen('FillOval', Win, ...
@@ -128,84 +140,84 @@ try
     
     rft = Screen('Flip', Win);
     
-    StartExpmt = rft;   % Current.Time when cycling starts
+    StartExpmt = rft; 
     
     
     % Loop until the end of last cycle
-    while Current.Time < CyclingEnd
+    while CURRENT.Time < CyclingEnd
         
         
         %% Update Frame number
-        Current.Refresh = Current.Refresh + 1;
-        if Current.Refresh == Parameters.RefreshPerStim
+        CURRENT.Refresh = CURRENT.Refresh + 1;
+        if CURRENT.Refresh == PARAMETERS.RefreshPerStim
             
-            Current.Refresh = 0;
-            Current.Frame = Current.Frame + 1;
+            CURRENT.Refresh = 0;
+            CURRENT.Frame = CURRENT.Frame + 1;
             
-            if Current.Frame > size(Parameters.Stimulus, ndims(Parameters.Stimulus))
-                Current.Frame = 1;
+            if CURRENT.Frame > size(PARAMETERS.Stimulus, ndims(PARAMETERS.Stimulus))
+                CURRENT.Frame = 1;
             end
             
         end
         
-        % Current Time stamp
-        Current.Time = GetSecs-CyclingStart;
+        % CURRENT Time stamp
+        CURRENT.Time = GetSecs-CyclingStart;
         
         
         %% Determine size & angle
         
-        % Rotation of apperture
-        switch Parameters.Direction
+        % Update angle for rotation of background and for apperture for wedge
+        switch PARAMETERS.Direction
             case '+'
-                Current.Angle = 90 - Parameters.AppertureWidth/2 + (Current.Time/CycleDuration) * 360;
+                CURRENT.Angle = 90 - PARAMETERS.AppertureWidth/2 + (CURRENT.Time/CycleDuration) * 360;
             case '-'
-                Current.Angle = 90 - Parameters.AppertureWidth/2 - (Current.Time/CycleDuration) * 360;
+                CURRENT.Angle = 90 - PARAMETERS.AppertureWidth/2 - (CURRENT.Time/CycleDuration) * 360;
         end
         
         % expansion speed is log over eccentricity
-        [Ring] = EccenLogSpeed(Parameters, PPD, Ring, Current.Time);   
+        [RING] = EccenLogSpeed(PARAMETERS, PPD, RING, CURRENT.Time);   
         
         
         %% Create apperture texture
-        Screen('Fillrect', AppTexture, Parameters.Background);
+        Screen('Fillrect', AppTexture, PARAMETERS.Background);
         
-        FrameTimesUpdate = [Current.Time Current.Frame Current.Angle];
+        FrameTimesUpdate = [CURRENT.Time CURRENT.Frame CURRENT.Angle];
         
         if IsRing
             
             Screen('FillOval', AppTexture, [0 0 0 0], ...
-                CenterRectOnPoint([0 0 repmat(Ring.ScalePix,1,2)], Rect(3)/2, Rect(4)/2 ));
+                CenterRectOnPoint([0 0 repmat(RING.ScalePix,1,2)], Rect(3)/2, Rect(4)/2 ));
             
-            Screen('FillOval', AppTexture, [Parameters.Background 255], ...
-                CenterRectOnPoint([0 0 repmat(Ring.ScaleInnerPix,1,2)], Rect(3)/2, Rect(4)/2 ));
+            Screen('FillOval', AppTexture, [PARAMETERS.Background 255], ...
+                CenterRectOnPoint([0 0 repmat(RING.ScaleInnerPix,1,2)], Rect(3)/2, Rect(4)/2 ));
             
             FrameTimesUpdate = [FrameTimesUpdate, ...
-                Ring.ScalePix Ring.ScaleVA2 Ring.ScaleInnerPix Ring.ScaleInnerVA]; %#ok<AGROW>
+                RING.ScalePix RING.ScaleVA2 RING.ScaleInnerPix RING.ScaleInnerVA]; %#ok<AGROW>
             
         else
             
             Screen('FillArc', AppTexture, [0 0 0 0], ...
-                CenterRect([0 0 repmat(StimRect(4),1,2)], Rect), Current.Angle, Parameters.AppertureWidth);
+                CenterRect([0 0 repmat(StimRect(4),1,2)], Rect), CURRENT.Angle, PARAMETERS.AppertureWidth);
             
         end
         
-        % Current Frame, Time & condition
+        % CURRENT Frame, Time & condition (can be valuable for debugging)
         FrameTimes = [FrameTimes; FrameTimesUpdate]; %#ok<AGROW>
         
         
         %% Draw stimulus
         
         % Display background
-        if Parameters.RotateStimulus
-            BgdAngle = Current.Angle;
+        if PARAMETERS.RotateStimulus
+            BgdAngle = CURRENT.Angle;
         else
             BgdAngle = 0;
         end
         
         % Rotate background movie
-        SineRotate = cos(Current.Time) * Parameters.SineRotation;
+        SineRotate = cos(CURRENT.Time) * PARAMETERS.SineRotation;
         
-        Screen('DrawTexture', Win, BgdTextures(Current.Frame), StimRect, ...
+        Screen('DrawTexture', Win, BgdTextures(CURRENT.Frame), StimRect, ...
             CenterRect(StimRect, Rect), BgdAngle + SineRotate);
         
         % Draw aperture
@@ -213,7 +225,7 @@ try
         
         % Draw fixation
         Screen('FillOval', Win, ...
-            Parameters.Foreground,...
+            PARAMETERS.Foreground,...
             [Rect(3)/2-FixationSizePix/2 ...
             Rect(4)/2-FixationSizePix/2 ...
             Rect(3)/2+FixationSizePix/2 ...
@@ -221,18 +233,19 @@ try
         
         
         %% Draw target
-        [Target] = DrawTarget(Target, Events, IsRing, Current, Ring, Win, Rect, Parameters);
+        [TARGET] = DrawTarget(TARGET, Events, IsRing, CURRENT, RING, Win, Rect, PARAMETERS);
 
         
-        %% Draw current video Current.Frame
+        %% Draw current frame
         rft = Screen('Flip', Win, rft+ifi);
         
-        if Target.IsEvent
+        % collect target actual presentation time
+        if TARGET.IsEvent
              Events2 = [Events2, rft];
         end
         
         %% Behavioural response
-        [Behaviour, PrevKeypr, QUIT] = GetBehResp(KeyCodes, Win, Parameters, Rect, PrevKeypr, Behaviour, CyclingStart);
+        [BEHAVIOUR, PrevKeypr, QUIT] = GetBehResp(KeyCodes, Win, PARAMETERS, Rect, PrevKeypr, BEHAVIOUR, CyclingStart);
         
         if QUIT
             return
@@ -243,7 +256,7 @@ try
     
     %% Draw the fixation cross
     Screen('FillOval', Win, ...
-        Parameters.Foreground,...
+        PARAMETERS.Foreground,...
         [Rect(3)/2-FixationSizePix/2 ...
         Rect(4)/2-FixationSizePix/2 ...
         Rect(3)/2+FixationSizePix/2 ...
@@ -252,20 +265,20 @@ try
     
     
     %% Farewell screen
-    FarewellScreen(Win, Parameters, Rect)
+    FarewellScreen(Win, PARAMETERS, Rect)
     
     CleanUp
 
     
     %% Save workspace
     % clear stim from structure and a few variables to save memory
-    Parameters = rmfield(Parameters, 'Stimulus');
-    Parameters.Stimulus = [];
-    clear('Apperture', 'R', 'T', 'X', 'Y');
+    PARAMETERS = rmfield(PARAMETERS, 'Stimulus');
+    PARAMETERS.Stimulus = [];
+    clear('Apperture');
     if IsOctave
-        save([Parameters.OutputFilename '.mat'], '-mat7-binary');
+        save([PARAMETERS.OutputFilename '.mat'], '-mat7-binary');
     else
-        save([Parameters.OutputFilename '.mat'], '-v7.3');
+        save([PARAMETERS.OutputFilename '.mat'], '-v7.3');
     end
     
     
@@ -279,7 +292,7 @@ try
         IOPort('Close', MyPort);
     end
     
-    EyeTrackStop(ivx, Parameters)
+    EyeTrackStop(ivx, PARAMETERS)
     
     
 catch
