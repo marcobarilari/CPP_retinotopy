@@ -2,6 +2,9 @@ function [Target] = DrawTarget(Target, Events, IsRing, Current, Ring, Win, Rect,
 
 IsEvent = false;
 
+Target.Onset = false;
+Target.Offset = false;
+
 WasEvent = Target.WasEvent;
 EventSizePix = Target.EventSizePix;
 
@@ -35,6 +38,7 @@ if IsEvent
     if ~WasEvent
         Target.RndAngle = RandOri;
         Target.RndScale = round(rand*(Rect(4)/2));
+        Target.Onset = true;
         WasEvent = true;
     end
     
@@ -43,6 +47,9 @@ if IsEvent
     else
         [X, Y] = pol2cart( (90 + Angle + Parameters.AppertureWidth/2) / 180*pi, Target.RndScale );
     end
+    
+    Target.X = X;
+    Target.Y = Y;
     
     % flicker the fixation dot
     if Parameters.EventCentral
@@ -64,6 +71,9 @@ if IsEvent
     
 else
     
+    if WasEvent 
+        Target.Offset = true;
+    end
     WasEvent = false;
     
 end

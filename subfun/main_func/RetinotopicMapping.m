@@ -238,9 +238,11 @@ try
         %% Draw current frame
         rft = Screen('Flip', Win, rft+ifi);
         
-        % collect target actual presentation time
-        if TARGET.IsEvent
-             Events2 = [Events2, rft];
+        % collect target actual presentation time and target position
+        if TARGET.Onset
+             TargetData(end+1,[1 3 4]) = [rft-StartExpmt TARGET.X TARGET.Y]; %#ok<AGROW>
+        elseif TARGET.Offset
+            TargetData(end,2) = rft-StartExpmt;
         end
         
         %% Behavioural response
