@@ -1,4 +1,4 @@
-function RetinotopicMapping(PARAMETERS, Emulate, Debug)
+function [Data, PARAMETERS] = RetinotopicMapping(PARAMETERS, Emulate, Debug)
 %Retinotopic_Mapping(PARAMETERS, Emulate)
 %
 % Cyclic presentation with a rotating and/or expanding aperture.
@@ -15,6 +15,8 @@ function RetinotopicMapping(PARAMETERS, Emulate, Debug)
 % RING: structure to keep of several information about the annulus size
 
 %% Initialize
+
+Data = [];
 
 % Randomness
 SetUpRand;
@@ -276,10 +278,15 @@ try
     PARAMETERS.Stimulus = [];
     clear('Apperture');
     if IsOctave
-        save([PARAMETERS.OutputFilename '.mat'], '-mat7-binary');
+        save([PARAMETERS.OutputFilename '.mat'], '-mat7-binary', ...
+            'FrameTimes', 'BEHAVIOUR', 'PARAMETERS', 'KeyCodes', 'StartExpmt');
     else
-        save([PARAMETERS.OutputFilename '.mat'], '-v7.3');
+        save([PARAMETERS.OutputFilename '.mat'], '-v7.3', ...
+            'FrameTimes', 'BEHAVIOUR', 'PARAMETERS', 'KeyCodes', 'StartExpmt');
     end
+    
+    
+    Data = Save2TSV(FrameTimes, BEHAVIOUR, PARAMETERS);
     
     
     %% Experiment duration
