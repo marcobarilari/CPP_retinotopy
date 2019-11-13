@@ -252,7 +252,7 @@ try
     end
     
     
-    %% Draw the fixation cross
+    %% Draw the fixation
     Screen('FillOval', Win, ...
         PARAMETERS.Foreground,...
         [Rect(3)/2-FixationSizePix/2 ...
@@ -261,18 +261,15 @@ try
         Rect(4)/2+FixationSizePix/2]);
     EndExpmt = Screen('Flip', Win);
     
-    
-    %% Farewell screen
-    FarewellScreen(Win, PARAMETERS, Rect)
-    
-    CleanUp
 
-    
-    %% Save workspace
-    
+    %% Give feedback and save
     BEHAVIOUR.EventTime = Events;
     BEHAVIOUR.TargetData = TargetData;
     
+    Data = Save2TSV(FrameTimes, BEHAVIOUR, PARAMETERS);
+    
+    FeedbackScreen(Win, PARAMETERS, Rect, Data)
+
     % clear stim from structure and a few variables to save memory
     PARAMETERS = rmfield(PARAMETERS, 'Stimulus');
     PARAMETERS.Stimulus = [];
@@ -284,9 +281,8 @@ try
         save([PARAMETERS.OutputFilename '.mat'], '-v7.3', ...
             'FrameTimes', 'BEHAVIOUR', 'PARAMETERS', 'KeyCodes', 'StartExpmt');
     end
-    
-    
-    Data = Save2TSV(FrameTimes, BEHAVIOUR, PARAMETERS);
+
+    WaitSecs(4);
     
     
     %% Experiment duration
@@ -300,6 +296,12 @@ try
     end
     
     EyeTrackStop(ivx, PARAMETERS);
+    
+    
+    %% Farewell screen
+    FarewellScreen(Win, PARAMETERS, Rect)
+    
+    CleanUp
     
     
 catch

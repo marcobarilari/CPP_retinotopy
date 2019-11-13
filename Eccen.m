@@ -27,24 +27,26 @@ addpath(genpath(fullfile(pwd, 'subfun')));
 
 Task = 'retinotopyeccen';
 
-Parameters = SetParameters(Subj, Run, Task, Stim);
+PARAMETERS = SetParameters(Subj, Run, Task, Stim);
 
 
 %% Experiment parameters
 % Stimulus type
-Parameters.Apperture='Ring';
+PARAMETERS.Apperture='Ring';
 % Width of ring in degree of visual field at time = 0
-Parameters.AppertureWidth = 1;
+PARAMETERS.AppertureWidth = 1;
 % Direction of cycling
-Parameters.Direction = Direc;
+PARAMETERS.Direction = Direc;
 % Background image rotates
-Parameters.RotateStimulus = false;
+PARAMETERS.RotateStimulus = false;
 % Rotating movie back & forth by this angle
-Parameters.SineRotation = 2;
+PARAMETERS.SineRotation = 10;
 
 
 %% Run the experiment
-RetinotopicMapping(Parameters, Emul, Debug);
+[Data, PARAMETERS] = RetinotopicMapping(PARAMETERS, Emul, Debug);
 
+
+PlotResults(Data, PARAMETERS)
 
 end

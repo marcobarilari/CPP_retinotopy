@@ -1,15 +1,15 @@
 function Data = Save2TSV(FrameTimes, BEHAVIOUR, PARAMETERS)
-% onset 	REQUIRED. Onset (in seconds) of the event measured from the beginning of the acquisition 
-% of the first volume in the corresponding task imaging data file. If any acquired scans have been 
-% discarded before forming the imaging data file, ensure that a time of 0 corresponds to the first 
+% onset 	REQUIRED. Onset (in seconds) of the event measured from the beginning of the acquisition
+% of the first volume in the corresponding task imaging data file. If any acquired scans have been
+% discarded before forming the imaging data file, ensure that a time of 0 corresponds to the first
 % image stored. In other words negative numbers in "onset" are allowed5.
-% 
-% duration 	REQUIRED. Duration of the event (measured from onset) in seconds. Must always be either 
-% zero or positive. A "duration" value of zero implies that the delta function or event is so short 
+%
+% duration 	REQUIRED. Duration of the event (measured from onset) in seconds. Must always be either
+% zero or positive. A "duration" value of zero implies that the delta function or event is so short
 % as to be effectively modeled as an impulse.
 %
-% trial_type 	OPTIONAL. Primary categorisation of each trial to identify them as instances of the 
-% experimental conditions. For example: for a response inhibition task, it could take on values "go" 
+% trial_type 	OPTIONAL. Primary categorisation of each trial to identify them as instances of the
+% experimental conditions. For example: for a response inhibition task, it could take on values "go"
 % and "no-go" to refer to response initiation and response inhibition experimental conditions.
 
 if numel(BEHAVIOUR.EventTime)>size(BEHAVIOUR.TargetData,1)
@@ -43,11 +43,13 @@ end
 
 %% Prepare reponse data for printing
 RespData = nan(size(BEHAVIOUR.ResponseTime,1), 9);
-RespData(:, 1:3) = [...
-    BEHAVIOUR.ResponseTime(:,1), ... 'Onset'
-    4*ones(size(BEHAVIOUR.ResponseTime,1),1), ... 'trial_type'
-    zeros(size(BEHAVIOUR.ResponseTime,1),1), ... 'duration'
-    ];
+if size(BEHAVIOUR.ResponseTime,1)>0
+    RespData(:, 1:3) = [...
+        BEHAVIOUR.ResponseTime(:,1), ... 'Onset'
+        4*ones(size(BEHAVIOUR.ResponseTime,1),1), ... 'trial_type'
+        zeros(size(BEHAVIOUR.ResponseTime,1),1), ... 'duration'
+        ];
+end
 
 
 %% Prepare target data for printing
