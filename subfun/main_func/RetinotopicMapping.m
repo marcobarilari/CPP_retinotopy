@@ -119,7 +119,6 @@ try
     %% Start cycling the stimulus
     CycleDuration = PARAMETERS.TR * PARAMETERS.VolsPerCycle;
     CyclingEnd = CycleDuration * PARAMETERS.CyclesPerExpmt;
-    CyclingStart = GetSecs;
     
     CURRENT.Time = 0;
     RING.ScaleInnerVA = 0;
@@ -140,7 +139,7 @@ try
     
     rft = Screen('Flip', Win);
     
-    StartExpmt = rft; 
+    StartExpmt = GetSecs; 
     
     
     % Loop until the end of last cycle
@@ -161,7 +160,7 @@ try
         end
         
         % CURRENT Time stamp
-        CURRENT.Time = GetSecs-CyclingStart;
+        CURRENT.Time = GetSecs - StartExpmt;
         
         
         %% Determine size & angle
@@ -245,7 +244,7 @@ try
         end
         
         %% Behavioural response
-        [BEHAVIOUR, PrevKeypr, QUIT] = GetBehResp(KeyCodes, Win, PARAMETERS, Rect, PrevKeypr, BEHAVIOUR, CyclingStart);
+        [BEHAVIOUR, PrevKeypr, QUIT] = GetBehResp(KeyCodes, Win, PARAMETERS, Rect, PrevKeypr, BEHAVIOUR, StartExpmt);
         
         if QUIT
             return
