@@ -1,4 +1,4 @@
-function [Target] = DrawTarget(Target, Events, IsRing, Current, Ring, Win, Rect, Parameters)
+function [Target] = DrawTarget(Target, Events, IsRing, Current, Ring, Win, Rect, PARAMETERS)
 
 IsEvent = false;
 
@@ -21,13 +21,13 @@ end
 % check that the current time is superior to the start time and inferior to the end time of at
 % least one event
 CurrEvents = Events - Time;
-if  any( all( [CurrEvents > 0 , CurrEvents < Parameters.EventDuration], 2 ) )
+if  any( all( [CurrEvents > 0 , CurrEvents < PARAMETERS.EventDuration], 2 ) )
     IsEvent = true;
 end
 
 % we wait for rings to be large enough to present some targets if
 % they are not just a change of color of the fixation dot
-if all( [IsRing ; ScaleInnerVA < Parameters.EventSize ; ~Parameters.EventCentral] )
+if all( [IsRing ; ScaleInnerVA < PARAMETERS.EventSize ; ~PARAMETERS.EventCentral] )
     IsEvent = false;
 end
 
@@ -45,14 +45,14 @@ if IsEvent
     if IsRing        
         [X, Y] = pol2cart( Target.RndAngle/180*pi, (ScalePix/2 + ScaleInnerPix/2)/2 );
     else
-        [X, Y] = pol2cart( (90 + Angle + Parameters.AppertureWidth/2) / 180*pi, Target.RndScale );
+        [X, Y] = pol2cart( (90 + Angle + PARAMETERS.AppertureWidth/2) / 180*pi, Target.RndScale );
     end
     
     Target.X = X;
     Target.Y = Y;
     
     % flicker the fixation dot
-    if Parameters.EventCentral
+    if PARAMETERS.EventCentral
         X = 0;
         Y = 0;
     end
@@ -63,7 +63,7 @@ if IsEvent
     
     % Draw event
     Screen('FillOval', Win, ...
-        Parameters.EventColor,...
+        PARAMETERS.EventColor,...
         [X-EventSizePix/2 ...
         Y-EventSizePix/2 ...
         X+EventSizePix/2 ...

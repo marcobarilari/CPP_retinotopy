@@ -1,11 +1,11 @@
-function [Ring] = EccenLogSpeed(Parameters, PPD, Ring, Time)
+function [Ring] = EccenLogSpeed(PARAMETERS, PPD, Ring, Time)
 %vary CurrScale so that expansion speed is log over eccentricity
 % cf. Tootell 1997; Swisher 2007; Warnking 2002 etc
 
 
-CycleDuration = Parameters.TR * Parameters.VolsPerCycle;
+CycleDuration = PARAMETERS.TR * PARAMETERS.VolsPerCycle;
 
-switch Parameters.Apperture
+switch PARAMETERS.Apperture
     case 'Ring'
         IsRing = true;
     otherwise
@@ -20,12 +20,12 @@ if IsRing
     RingWidthVA = Ring.RingWidthVA;
     MaxEcc = Ring.MaxEcc;
     
-    switch Parameters.Direction
+    switch PARAMETERS.Direction
         case '+'
             % current visual angle linear in time
             CurrScaleVA = 0 + mod(Time, CycleDuration)/CycleDuration * MaxEcc;
             % ensure some foveal stimulation at beginning (which is hidden by fixation cross otherwise)
-            if CurrScaleVA < Parameters.FixationSize + .1
+            if CurrScaleVA < PARAMETERS.FixationSize + .1
                 CurrScaleVA = 0.6;
             end
         case '-'
@@ -46,7 +46,7 @@ if IsRing
     end
     
     % growing with inner ring ecc
-    RingWidthVA = Parameters.AppertureWidth + log(oldScaleInnerVA+1);
+    RingWidthVA = PARAMETERS.AppertureWidth + log(oldScaleInnerVA+1);
     ScaleInnerVA = ScaleVA2 - RingWidthVA;
     ScaleInnerPix =  ScaleInnerVA * PPD; % in pixel
     

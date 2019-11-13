@@ -1,12 +1,12 @@
-function BgdTextures = LoadBckGrnd(Parameters, Win)
+function BgdTextures = LoadBckGrnd(PARAMETERS, Win)
 BgdTextures = [];
-if length(size(Parameters.Stimulus)) < 4
-    for f = 1:size(Parameters.Stimulus, 3)
-        BgdTextures(f) = Screen('MakeTexture', Win, Parameters.Stimulus(:,:,f)); %#ok<*AGROW>
+if length(size(PARAMETERS.Stimulus)) < 4
+    for f = 1:size(PARAMETERS.Stimulus, 3)
+        BgdTextures(f) = Screen('MakeTexture', Win, PARAMETERS.Stimulus(:,:,f)); %#ok<*AGROW>
     end
 else
-    for f = 1:size(Parameters.Stimulus, 4)
-        BgdTextures(f) = Screen('MakeTexture', Win, Parameters.Stimulus(:,:,:,f));
+    for f = 1:size(PARAMETERS.Stimulus, 4)
+        BgdTextures(f) = Screen('MakeTexture', Win, PARAMETERS.Stimulus(:,:,:,f));
     end
 end
 end

@@ -1,4 +1,4 @@
-function [Behaviour, PrevKeypr, QUIT] = GetBehResp(KeyCodes, Win, Parameters, Rect, PrevKeypr, Behaviour, StartExpmt)
+function [BEHAVIOUR, PrevKeypr, QUIT] = GetBehResp(KeyCodes, Win, PARAMETERS, Rect, PrevKeypr, BEHAVIOUR, StartExpmt)
 [Keypr, KeyTime, Key] = KbCheck;
 
 QUIT = false;
@@ -7,9 +7,9 @@ if Keypr
     
     if Key(KeyCodes.Escape)
         % Abort screen
-        Screen('FillRect', Win, Parameters.Background, Rect);
+        Screen('FillRect', Win, PARAMETERS.Background, Rect);
         DrawFormattedText(Win, 'Experiment was aborted!', 'center', 'center', ...
-            Parameters.Foreground);
+            PARAMETERS.Foreground);
         CleanUp
         disp(' ');
         disp('Experiment aborted by user!');
@@ -24,8 +24,8 @@ if Keypr
             keyNum = find(Key);
             % prevent that trigger+response or double response spoil Behaviour.Response dimensions!!
             keyNum = keyNum(1);
-            Behaviour.Response = [Behaviour.Response; keyNum];
-            Behaviour.ResponseTime = [Behaviour.ResponseTime; KeyTime - StartExpmt];
+            BEHAVIOUR.Response = [BEHAVIOUR.Response; keyNum];
+            BEHAVIOUR.ResponseTime = [BEHAVIOUR.ResponseTime; KeyTime - StartExpmt];
         end
     end
     

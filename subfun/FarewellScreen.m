@@ -1,6 +1,6 @@
-function FarewellScreen(Win, Parameters, Rect)
-Screen('FillRect', Win, Parameters.Background, Rect);
-DrawFormattedText(Win, 'Thank you!', 'center', 'center', Parameters.Foreground); 
+function FarewellScreen(Win, PARAMETERS, Rect)
+Screen('FillRect', Win, PARAMETERS.Background, Rect);
+DrawFormattedText(Win, 'Thank you!', 'center', 'center', PARAMETERS.Foreground); 
 Screen('Flip', Win);
-WaitSecs(Parameters.TR * Parameters.Overrun);
+WaitSecs(PARAMETERS.TR * PARAMETERS.Overrun);
 end

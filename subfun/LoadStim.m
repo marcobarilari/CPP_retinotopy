@@ -1,19 +1,19 @@
-function Parameters = LoadStim(Parameters)
+function PARAMETERS = LoadStim(PARAMETERS)
 
-load(Parameters.StimFile);
+load(PARAMETERS.StimFile);
 
-[~, file] = fileparts(Parameters.StimFile);
+[~, file] = fileparts(PARAMETERS.StimFile);
 if strcmpi(file, 'Checkerboard')
     
-    Parameters.Stimulus(:,:,1) = Stimulus;
-    Parameters.Stimulus(:,:,2) = uint8(InvertContrastCogent(CogentImage(Stimulus))*255);
+    PARAMETERS.Stimulus(:,:,1) = Stimulus;
+    PARAMETERS.Stimulus(:,:,2) = uint8(InvertContrastCogent(CogentImage(Stimulus))*255);
     
 else
     
-    Parameters.Stimulus = Stimulus;
+    PARAMETERS.Stimulus = Stimulus;
     
 end
 
-Parameters.RefreshPerStim = StimFrames;  % Video frames per stimulus frame
+PARAMETERS.RefreshPerStim = StimFrames;  % Video frames per stimulus frame
 
 end
