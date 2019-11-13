@@ -23,8 +23,6 @@ SetUpRand;
 ivx = EyeTrackInit(PARAMETERS);
 
 % Behavioural data variables
-BEHAVIOUR = struct;
-BEHAVIOUR.EventTime = [];
 BEHAVIOUR.Response = [];
 BEHAVIOUR.ResponseTime = [];
 
@@ -44,7 +42,6 @@ end
 % Events is a vector that says when (in seconds from the start of the
 % experiment) a target should be presented.
 Events = CreateEventsTiming(PARAMETERS);
-BEHAVIOUR.EventTime = Events;
 
 try
     
@@ -94,14 +91,20 @@ try
     
     
     %% Begin main experiment
-    FrameTimes = [];  % Time stamp of each frame
+    FrameTimes = [];  % To collet info about the frames
+    
     CURRENT.Frame = 1;  % CURRENT stimulus Frame
     CURRENT.Refresh = 0;   % CURRENT video Refresh
     CURRENT.Angle = 0;  % CURRENT Angle of wedge
+    CURRENT.Time = 0;
+    
     RING.ScalePix = 0;  % CURRENT inner radius of ring
+    RING.ScaleInnerVA = 0;
     
+    TARGET.WasEvent = false;
+    TargetData = [];
     PrevKeypr = 0;
-    
+
     if IsRing
         % currentScale is scale of outer ring (exceeding screen until inner ring reaches window boarder)
         RING.MaxEcc = PARAMETERS.FOV / 2 + PARAMETERS.AppertureWidth + log(PARAMETERS.FOV/2 + 1) ;
@@ -120,18 +123,10 @@ try
     CycleDuration = PARAMETERS.TR * PARAMETERS.VolsPerCycle;
     CyclingEnd = CycleDuration * PARAMETERS.CyclesPerExpmt;
     
-    CURRENT.Time = 0;
-    RING.ScaleInnerVA = 0;
-    TARGET.WasEvent = false;
-    Events2 = [];
-    
-    save([PARAMETERS.OutputFilename '.mat']);
-    
-    Screen('FillRect', Win, PARAMETERS.Background, Rect);
     
     % Draw fixation
     Screen('FillOval', Win, ...
-        [255 255 255],...
+        PARAMETERS.Foreground,...
         [Rect(3)/2-FixationSizePix/2 ...
         Rect(4)/2-FixationSizePix/2 ...
         Rect(3)/2+FixationSizePix/2 ...
@@ -200,7 +195,7 @@ try
             
         end
         
-        % CURRENT Frame, Time & condition (can be valuable for debugging)
+        % CURRENT Frame, time & condition (can also be valuable for debugging)
         FrameTimes = [FrameTimes; FrameTimesUpdate]; %#ok<AGROW>
         
         
@@ -272,6 +267,10 @@ try
 
     
     %% Save workspace
+    
+    BEHAVIOUR.EventTime = Events;
+    BEHAVIOUR.TargetData = TargetData;
+    
     % clear stim from structure and a few variables to save memory
     PARAMETERS = rmfield(PARAMETERS, 'Stimulus');
     PARAMETERS.Stimulus = [];
@@ -293,7 +292,7 @@ try
         IOPort('Close', MyPort);
     end
     
-    EyeTrackStop(ivx, PARAMETERS)
+    EyeTrackStop(ivx, PARAMETERS);
     
     
 catch
