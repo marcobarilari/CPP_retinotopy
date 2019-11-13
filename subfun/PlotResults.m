@@ -18,7 +18,7 @@ switch PARAMETERS.Apperture
         Legend = {'outer', 'inner', 'target', 'response'};
         
     otherwise
-        plot(Data(IsStim,1), Data(IsStim,4))
+        plot(Data(IsStim,1), rem(Data(IsStim,4), 360))
         Legend = {'angle', 'target', 'response'};
 end
 

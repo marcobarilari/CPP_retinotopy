@@ -45,4 +45,6 @@ Parameters.SineRotation = 5;
 %% Run the experiment
 RetinotopicMapping(Parameters, Emul, Debug);
 
+PlotResults(Data, PARAMETERS)
+
 end

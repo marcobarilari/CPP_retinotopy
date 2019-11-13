@@ -1,5 +1,7 @@
 function PARAMETERS = SetParameters(Subj, Run, Task, Stim)
 
+checkDependencies()
+
 % Initialize the parameters variable
 PARAMETERS = struct;    
 
@@ -12,6 +14,13 @@ PARAMETERS.TargetDir = fullfile(fileparts(mfilename('fullpath')), 'output');
 %% Splash screens
 PARAMETERS.Welcome = 'Please fixate the black dot at all times!';  
 PARAMETERS.Instruction = 'Press the button everytime it changes color!';
+
+
+%% feedback screens
+PARAMETERS.Hit = 'You responded %i / %i times when there was a target.';  
+PARAMETERS.Miss = 'You did not respond %i / %i times when there was a target.';
+PARAMETERS.FA = 'You responded %i times when there was no target.';
+PARAMETERS.RespWin = 2; % duration of the response window
 
 
 %% Engine parameters
@@ -48,10 +57,10 @@ PARAMETERS.viewDist = 30;
 % horizontal width of screen (cm)
 PARAMETERS.xWidthScreen = 21.5; 
 % Stimulus cycles per run
-PARAMETERS.CyclesPerExpmt = 2; 
+PARAMETERS.CyclesPerExpmt = 3; 
 % Volumes per cycle - sets the "speed" of the mapping - standard is to have VolsPerCycle * TR ~ 1 min
 % e.g PARAMETERS.VolsPerCycle = ceil(60/PARAMETERS.TR); 
-PARAMETERS.VolsPerCycle = ceil(30/PARAMETERS.TR); 
+PARAMETERS.VolsPerCycle = ceil(5/PARAMETERS.TR); 
 PARAMETERS.FixationSize = .25; % in degrees VA
 
 % Target parameters

@@ -12,7 +12,7 @@ Code cleaning and refactoring was done by Rémi Gau.
 |----------------------------------------------------------|--------------|
 | [Matlab](https://www.mathworks.com/products/matlab.html) | 20???        |
 | or [Octave](https://www.gnu.org/software/octave/)        | 4.?          |
-| [Psychtoolbox](http://psychtoolbox.org/)                 | v3.?         |
+| [Psychtoolbox](http://psychtoolbox.org/)                 | v3.1?         |
 
 ## Do it yourself
 
