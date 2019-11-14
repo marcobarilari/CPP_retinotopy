@@ -126,11 +126,11 @@ try
     %% Start cycling the stimulus
     StartExpmt = GetSecs;
     
-    Screen('FillRect', Win, PARAMETERS.Background, Rect);
-    
-    % Draw fixation
-    Screen('FillOval', Win, PARAMETERS.Foreground, ...
-        CenterRect([0 0 FixationSizePix FixationSizePix], Rect));
+%     Screen('FillRect', Win, PARAMETERS.Background, Rect);
+%     
+%     % Draw fixation
+%     Screen('FillOval', Win, PARAMETERS.Foreground, ...
+%         CenterRect([0 0 FixationSizePix FixationSizePix], Rect));
     
     rft = Screen('Flip', Win);
     
@@ -224,7 +224,7 @@ try
         [TARGET] = DrawTarget(TARGET, Events, IsRing, CURRENT, RING, Win, Rect, PARAMETERS);
 
         
-        %% Draw current frame
+        %% Flip current frame
         rft = Screen('Flip', Win, rft+ifi);
         
         % collect target actual presentation time and target position

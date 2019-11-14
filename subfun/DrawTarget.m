@@ -1,26 +1,24 @@
-function [Target] = DrawTarget(Target, Events, IsRing, Current, Ring, Win, Rect, PARAMETERS)
+function [TARGET] = DrawTarget(TARGET, Events, IsRing, CURRENT, RING, Win, Rect, PARAMETERS)
 
 IsEvent = false;
 
-Target.Onset = false;
-Target.Offset = false;
+TARGET.Onset = false;
+TARGET.Offset = false;
 
-WasEvent = Target.WasEvent;
-EventSizePix = Target.EventSizePix;
+WasEvent = TARGET.WasEvent;
+EventSizePix = TARGET.EventSizePix;
 
-Time = Current.Time;
-Angle = Current.Angle;
+ScaleInnerVA = [];
 
-ScaleInnerVA = Ring.ScaleInnerVA;
-
-if IsRing    
-    ScalePix = Ring.ScalePix;
-    ScaleInnerPix = Ring.ScaleInnerPix;
+if IsRing
+    ScalePix = RING.ScalePix;
+    ScaleInnerPix = RING.ScaleInnerPix;
+    ScaleInnerVA = RING.ScaleInnerVA;
 end
 
 % check that the current time is superior to the start time and inferior to the end time of at
 % least one event
-CurrEvents = Events - Time;
+CurrEvents = Events - CURRENT.Time;
 if  any( all( [CurrEvents > 0 , CurrEvents < PARAMETERS.EventDuration], 2 ) )
     IsEvent = true;
 end
@@ -36,30 +34,29 @@ if IsEvent
     % make sure that we don't change the position of this target
     % for the time it is presented
     if ~WasEvent
-        Target.RndAngle = RandOri;
-        Target.RndScale = round(rand*(Rect(4)/2));
-        Target.Onset = true;
+        TARGET.RndAngle = RandOri;
+        TARGET.RndScale = round(rand*(Rect(4)/2));
+        TARGET.Onset = true;
         WasEvent = true;
     end
-    
-    if IsRing        
-        [X, Y] = pol2cart( Target.RndAngle/180*pi, (ScalePix/2 + ScaleInnerPix/2)/2 );
-    else
-        [X, Y] = pol2cart( (90 + Angle + PARAMETERS.AppertureWidth/2) / 180*pi, Target.RndScale );
-    end
-    
-    Target.X = X;
-    Target.Y = Y;
     
     % flicker the fixation dot
     if PARAMETERS.EventCentral
         X = 0;
         Y = 0;
+    % or display the target in the ring or wedge
+    elseif IsRing
+        [X, Y] = pol2cart( TARGET.RndAngle/180*pi, (ScalePix/2 + ScaleInnerPix/2)/2 );
+    else
+        [X, Y] = pol2cart( (90 + CURRENT.Angle + PARAMETERS.AppertureWidth/2) / 180*pi, TARGET.RndScale );
     end
-    
-    % target position;
+
+    % actual target position in pixel
     X = Rect(3)/2-X;
     Y = Rect(4)/2-Y;
+    
+    TARGET.X = X;
+    TARGET.Y = Y;
     
     % Draw event
     Screen('FillOval', Win, ...
@@ -71,14 +68,14 @@ if IsEvent
     
 else
     
-    if WasEvent 
-        Target.Offset = true;
+    if WasEvent
+        TARGET.Offset = true;
     end
     WasEvent = false;
     
 end
 
-Target.IsEvent = IsEvent;
-Target.WasEvent = WasEvent;
+TARGET.IsEvent = IsEvent;
+TARGET.WasEvent = WasEvent;
 
 end
