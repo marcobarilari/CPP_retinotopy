@@ -1,5 +1,9 @@
 function PlotResults(Data, PARAMETERS)
 
+if isempty(Data)
+    return
+end
+
 close all
 
 figure(1)

@@ -14,19 +14,14 @@ function [Data, PARAMETERS] = RetinotopicMapping(PARAMETERS, Emulate, Debug)
 % CURRENT: structure to keep track of which frame, refreshcycle, time, angle...
 % RING: structure to keep of several information about the annulus size
 
-%% Initialize
+%% Setup
 
-Data = [];
 
 % Randomness
 SetUpRand;
 
 % Eytetracker
 ivx = EyeTrackInit(PARAMETERS);
-
-% Behavioural data variables
-BEHAVIOUR.Response = [];
-BEHAVIOUR.ResponseTime = [];
 
 switch PARAMETERS.Apperture
     case 'Ring'
@@ -35,15 +30,14 @@ switch PARAMETERS.Apperture
         IsRing = false;
 end
 
-
-%% Configure scanner
+% Configure scanner
 [TrigStr, PARAMETERS] = ConfigScanner(Emulate, PARAMETERS);
 
-
-%% Event timings
+% Event timings
 % Events is a vector that says when (in seconds from the start of the
 % experiment) a target should be presented.
 Events = CreateEventsTiming(PARAMETERS);
+
 
 try
     
@@ -71,6 +65,8 @@ try
     %% Initialize
     AppTexture = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
     
+    Data = [];
+    TargetData = [];
     FrameTimes = [];  % To collet info about the frames
     
     CURRENT.Frame = 1;  % CURRENT stimulus Frame
@@ -82,9 +78,13 @@ try
     RING.ScaleInnerVA = 0;
     
     TARGET.WasEvent = false;
-    TargetData = [];
+    
     PrevKeypr = 0;
+    
+    BEHAVIOUR.Response = [];
+    BEHAVIOUR.ResponseTime = [];
 
+    % Set parameters for rings
     if IsRing
         % currentScale is scale of outer ring (exceeding screen until inner ring reaches window boarder)
         RING.MaxEcc = PARAMETERS.FOV / 2 + PARAMETERS.AppertureWidth + log(PARAMETERS.FOV/2 + 1) ;
@@ -94,9 +94,13 @@ try
         RING.RingWidthVA = PARAMETERS.AppertureWidth;
     end
     
+    CycleDuration = PARAMETERS.TR * PARAMETERS.VolsPerCycle;
+    CyclingEnd = CycleDuration * PARAMETERS.CyclesPerExpmt;
+    
     
     %% Stand by screen
     Screen('FillRect', Win, PARAMETERS.Background, Rect);
+    
     DrawFormattedText(Win, [PARAMETERS.Instruction '\n \n' TrigStr], ...
         'center', 'center', PARAMETERS.Foreground);
     
@@ -120,24 +124,18 @@ try
 
 
     %% Start cycling the stimulus
-    CycleDuration = PARAMETERS.TR * PARAMETERS.VolsPerCycle;
-    CyclingEnd = CycleDuration * PARAMETERS.CyclesPerExpmt;
+    StartExpmt = GetSecs;
     
+    Screen('FillRect', Win, PARAMETERS.Background, Rect);
     
     % Draw fixation
-    Screen('FillOval', Win, ...
-        PARAMETERS.Foreground,...
-        [Rect(3)/2-FixationSizePix/2 ...
-        Rect(4)/2-FixationSizePix/2 ...
-        Rect(3)/2+FixationSizePix/2 ...
-        Rect(4)/2+FixationSizePix/2]);
+    Screen('FillOval', Win, PARAMETERS.Foreground, ...
+        CenterRect([0 0 FixationSizePix FixationSizePix], Rect));
     
     rft = Screen('Flip', Win);
     
-    StartExpmt = GetSecs; 
     
-    
-    % Loop until the end of last cycle
+    %% Loop until the end of last cycle
     while CURRENT.Time < CyclingEnd
         
         
@@ -218,12 +216,8 @@ try
         Screen('DrawTexture', Win, AppTexture);
         
         % Draw fixation
-        Screen('FillOval', Win, ...
-            PARAMETERS.Foreground,...
-            [Rect(3)/2-FixationSizePix/2 ...
-            Rect(4)/2-FixationSizePix/2 ...
-            Rect(3)/2+FixationSizePix/2 ...
-            Rect(4)/2+FixationSizePix/2]);
+        Screen('FillOval', Win, PARAMETERS.Foreground, ...
+            CenterRect([0 0 FixationSizePix FixationSizePix], Rect));
         
         
         %% Draw target
@@ -251,12 +245,8 @@ try
     
     
     %% Draw the fixation
-    Screen('FillOval', Win, ...
-        PARAMETERS.Foreground,...
-        [Rect(3)/2-FixationSizePix/2 ...
-        Rect(4)/2-FixationSizePix/2 ...
-        Rect(3)/2+FixationSizePix/2 ...
-        Rect(4)/2+FixationSizePix/2]);
+    Screen('FillOval', Win, PARAMETERS.Foreground, ...
+        CenterRect([0 0 FixationSizePix FixationSizePix], Rect));
     
     EndExpmt = Screen('Flip', Win);
     

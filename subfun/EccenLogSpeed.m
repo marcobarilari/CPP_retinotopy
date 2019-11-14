@@ -25,13 +25,13 @@ if IsRing
             % current visual angle linear in time
             CurrScaleVA = 0 + mod(Time, CycleDuration)/CycleDuration * MaxEcc;
             % ensure some foveal stimulation at beginning (which is hidden by fixation cross otherwise)
-            if CurrScaleVA < PARAMETERS.FixationSize + .1
-                CurrScaleVA = 0.6;
+            if CurrScaleVA < PARAMETERS.FixationSize
+                CurrScaleVA = PARAMETERS.FixationSize + .1;
             end
         case '-'
             CurrScaleVA = MaxEcc - mod(Time, CycleDuration)/CycleDuration * MaxEcc;
-            if CurrScaleVA > MaxEcc - 0.1
-                CurrScaleVA = MaxEcc - 0.1;
+            if CurrScaleVA > MaxEcc
+                CurrScaleVA = MaxEcc;
             end
     end
     
