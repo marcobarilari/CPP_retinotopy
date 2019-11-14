@@ -77,7 +77,9 @@ try
     PrevKeypr = 0;
     
     Results = [];
+    
     CURRENT.Volume = 0;
+    
     Slice_Duration = PARAMETERS.TR / PARAMETERS.NumberOfSlices;
     
     
@@ -167,6 +169,7 @@ try
                 CURRENT.Stim = 1;
             end
             
+            
             %% Create Aperture
             Screen('FillRect', CircAperture, [127 127 127]);
             
@@ -181,6 +184,7 @@ try
                     [BarPos(CURRENT.Volume)+PARAMETERS.BarWidth/2 0 Rect(3) Rect(4)]);
             end
             
+            
             %% Draw stimulus
             % Rotate background movie?
             BgdAngle = cos(GetSecs - TrialOutput.TrialOnset) * PARAMETERS.SineRotation;
@@ -189,9 +193,9 @@ try
             Screen('DrawTexture', Win, BgdTextures(CURRENT.Stim), StimRect, ...
                 CenterRect(StimRect, Rect), BgdAngle+CURRENT.Condit-90);
             
-            % Draw aperture (and save if desired)
+            % Draw aperture 
             Screen('DrawTexture', Win, CircAperture, Rect, Rect, CURRENT.Condit-90);
-            
+            % (and save if desired)
             if SaveAps
                 Screen('DrawTexture', SavWin, CircAperture, Rect, Rect, CURRENT.Condit-90);
                 CurApImg = Screen('GetImage', SavWin, CenterRect(StimRect, Rect));
@@ -204,13 +208,13 @@ try
             Screen('FillOval', Win, PARAMETERS.Foreground, ...
                 CenterRect([0 0 FixationSizePix FixationSizePix], Rect));
             
+            
             %% Draw target
             [TARGET] = DrawTarget(TARGET, Events, IsRing, CURRENT, RING, Win, Rect, PARAMETERS);
             
             
             %% Flip current frame
             rft = Screen('Flip', Win, rft+ifi);
-            
             
             
             %% Behavioural response
@@ -230,6 +234,7 @@ try
         
         % Record trial results
         Results = [Results; TrialOutput];
+        
     end
     
     % Clock after experiment
@@ -240,8 +245,7 @@ try
     % BEHAVIOUR structure
     BEHAVIOUR.EventTime = Events;
     
-    
-    
+
     PARAMETERS = rmfield(PARAMETERS, 'Stimulus');
     Screen('FillRect', Win, PARAMETERS.Background, Rect);
     DrawFormattedText(Win, 'Saving data...', 'center', 'center', PARAMETERS.Foreground);
