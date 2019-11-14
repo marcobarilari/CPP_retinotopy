@@ -68,31 +68,9 @@ try
     BgdTextures = LoadBckGrnd(PARAMETERS, Win);
     
     
-    %% Stand by screen
-    Screen('FillRect', Win, PARAMETERS.Background, Rect);
-    DrawFormattedText(Win, [PARAMETERS.Instruction '\n \n' TrigStr], ...
-        'center', 'center', PARAMETERS.Foreground);
+    %% Initialize
+    AppTexture = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
     
-    Screen('Flip', Win);
-    
-    HideCursor;
-    
-    % Tell PTB we want to hoag a max of ressources
-    Priority(MaxPriority(Win));
-    
-    
-    %% Wait for start of experiment
-    if Emulate == 1
-        KbPressWait
-        WaitSecs(PARAMETERS.TR*PARAMETERS.Dummies);
-    else
-        [MyPort] = WaitForScanTrigger(PARAMETERS);
-    end
-    
-    EyeTrackStart(ivx, PARAMETERS)
-    
-    
-    %% Begin main experiment
     FrameTimes = [];  % To collet info about the frames
     
     CURRENT.Frame = 1;  % CURRENT stimulus Frame
@@ -117,10 +95,30 @@ try
     end
     
     
-    %% Initialize apperture texture
-    AppTexture = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
+    %% Stand by screen
+    Screen('FillRect', Win, PARAMETERS.Background, Rect);
+    DrawFormattedText(Win, [PARAMETERS.Instruction '\n \n' TrigStr], ...
+        'center', 'center', PARAMETERS.Foreground);
+    
+    Screen('Flip', Win);
+    
+    HideCursor;
+    
+    % Tell PTB we want to hoag a max of ressources
+    Priority(MaxPriority(Win));
     
     
+    %% Wait for start of experiment
+    if Emulate == 1
+        KbPressWait
+        WaitSecs(PARAMETERS.TR*PARAMETERS.Dummies);
+    else
+        [MyPort] = WaitForScanTrigger(PARAMETERS);
+    end
+    
+    EyeTrackStart(ivx, PARAMETERS)
+
+
     %% Start cycling the stimulus
     CycleDuration = PARAMETERS.TR * PARAMETERS.VolsPerCycle;
     CyclingEnd = CycleDuration * PARAMETERS.CyclesPerExpmt;
@@ -259,6 +257,7 @@ try
         Rect(4)/2-FixationSizePix/2 ...
         Rect(3)/2+FixationSizePix/2 ...
         Rect(4)/2+FixationSizePix/2]);
+    
     EndExpmt = Screen('Flip', Win);
     
 
@@ -272,8 +271,7 @@ try
 
     % clear stim from structure and a few variables to save memory
     PARAMETERS = rmfield(PARAMETERS, 'Stimulus');
-    PARAMETERS.Stimulus = [];
-    clear('Apperture');
+
     if IsOctave
         save([PARAMETERS.OutputFilename '.mat'], '-mat7-binary', ...
             'FrameTimes', 'BEHAVIOUR', 'PARAMETERS', 'KeyCodes', 'StartExpmt');
