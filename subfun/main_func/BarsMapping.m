@@ -184,29 +184,16 @@ try
                 Screen('FillOval', Win, [255 0 0], CenterRect([0 0 10 10], Rect));
             end
             
+            
             % Flip screen
             Screen('Flip', Win);
             
-            % Behavioural response
-            [Keypr, KeyTime, Key] = KbCheck;
             
-            if Keypr
-                Behaviour.Response = [Behaviour.Response; find(Key)];
-                Behaviour.ResponseTime = [Behaviour.ResponseTime; KeyTime - StartExpmt];
-            end
             
-            TrialOutput.Key = Key;
+            %% Behavioural response
+            [BEHAVIOUR, PrevKeypr, QUIT] = GetBehResp(KeyCodes, Win, PARAMETERS, Rect, PrevKeypr, BEHAVIOUR, StartExpmt);
             
-            % Abort if Escape was pressed
-            if find(TrialOutput.Key) == KeyCodes.Escape
-                % Abort screen
-                Screen('FillRect', Win, Parameters.Background, Rect);
-                DrawFormattedText(Win, 'Experiment was aborted mid-block!', 'center', 'center', Parameters.Foreground);
-                
-                CleanUp
-                
-                disp('Experiment aborted by user mid-block!');
-                
+            if QUIT
                 return
             end
             
@@ -237,13 +224,42 @@ try
     
     CleanUp
     
+    
+    %% Save workspace
+    BEHAVIOUR.EventTime = Events;
+    
+%     BEHAVIOUR.TargetData = TargetData;
+    
+    % clear stim from structure and a few variables to save memory
+    PARAMETERS = rmfield(PARAMETERS, 'Stimulus');
+    PARAMETERS.Stimulus = [];
+    clear('Apperture');
+    
+    if IsOctave
+        save([PARAMETERS.OutputFilename '.mat'], '-mat7-binary');
+    else
+        save([PARAMETERS.OutputFilename '.mat'], '-v7.3');
+    end
+    
+    
     %% Experiment duration
     DispExpDur(EndExpmt, StartExpmt)
+    
+    WaitSecs(1);
+    
+    if Emulate ~= 1
+        IOPort('ConfigureSerialPort', MyPort, 'StopBackgroundRead');
+        IOPort('Close', MyPort);
+    end
+    
+    EyeTrackStop(ivx, PARAMETERS)
+    
     
     %% Save apertures
     if SaveAps
         save('pRF_Apertures', 'ApFrm');
     end
+    
     
 catch
     CleanUp
