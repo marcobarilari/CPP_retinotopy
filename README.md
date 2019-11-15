@@ -1,10 +1,6 @@
 # RETINOTOPIC MAPPING STIMULUS
 
-Original version by [Sam Schwarzkopf](https://sampendu.net/sam-schwarzkopf/) (27th July 2010)
 
-Some modifications (esp for eye tracking) have been done by [Tim Rohe](https://scholar.google.de/citations?user=mFO_FSAAAAAJ&hl=de).
-
-Code cleaning and refactoring was done by Rémi Gau.
 
 ## Depdendencies
 
@@ -12,7 +8,7 @@ Code cleaning and refactoring was done by Rémi Gau.
 |----------------------------------------------------------|--------------|
 | [Matlab](https://www.mathworks.com/products/matlab.html) | 20???        |
 | or [Octave](https://www.gnu.org/software/octave/)        | 4.?          |
-| [Psychtoolbox](http://psychtoolbox.org/)                 | v3.1?         |
+| [Psychtoolbox](http://psychtoolbox.org/)                 | v3.15         |
 
 ## Do it yourself
 
@@ -26,7 +22,7 @@ Some other issues
 
 Before you can begin you will need to generate a checkerboard stimulus with precise dimensions of the screen you are using for your experiment. For this you will need to modify the script `GenCheckerboard.m` and change the variable `width` to the `height` of your screen in pixels. After running this script the new checkerboard stimulus will be saved on your disk.
 
-### Running the retinotoy scripts
+### Running the retinotopy scripts
 
 Then you will need to modify the `Polar.m` and `Eccen.m` functions.
 
@@ -50,8 +46,15 @@ In addition, there is a dual phase-encoded protocol with which you could theoret
 
 Get in touch by reporting an issue or sending a pull request
 
-## Contribute
+## Contributors
 
-This is the loose style guide used here:
+Original version by [Sam Schwarzkopf](https://sampendu.net/sam-schwarzkopf/) (27th July 2010)
+
+Some modifications (esp for eye tracking) have been done by [Tim Rohe](https://scholar.google.de/citations?user=mFO_FSAAAAAJ&hl=de).
+
+Code cleaning and refactoring was done by Rémi Gau.
+
+The loose style guide used here:
 - use PascalCase
+- structures that are passe around and centralize a lot of information (TARGET, BEHAVIOUR, PARAMETERS) are in upper case
 - [McCabe complexity](https://en.wikipedia.org/wiki/Cyclomatic_complexity) has to be inferior to 15 (see `checkcode('foo.m', '-cyc')`)
