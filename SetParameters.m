@@ -8,7 +8,7 @@ PARAMETERS = struct;
 
 %% Output directory
 PARAMETERS.TargetDir = fullfile(fileparts(mfilename('fullpath')), 'output');
-% PARAMETERS.TargetDir = fullfile(fileparts(mfilename), 'output');
+% PARAMETERS.TargetDir = fullfile(fileparts(mfilename('fullpath')), 'output');
 
 
 %% Splash screens
@@ -42,9 +42,7 @@ PARAMETERS.ScreenCapture = true;
 
 %% Scanner parameters
 % Seconds per volume
-PARAMETERS.TR = 3; 
-% Number of slices
-PARAMETERS.NumberOfSlices = 36; 
+PARAMETERS.TR = 1; 
 % Dummy volumes
 PARAMETERS.Dummies = 0; 
 % Dummy volumes at end
@@ -60,8 +58,8 @@ PARAMETERS.xWidthScreen = 21.5;
 PARAMETERS.CyclesPerExpmt = 3; 
 % Volumes per cycle - sets the "speed" of the mapping - standard is to have VolsPerCycle * TR ~ 1 min
 % e.g PARAMETERS.VolsPerCycle = ceil(60/PARAMETERS.TR); 
-PARAMETERS.VolsPerCycle = ceil(5/PARAMETERS.TR); 
-PARAMETERS.FixationSize = .25; % in degrees VA
+PARAMETERS.VolsPerCycle = ceil(60/PARAMETERS.TR); 
+PARAMETERS.FixationSize = .15; % in degrees VA
 
 % Target parameters
 % Changing those parameters might affect participant's performance
@@ -72,7 +70,7 @@ PARAMETERS.ProbOfEvent = 0.1;
 % Duration of a target event in ms
 PARAMETERS.EventDuration = 0.15; 
 % diameter of target circle in degrees VA
-PARAMETERS.EventSize = .25; 
+PARAMETERS.EventSize = .15; 
 % rgb color of the target
 PARAMETERS.EventColor = [255 200 200]; 
 % is the fixation dot the only possible location of the target?
@@ -83,6 +81,7 @@ PARAMETERS.EventCentral = true;
 
 %% Experiment parameters for drifting bar
 % Might be moved later to the drifting bar script
+PARAMETERS.TimePerTrial = 12 * PARAMETERS.TR;
 PARAMETERS.VolumesPerTrial = 12;
 PARAMETERS.NumberSlices = 40;
 
@@ -94,6 +93,10 @@ PARAMETERS.Eyetracker.Do = false;
 PARAMETERS.Eyetracker.Host = '10.41.111.213';  % SMI machine ip: '10.41.111.213'
 PARAMETERS.Eyetracker.Port = 4444;
 PARAMETERS.Eyetracker.Window = 1;
+
+
+
+
 
 
 %% Compute some parameters

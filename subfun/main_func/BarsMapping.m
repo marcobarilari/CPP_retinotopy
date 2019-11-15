@@ -80,7 +80,7 @@ try
     
     CURRENT.Volume = 0;
     
-    Slice_Duration = PARAMETERS.TR / PARAMETERS.NumberOfSlices;
+%     Slice_Duration = PARAMETERS.TR / PARAMETERS.NumberOfSlices;
     
     
     % Set parameters drifting bars
@@ -137,27 +137,17 @@ try
     
     %% Run stimulus sequence
     for Trial = 1 : length(PARAMETERS.Conditions)
-        
-        % Determine slice
-        CURRENT.SliceTime = GetSecs - StartExpmt;
-        CURRENT.Slice = ceil(CURRENT.SliceTime / Slice_Duration);
-        
-        % CURRENT.ent volume
-        CURRENT.Volume = ceil(CURRENT.Slice / PARAMETERS.NumberSlices) - PARAMETERS.Dummies;
-        
+
         % Begin trial
-        TrialOutput = struct;
-        TrialOutput.TrialOnset = GetSecs;
-        TrialOutput.TrialOffset = NaN;
+        TrialOutput.TrialOnset = GetSecs - StartExpmt;
         
-        %% Stimulation sequence
+        % Stimulation sequence
         CURRENT.Condit = PARAMETERS.Conditions(Trial);
+        
         CURRENT.Volume = 1;
         
         while CURRENT.Volume <= PARAMETERS.VolumesPerTrial
-            
-            % CURRENT Time stamp
-            CURRENT.Time = GetSecs - StartExpmt;
+
             
             %% Determine current frame
             CURRENT.Frame = CURRENT.Frame + 1;
@@ -176,12 +166,12 @@ try
             Screen('FillOval', CircAperture, [0 0 0 0], CenterRect([0 0 repmat(StimRect(3), 1, 2)], Rect));
             
             if mod(CURRENT.Condit, 90) ~= 0 && CURRENT.Volume > PARAMETERS.VolumesPerTrial/2
-                Screen('FillRect', CircAperture, [127 127 127]);
+                Screen('FillRect', CircAperture, PARAMETERS.Background);
             else
-                Screen('FillRect', CircAperture, [127 127 127], ...
-                    [0 0 BarPos(CURRENT.Volume)-PARAMETERS.BarWidth/2 Rect(4)]);
-                Screen('FillRect', CircAperture, [127 127 127], ...
-                    [BarPos(CURRENT.Volume)+PARAMETERS.BarWidth/2 0 Rect(3) Rect(4)]);
+                Screen('FillRect', CircAperture, PARAMETERS.Background, ...
+                    [0 0 BarPos(CURRENT.Volume) - PARAMETERS.BarWidth/2 Rect(4)]);
+                Screen('FillRect', CircAperture, PARAMETERS.Background, ...
+                    [BarPos(CURRENT.Volume) + PARAMETERS.BarWidth/2 0 Rect(3) Rect(4)]);
             end
             
             
@@ -208,6 +198,7 @@ try
             Screen('FillOval', Win, PARAMETERS.Foreground, ...
                 CenterRect([0 0 FixationSizePix FixationSizePix], Rect));
             
+            CURRENT.Time = GetSecs - StartExpmt;
             
             %% Draw target
             [TARGET] = DrawTarget(TARGET, Events, IsRing, CURRENT, RING, Win, Rect, PARAMETERS);
@@ -226,7 +217,8 @@ try
             end
             
             % Determine current volume
-            CURRENT.Volume = floor((GetSecs - TrialOutput.TrialOnset) / PARAMETERS.TR) + 1;
+            CURRENT.Volume = floor((CURRENT.Time - TrialOutput.TrialOnset) / PARAMETERS.TR) + 1;
+
         end
         
         % Trial end time

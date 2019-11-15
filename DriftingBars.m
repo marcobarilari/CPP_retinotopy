@@ -25,16 +25,17 @@ addpath(genpath(fullfile(pwd, 'subfun')));
 
 Task = 'retinotopydriftbar';
 
-Parameters = SetParameters(Subj, Run, Task, Stim);
+PARAMETERS = SetParameters(Subj, Run, Task, Stim);
 
+PARAMETERS.EventCentral
 
 %% Experimental Parameters
-Parameters.Volumes_per_Trial = 20;  % Duration of trial in volumes
-Parameters.BarWidth = 120; % Width of bar in pixels
-Parameters.Conditions = [90 45 0 135 270 225 180 315];  % Stimulus conditions in each block defined by number
+PARAMETERS.Volumes_per_Trial = 20;  % Duration of trial in volumes
+PARAMETERS.BarWidth = 120; % Width of bar in pixels
+PARAMETERS.Conditions = [90 45 0 135 270 225 180 315];  % Stimulus conditions in each block defined by number
 
-Parameters.SineRotation = 0;  % Rotating movie back & forth by this angle
+PARAMETERS.SineRotation = 0;  % Rotating movie back & forth by this angle
 
 
 %% Run the experiment
-BarsMapping(Parameters, Emul, Debug)
+BarsMapping(PARAMETERS, Emul, Debug)
