@@ -72,7 +72,7 @@ try
             axis off
             set(gca,'position',[0 0 1 1],'units','normalized')
             
-            print(gcf, ['Checkerboard_' sprintf('%01.0f', f) '_Angle_' sprintf('%03.0f', CurrAngle) '.tif'], '-dtiffnocompression');
+            print(gcf, ['Checkerboard_' sprintf('%01.0f', f) '_Angle_' sprintf('%03.0f', CurrAngle) '.tif'], '-dtiff');
             
         end
         
