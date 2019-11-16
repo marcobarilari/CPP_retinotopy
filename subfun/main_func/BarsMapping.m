@@ -60,6 +60,8 @@ try
             PARAMETERS.Aperture.Dimension, ...
             PARAMETERS.VolsPerCycle * length(PARAMETERS.Conditions));
         SavWin = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
+    else
+        Apertures = [];
     end
     
     % Background variables
@@ -164,7 +166,7 @@ try
                 CURRENT.Frame = 1;
                 CURRENT.Stim = CURRENT.Stim + 1;
             end
-            
+            SaveAps = true;
             if CURRENT.Stim > size(PARAMETERS.Stimulus, length(size(PARAMETERS.Stimulus)))
                 CURRENT.Stim = 1;
             end

@@ -17,8 +17,8 @@ IsResp = Data(:,2)==4;
 % plot stim
 switch PARAMETERS.Apperture
     case 'Ring'
-        plot(Data(IsStim,1), Data(IsStim,8))
         plot(Data(IsStim,1), Data(IsStim,9))
+        plot(Data(IsStim,1), Data(IsStim,10))
         Legend = {'outer', 'inner', 'target', 'response'};
         
     case 'Wedge'
