@@ -1,4 +1,5 @@
 function [BEHAVIOUR, PrevKeypr, QUIT] = GetBehResp(KeyCodes, Win, PARAMETERS, Rect, PrevKeypr, BEHAVIOUR, StartExpmt)
+
 [Keypr, KeyTime, Key] = KbCheck;
 
 QUIT = false;

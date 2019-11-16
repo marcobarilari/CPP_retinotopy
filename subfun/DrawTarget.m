@@ -50,14 +50,14 @@ if IsEvent
     else
         [X, Y] = pol2cart( (90 + CURRENT.Angle + PARAMETERS.AppertureWidth/2) / 180*pi, TARGET.RndScale );
     end
+    
+    TARGET.X = X;
+    TARGET.Y = Y;
 
     % actual target position in pixel
     X = Rect(3)/2-X;
     Y = Rect(4)/2-Y;
-    
-    TARGET.X = X;
-    TARGET.Y = Y;
-    
+
     % Draw event
     Screen('FillOval', Win, ...
         PARAMETERS.EventColor,...

@@ -40,13 +40,12 @@ PARAMETERS.FontName = 'Comic Sans MS';
 
 PARAMETERS.ScreenCapture = true;
 
+
 %% Scanner parameters
 % Seconds per volume
 PARAMETERS.TR = 1; 
 % Dummy volumes
 PARAMETERS.Dummies = 0; 
-% Dummy volumes at end
-PARAMETERS.Overrun = 10; 
 
 
 %% Experiment parameters
@@ -78,14 +77,6 @@ PARAMETERS.EventColor = [255 200 200];
 PARAMETERS.EventCentral = true;
 
 
-
-%% Experiment parameters for drifting bar
-% Might be moved later to the drifting bar script
-PARAMETERS.TimePerTrial = 12 * PARAMETERS.TR;
-PARAMETERS.VolumesPerTrial = 12;
-PARAMETERS.NumberSlices = 40;
-
-
 %% Eyetracker parameters
 % do we use an eyetracker ?
 PARAMETERS.Eyetracker.Do = false; 
@@ -93,10 +84,6 @@ PARAMETERS.Eyetracker.Do = false;
 PARAMETERS.Eyetracker.Host = '10.41.111.213';  % SMI machine ip: '10.41.111.213'
 PARAMETERS.Eyetracker.Port = 4444;
 PARAMETERS.Eyetracker.Window = 1;
-
-
-
-
 
 
 %% Compute some parameters

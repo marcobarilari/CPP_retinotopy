@@ -16,13 +16,6 @@ SetUpRand
 % Eytetracker
 ivx = EyeTrackInit(PARAMETERS);
 
-% switch PARAMETERS.Apperture
-%     case 'Ring'
-%         IsRing = true;
-%     otherwise
-%         IsRing = false;
-% end
-
 % Event timings
 % Events is a vector that says when (in seconds from the start of the
 % experiment) a target should be presented.
@@ -42,7 +35,7 @@ try
     KeyCodes = SetupKeyCodes;
     
     [Win, Rect, ~, ifi] = InitPTB(PARAMETERS);
-    
+
     % compute pixels per degree and apply conversion
     PPD = GetPPD(Rect, PARAMETERS.xWidthScreen , PARAMETERS.viewDist);
     TARGET.EventSizePix = PARAMETERS.EventSize * PPD;
@@ -51,6 +44,9 @@ try
     
     %% Load background movie
     StimRect = [0 0 repmat(size(PARAMETERS.Stimulus,1), 1, 2)];
+    
+    BarWidth = StimRect(3)/PARAMETERS.VolumesPerTrial;
+    PARAMETERS.AppertureWidth = BarWidth / PPD; % Width of bar in degrees of VA (needed for saving)
     
     BgdTextures = LoadBckGrnd(PARAMETERS, Win);
     
@@ -76,17 +72,15 @@ try
     
     PrevKeypr = 0;
     
-    Results = [];
+    FrameTimes = [];
     
     CURRENT.Volume = 0;
-    
-%     Slice_Duration = PARAMETERS.TR / PARAMETERS.NumberOfSlices;
-    
-    
-    % Set parameters drifting bars
+
+    % Set parameters drifting bars and add to parameters list for saving
     DriftPerVol = StimRect(3) / PARAMETERS.VolumesPerTrial;
     BarPos = [0 : DriftPerVol : StimRect(3)-DriftPerVol] + (Rect(3)/2-StimRect(3)/2) + DriftPerVol/2;
-    
+    PARAMETERS.DriftPerVol = DriftPerVol;
+    PARAMETERS.BarPos = BarPos;
     
     %% Standby screen
     Screen('FillRect', Win, PARAMETERS.Background, Rect);
@@ -105,7 +99,7 @@ try
     
     %% Wait for start of experiment
     if Emulate == 1
-        KbPressWait
+        [~, Key, ~] = KbPressWait;
         WaitSecs(PARAMETERS.TR*PARAMETERS.Dummies);
     else
         [MyPort] = WaitForScanTrigger(PARAMETERS);
@@ -113,26 +107,24 @@ try
     
     EyeTrackStart(ivx, PARAMETERS)
     
-    %     % Abort if Escape was pressed
-    %     if bk(KeyCodes.Escape)
-    %         % Abort screen
-    %         Screen('FillRect', Win, PARAMETERS.Background, Rect);
-    %         DrawFormattedText(Win, 'Experiment was aborted!', 'center', 'center', PARAMETERS.Foreground);
-    %         Screen('Flip', Win);
-    %
-    %         CleanUp
-    %
-    %         disp('Experiment aborted by user!');
-    %
-    %         return
-    %     end
+    % Abort if Escape was pressed
+    if Key(KeyCodes.Escape)
+        % Abort screen
+        Screen('FillRect', Win, PARAMETERS.Background, Rect);
+        DrawFormattedText(Win, 'Experiment was aborted!', 'center', 'center', ...
+            PARAMETERS.Foreground);
+        CleanUp
+        disp(' ');
+        disp('Experiment aborted by user!');
+        disp(' ');
+        return
+    end
     
-    %     Screen('FillRect', Win, PARAMETERS.Background, Rect);
     
+    %% Start cycling the stimulus
     rft = Screen('Flip', Win);
     
     StartExpmt = rft;
-    
     
     
     %% Run stimulus sequence
@@ -148,30 +140,40 @@ try
         
         while CURRENT.Volume <= PARAMETERS.VolumesPerTrial
 
+            CURRENT.Time = GetSecs - StartExpmt;
             
             %% Determine current frame
+            
             CURRENT.Frame = CURRENT.Frame + 1;
+            
+            CURRENT.BarPos = BarPos(CURRENT.Volume);
+            
             if CURRENT.Frame > PARAMETERS.RefreshPerStim
                 CURRENT.Frame = 1;
                 CURRENT.Stim = CURRENT.Stim + 1;
             end
+            
             if CURRENT.Stim > size(PARAMETERS.Stimulus, length(size(PARAMETERS.Stimulus)))
                 CURRENT.Stim = 1;
             end
             
             
             %% Create Aperture
-            Screen('FillRect', CircAperture, [127 127 127]);
+            Screen('FillRect', CircAperture, PARAMETERS.Background);
             
             Screen('FillOval', CircAperture, [0 0 0 0], CenterRect([0 0 repmat(StimRect(3), 1, 2)], Rect));
             
             if mod(CURRENT.Condit, 90) ~= 0 && CURRENT.Volume > PARAMETERS.VolumesPerTrial/2
+                
                 Screen('FillRect', CircAperture, PARAMETERS.Background);
+                
             else
+                
                 Screen('FillRect', CircAperture, PARAMETERS.Background, ...
-                    [0 0 BarPos(CURRENT.Volume) - PARAMETERS.BarWidth/2 Rect(4)]);
+                    [0 0 CURRENT.BarPos - BarWidth/2 Rect(4)]);
+                
                 Screen('FillRect', CircAperture, PARAMETERS.Background, ...
-                    [BarPos(CURRENT.Volume) + PARAMETERS.BarWidth/2 0 Rect(3) Rect(4)]);
+                    [CURRENT.BarPos + BarWidth/2 0 Rect(3) Rect(4)]);
             end
             
             
@@ -181,24 +183,31 @@ try
             
             % Draw movie frame
             Screen('DrawTexture', Win, BgdTextures(CURRENT.Stim), StimRect, ...
-                CenterRect(StimRect, Rect), BgdAngle+CURRENT.Condit-90);
+                CenterRect(StimRect, Rect), BgdAngle + CURRENT.Condit - 90);
             
             % Draw aperture 
-            Screen('DrawTexture', Win, CircAperture, Rect, Rect, CURRENT.Condit-90);
+            Screen('DrawTexture', Win, CircAperture, Rect, Rect, CURRENT.Condit - 90);
+            
             % (and save if desired)
             if SaveAps
-                Screen('DrawTexture', SavWin, CircAperture, Rect, Rect, CURRENT.Condit-90);
+                Screen('DrawTexture', SavWin, CircAperture, Rect, Rect, CURRENT.Condit - 90);
                 CurApImg = Screen('GetImage', SavWin, CenterRect(StimRect, Rect));
                 CurApImg = ~CurApImg(:,:,1);
-                ApFrm(:,:,PARAMETERS.Volumes_per_Trial*(Trial-1)+CURRENT.Volume) = ...
+                ApFrm(:, :, PARAMETERS.Volumes_per_Trial * (Trial-1) + CURRENT.Volume ) = ...
                     imresize(CurApImg, [100 100]);
             end
+            
+            
+            %% Draw fixation
+            
+            % Draw gap around fixation
+            Screen('FillOval', Win, PARAMETERS.Background, ...
+                CenterRect([0 0 FixationSizePix+10 FixationSizePix+10], Rect));
             
             % Draw fixation
             Screen('FillOval', Win, PARAMETERS.Foreground, ...
                 CenterRect([0 0 FixationSizePix FixationSizePix], Rect));
-            
-            CURRENT.Time = GetSecs - StartExpmt;
+
             
             %% Draw target
             [TARGET] = DrawTarget(TARGET, Events, IsRing, CURRENT, RING, Win, Rect, PARAMETERS);
@@ -206,6 +215,18 @@ try
             
             %% Flip current frame
             rft = Screen('Flip', Win, rft+ifi);
+            
+            % collect target actual presentation time and target position
+            if TARGET.Onset
+                TargetData(end+1,[1 3:5]) = [rft-StartExpmt TARGET.X/PPD TARGET.Y/PPD PARAMETERS.EventSize]; %#ok<AGROW>
+            elseif TARGET.Offset
+                TargetData(end,2) = rft-StartExpmt;
+            end
+            
+            FrameTimesUpdate = [CURRENT.Time CURRENT.Frame CURRENT.Condit CURRENT.BarPos]; 
+            
+            % CURRENT Frame, time & condition (can also be valuable for debugging)
+            FrameTimes = [FrameTimes; FrameTimesUpdate]; %#ok<AGROW>
             
             
             %% Behavioural response
@@ -219,53 +240,37 @@ try
             % Determine current volume
             CURRENT.Volume = floor((CURRENT.Time - TrialOutput.TrialOnset) / PARAMETERS.TR) + 1;
 
+            
         end
-        
-        % Trial end time
-        TrialOutput.TrialOffset = GetSecs;
-        
-        % Record trial results
-        Results = [Results; TrialOutput];
         
     end
     
-    % Clock after experiment
-    EndExpmt = GetSecs;
     
-    %% Save results of current block
+    %% Draw the fixation
+    Screen('FillOval', Win, PARAMETERS.Foreground, ...
+        CenterRect([0 0 FixationSizePix FixationSizePix], Rect));
     
-    % BEHAVIOUR structure
-    BEHAVIOUR.EventTime = Events;
+    EndExpmt = Screen('Flip', Win);
     
-
-    PARAMETERS = rmfield(PARAMETERS, 'Stimulus');
-    Screen('FillRect', Win, PARAMETERS.Background, Rect);
-    DrawFormattedText(Win, 'Saving data...', 'center', 'center', PARAMETERS.Foreground);
-    Screen('Flip', Win);
-    save(['Results' filesep PARAMETERS.Session_name]);
-    
-    
-    %% Farewell screen
-    FarewellScreen(Win, PARAMETERS, Rect)
-    
-    CleanUp
-    
-    
+   
     %% Save workspace
     BEHAVIOUR.EventTime = Events;
+    BEHAVIOUR.TargetData = TargetData;
     
-    %     BEHAVIOUR.TargetData = TargetData;
+    Data = Save2TSV(FrameTimes, BEHAVIOUR, PARAMETERS);
     
+    FeedbackScreen(Win, PARAMETERS, Rect, Data)
+
     % clear stim from structure and a few variables to save memory
     PARAMETERS = rmfield(PARAMETERS, 'Stimulus');
-    PARAMETERS.Stimulus = [];
-    clear('Apperture');
     
     if IsOctave
         save([PARAMETERS.OutputFilename '.mat'], '-mat7-binary');
     else
         save([PARAMETERS.OutputFilename '.mat'], '-v7.3');
     end
+    
+    WaitSecs(4);
     
     
     %% Experiment duration
@@ -281,11 +286,17 @@ try
     EyeTrackStop(ivx, PARAMETERS)
     
     
+    %% Farewell screen
+    FarewellScreen(Win, PARAMETERS, Rect)
+    
+    CleanUp
+    
+    
     %% Save apertures
     if SaveAps
         save('pRF_Apertures', 'ApFrm');
     end
-    
+
     
 catch
     CleanUp

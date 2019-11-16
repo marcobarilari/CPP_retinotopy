@@ -121,16 +121,23 @@ try
     end
     
     EyeTrackStart(ivx, PARAMETERS)
+    
+    % Abort if Escape was pressed
+    if Key(KeyCodes.Escape)
+        % Abort screen
+        Screen('FillRect', Win, PARAMETERS.Background, Rect);
+        DrawFormattedText(Win, 'Experiment was aborted!', 'center', 'center', ...
+            PARAMETERS.Foreground);
+        CleanUp
+        disp(' ');
+        disp('Experiment aborted by user!');
+        disp(' ');
+        return
+    end
 
 
     %% Start cycling the stimulus
     StartExpmt = GetSecs;
-    
-%     Screen('FillRect', Win, PARAMETERS.Background, Rect);
-%     
-%     % Draw fixation
-%     Screen('FillOval', Win, PARAMETERS.Foreground, ...
-%         CenterRect([0 0 FixationSizePix FixationSizePix], Rect));
     
     rft = Screen('Flip', Win);
     
@@ -229,7 +236,7 @@ try
         
         % collect target actual presentation time and target position
         if TARGET.Onset
-             TargetData(end+1,[1 3 4]) = [rft-StartExpmt TARGET.X TARGET.Y]; %#ok<AGROW>
+             TargetData(end+1,[1 3:5]) = [rft-StartExpmt TARGET.X/PPD TARGET.Y/PPD PARAMETERS.EventSize]; %#ok<AGROW>
         elseif TARGET.Offset
             TargetData(end,2) = rft-StartExpmt;
         end
@@ -238,6 +245,7 @@ try
         [BEHAVIOUR, PrevKeypr, QUIT] = GetBehResp(KeyCodes, Win, PARAMETERS, Rect, PrevKeypr, BEHAVIOUR, StartExpmt);
         
         if QUIT
+            CleanUp
             return
         end
         
