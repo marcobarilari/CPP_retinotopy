@@ -10,7 +10,6 @@
 if nargin == 0
     Subj = 66;
     Run = 1;
-    Direc = '-';
     Stim = 'Ripples.mat';
     Emul = 1;
     Debug = 1;
@@ -26,8 +25,7 @@ addpath(genpath(fullfile(fileparts(mfilename('fullpath')), 'subfun')));
 Task = 'retinotopydriftbar';
 
 PARAMETERS = SetParameters(Subj, Run, Task, Stim);
-
-PARAMETERS.EventCentral
+PARAMETERS.EventCentral = true;
 
 %% Experimental Parameters
 PARAMETERS.Apperture = 'Bar';
@@ -39,4 +37,4 @@ PARAMETERS.SineRotation = 10;  % Rotating movie back & forth by this angle
 
 
 %% Run the experiment
-BarsMapping(PARAMETERS, Emul, Debug)
+BarsMapping(PARAMETERS, Emul, Debug, 1)

@@ -6,7 +6,7 @@ function BarsMapping(PARAMETERS, Emulate, Debug, SaveAps)
 %
 
 if nargin < 4
-    SaveAps = false;
+    SaveAps = true;
 end
 
 
@@ -51,8 +51,14 @@ try
     
     %% Initialize
     CircAperture = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
+    
+    % In case we want to save the aperture to facilitate pRF modelling
     if SaveAps
-        ApFrm = zeros(100, 100, PARAMETERS.VolsPerCycle * length(PARAMETERS.Conditions));
+        [~,~,~] = mkdir(PARAMETERS.Aperture.TargetDir);
+        Apertures.Frames = zeros(...
+            PARAMETERS.Aperture.Dimension, ...
+            PARAMETERS.Aperture.Dimension, ...
+            PARAMETERS.VolsPerCycle * length(PARAMETERS.Conditions));
         SavWin = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
     end
     
@@ -135,10 +141,18 @@ try
         CURRENT.Condit = PARAMETERS.Conditions(Trial);
         
         CURRENT.Volume = 1;
+        PreviousVolume = 0;
         
         while CURRENT.Volume <= PARAMETERS.VolsPerCycle
 
             CURRENT.Time = GetSecs - StartExpmt;
+            
+            % we change the aperture with every volume
+            if PreviousVolume==CURRENT.Volume
+                NewAperture = false;
+            else
+                NewAperture = true;
+            end
             
             %% Determine current frame
             
@@ -187,12 +201,18 @@ try
             Screen('DrawTexture', Win, CircAperture, Rect, Rect, CURRENT.Condit - 90);
             
             % (and save if desired)
-            if SaveAps
+            if SaveAps && NewAperture
                 Screen('DrawTexture', SavWin, CircAperture, Rect, Rect, CURRENT.Condit - 90);
                 CurApImg = Screen('GetImage', SavWin, CenterRect(StimRect, Rect));
                 CurApImg = ~CurApImg(:,:,1);
-                ApFrm(:, :, PARAMETERS.Volumes_per_Trial * (Trial-1) + CURRENT.Volume ) = ...
-                    imresize(CurApImg, [100 100]);
+                
+                % store frame, its angle and its distance to the center 
+                Apertures.Frames(:, :, PARAMETERS.VolsPerCycle * (Trial-1) + CURRENT.Volume ) = ...
+                    imresize(CurApImg, [PARAMETERS.Aperture.Dimension PARAMETERS.Aperture.Dimension]);
+                Apertures.BarAngle(PARAMETERS.VolsPerCycle * (Trial-1) + CURRENT.Volume ) = ...
+                    CURRENT.Condit - 90;
+                Apertures.BarPostion(PARAMETERS.VolsPerCycle * (Trial-1) + CURRENT.Volume ) = ...
+                    PARAMETERS.BarPos(CURRENT.Volume);
             end
             
             
@@ -236,6 +256,7 @@ try
             end
             
             % Determine current volume
+            PreviousVolume=CURRENT.Volume;
             CURRENT.Volume = floor((CURRENT.Time - TrialOnset) / PARAMETERS.TR) + 1;
 
             
@@ -293,9 +314,7 @@ try
     
     
     %% Save apertures
-    if SaveAps
-        save('pRF_Apertures', 'ApFrm');
-    end
+    SaveApertures(SaveAps, PARAMETERS, Apertures)
 
     
 catch

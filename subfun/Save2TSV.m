@@ -15,7 +15,7 @@ function Data = Save2TSV(FrameTimes, BEHAVIOUR, PARAMETERS)
 % and "no-go" to refer to response initiation and response inhibition experimental conditions.
 
 % For Bars
-% FrameTimesUpdate = [CURRENT.Time CURRENT.Frame CURRENT.Condit CURRENT.BarPos]; 
+% FrameTimesUpdate = [CURRENT.Time CURRENT.Frame CURRENT.Condit CURRENT.BarPos];
 
 % For Wedges
 % FrameTimesUpdate = [CURRENT.Time CURRENT.Frame CURRENT.Angle];
@@ -49,31 +49,31 @@ switch PARAMETERS.Apperture
     
     case 'Ring'
         Header = {'onset', 'trial_type', 'duration', 'ring_eccentricity', 'ring_width',...
-                  'x_target_pos', 'y_target_pos', 'target_width', ...
-                  'scale_outer', 'scale_inner'};
+            'x_target_pos', 'y_target_pos', 'target_width', ...
+            'scale_outer', 'scale_inner'};
         StimData(:, [2 4 5 9:10]) = [Ring*ones(NbLines, 1), ... 'trial_type'
-                                  FrameTimes(:,7) + (FrameTimes(:,5)-FrameTimes(:,7))/2, ... ring_eccentricity 
-                                  FrameTimes(:,5)-FrameTimes(:,7), ... ring_width 
-                                  FrameTimes(:,5), ... 'scale_outer'
-                                  FrameTimes(:,7)]; % 'scale_inner'
+            FrameTimes(:,7) + (FrameTimes(:,5)-FrameTimes(:,7))/2, ... ring_eccentricity
+            FrameTimes(:,5)-FrameTimes(:,7), ... ring_width
+            FrameTimes(:,5), ... 'scale_outer'
+            FrameTimes(:,7)]; % 'scale_inner'
         
     case 'Wedge'
         Header = {'onset', 'trial_type', 'duration', 'angle', 'wedge_angle', ...
-                  'x_target_pos', 'y_target_pos', 'target_width'};
+            'x_target_pos', 'y_target_pos', 'target_width'};
         StimData(:, [2 4:5]) = [Wedge*ones(NbLines, 1), ... % 'trial_type'
-                                rem(FrameTimes(:, 3), 360), ... % make sure that all angles are <= abs(360)
-                                ones(NbLines, 1) * PARAMETERS.AppertureWidth];% 'wedge angle'
+            rem(FrameTimes(:, 3), 360), ... % make sure that all angles are <= abs(360)
+            ones(NbLines, 1) * PARAMETERS.AppertureWidth];% 'wedge angle'
         
     case 'Bar'
         Header = {'onset', 'trial_type', 'duration', 'bar_angle', 'bar_width', ...
-                  'x_target_pos', 'y_target_pos', 'target_width', ...
-                  'bar_position'};
+            'x_target_pos', 'y_target_pos', 'target_width', ...
+            'bar_position', 'stimuli'};
         StimData(:, [2 4 5 9]) = [Bar*ones(NbLines, 1), ... % 'trial_type'
-                                  FrameTimes(:, 3), ... 'bar angle'
-                                  ones(NbLines, 1) * PARAMETERS.AppertureWidth, ... 'bar width'
-                                  FrameTimes(:, 4)]; % bar position along the axis the bar moves along
-                            
-                            
+            FrameTimes(:, 3), ... 'bar angle'
+            ones(NbLines, 1) * PARAMETERS.AppertureWidth, ... 'bar width'
+            FrameTimes(:, 4)]; % bar position along the axis the bar moves along
+        
+        
 end
 
 
@@ -109,12 +109,12 @@ Data = Data(I,:);
 
 % Remove columns of NaNs
 switch PARAMETERS.Apperture
-  
+    
     case 'Wedge'
         Data(:, 9:10) = [];
     case 'Bar'
         Data(:, 10) = [];
-
+        
 end
 
 
@@ -148,6 +148,11 @@ for iLine = 1:size(Data,1)
     fprintf(fid, '%s\t', TrialType);
     
     fprintf(fid, '%f\t', Data(iLine, 3:size(Data,2)));
+    
+    switch Data(iLine, 2)
+        case Bar
+            sprintf('bar_angle-%i_position-%02.2f.tif\t', Data(iLine, 4), Data(iLine, 9));
+    end
     
     fprintf(fid, '\n');
 end
