@@ -36,56 +36,63 @@ end
 
 
 %% Prepare stimuli presentation data
-StimData = nan(size(FrameTimes,1), NbColumns);
+NbLines = size(FrameTimes, 1);
+StimData = nan(NbLines, NbColumns);
 
-StimData(:, [1 3:5]) = [...
+StimData(:, [1 3]) = [...
     FrameTimes(:,1), ... 'Onset'
-    zeros(size(FrameTimes,1),1), ... 'duration'
-    FrameTimes(:,3), ... 'angle' / 'eccentricity' / 'bar angle'
-    ones(size(FrameTimes,1),1) * PARAMETERS.AppertureWidth, ... 'wedge angle' / 'ring width' / 'bar width'
-    ];
+    zeros(NbLines, 1)]; % Duration
 
 switch PARAMETERS.Apperture
     
     case 'Ring'
-        Header = {'onset', 'trial_type', 'duration', 'ring_eccentricity', 'ring_width', ...
+        Header = {'onset', 'trial_type', 'duration', 'ring_eccentricity', 'ring_width',...
                   'x_target_pos', 'y_target_pos', 'target_width', ...
-                  'scale_inner', 'scale'};
-        StimData(:, [2 9:10]) = [
-            Ring*ones(size(FrameTimes,1),1), ... 'trial_type'
-            FrameTimes(:,5), ... 'scale_inner'
-            FrameTimes(:,7)]; % 'scale'
+                  'scale_outer', 'scale_inner'};
+        StimData(:, [2 4 5 9:10]) = [Ring*ones(NbLines, 1), ... 'trial_type'
+                                  FrameTimes(:,7) + (FrameTimes(:,5)-FrameTimes(:,7))/2, ... ring_eccentricity 
+                                  FrameTimes(:,5)-FrameTimes(:,7), ... ring_width 
+                                  FrameTimes(:,5), ... 'scale_outer'
+                                  FrameTimes(:,7)]; % 'scale_inner'
         
     case 'Wedge'
         Header = {'onset', 'trial_type', 'duration', 'angle', 'wedge_angle', ...
                   'x_target_pos', 'y_target_pos', 'target_width'};
-        StimData(:, 2) = Wedge*ones(size(FrameTimes,1),1); % 'trial_type'
+        StimData(:, [2 4:5]) = [Wedge*ones(NbLines, 1), ... % 'trial_type'
+                                rem(FrameTimes(:, 3), 360), ... % make sure that all angles are <= abs(360)
+                                ones(NbLines, 1) * PARAMETERS.AppertureWidth];% 'wedge angle'
         
     case 'Bar'
         Header = {'onset', 'trial_type', 'duration', 'bar_angle', 'bar_width', ...
                   'x_target_pos', 'y_target_pos', 'target_width', ...
                   'bar_position'};
-        StimData(:, [2 9]) = [Bar*ones(size(FrameTimes,1),1), ... % 'trial_type'
-                                FrameTimes(:,4)]; % Bar position along the axis defined by the 
+        StimData(:, [2 4 5 9]) = [Bar*ones(NbLines, 1), ... % 'trial_type'
+                                  FrameTimes(:, 3), ... 'bar angle'
+                                  ones(NbLines, 1) * PARAMETERS.AppertureWidth, ... 'bar width'
+                                  FrameTimes(:, 4)]; % bar position along the axis the bar moves along
+                            
+                            
 end
 
 
 %% Prepare reponse data
-RespData = nan(size(BEHAVIOUR.ResponseTime,1), NbColumns);
+NbLines = size(BEHAVIOUR.ResponseTime,1);
+RespData = nan(NbLines, NbColumns);
 if size(BEHAVIOUR.ResponseTime,1)>0
     RespData(:, 1:3) = [...
         BEHAVIOUR.ResponseTime(:,1), ... 'Onset'
-        Response*ones(size(BEHAVIOUR.ResponseTime,1),1), ... 'trial_type'
-        zeros(size(BEHAVIOUR.ResponseTime,1),1), ... 'duration'
+        Response*ones(NbLines,1), ... 'trial_type'
+        zeros(NbLines,1), ... 'duration'
         ];
 end
 
 
 %% Prepare target data
-TargetData = nan(size(BEHAVIOUR.TargetData,1), NbColumns);
+NbLines = size(BEHAVIOUR.TargetData,1);
+TargetData = nan(NbLines, NbColumns);
 TargetData(:, [1:3 6:8]) = [...
     BEHAVIOUR.TargetData(:,1), ... 'Onset'
-    Target*ones(size(BEHAVIOUR.TargetData,1),1), ... 'trial_type'
+    Target*ones(NbLines,1), ... 'trial_type'
     diff(BEHAVIOUR.TargetData(:,1:2), 1, 2), ... 'duration'
     BEHAVIOUR.TargetData(:,3:5)... 'x_target_pos', 'y_target_pos', 'target_width'
     ];
@@ -103,9 +110,9 @@ switch PARAMETERS.Apperture
   
     case 'Wedge'
         Data(:, 9:10) = [];
-        
     case 'Bar'
-        Data(:, 10) = []; 
+        Data(:, 10) = [];
+
 end
 
 

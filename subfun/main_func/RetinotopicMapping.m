@@ -165,6 +165,7 @@ try
         
         %% Determine size & angle
         
+        % for Wedge
         % Update angle for rotation of background and for apperture for wedge
         switch PARAMETERS.Direction
             case '+'
@@ -173,6 +174,7 @@ try
                 CURRENT.Angle = 90 - PARAMETERS.AppertureWidth/2 - (CURRENT.Time/CycleDuration) * 360;
         end
         
+        % for Ring
         % expansion speed is log over eccentricity
         [RING] = EccenLogSpeed(PARAMETERS, PPD, RING, CURRENT.Time);   
         

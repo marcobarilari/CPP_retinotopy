@@ -22,7 +22,7 @@ switch PARAMETERS.Apperture
         Legend = {'outer', 'inner', 'target', 'response'};
         
     case 'Wedge'
-        plot(Data(IsStim,1), rem(Data(IsStim,4), 360))
+        plot(Data(IsStim,1), Data(IsStim,4))
         Legend = {'angle', 'target', 'response'};
 end
 

@@ -45,10 +45,7 @@ try
     
     %% Load background movie
     StimRect = [0 0 repmat(size(PARAMETERS.Stimulus,1), 1, 2)];
-    
-    BarWidth = StimRect(3)/PARAMETERS.VolsPerCycle;
-    PARAMETERS.AppertureWidth = BarWidth / PPD; % Width of bar in degrees of VA (needed for saving)
-    
+
     BgdTextures = LoadBckGrnd(PARAMETERS, Win);
     
     
@@ -78,10 +75,10 @@ try
     CURRENT.Volume = 0;
 
     % Set parameters drifting bars and add to parameters list for saving
-    DriftPerVol = StimRect(3) / PARAMETERS.VolsPerCycle;
-    BarPos = [0 : DriftPerVol : StimRect(3)-DriftPerVol] + (Rect(3)/2-StimRect(3)/2) + DriftPerVol/2;
-    PARAMETERS.DriftPerVol = DriftPerVol;
-    PARAMETERS.BarPos = BarPos;
+    BarWidth = StimRect(3) / PARAMETERS.VolsPerCycle;
+    BarPos = [0 : BarWidth : StimRect(3)-BarWidth] + (Rect(3)/2-StimRect(3)/2) + BarWidth/2;
+    PARAMETERS.AppertureWidth = BarWidth / PPD; % Width of bar in degrees of VA (needed for saving)
+    PARAMETERS.BarPos = (BarPos - Rect(3)/2) / PPD; % in VA
     
     %% Standby screen
     Screen('FillRect', Win, PARAMETERS.Background, Rect);
@@ -224,7 +221,7 @@ try
                 TargetData(end,2) = rft-StartExpmt;
             end
             
-            FrameTimesUpdate = [CURRENT.Time CURRENT.Frame CURRENT.Condit CURRENT.BarPos]; 
+            FrameTimesUpdate = [CURRENT.Time CURRENT.Frame CURRENT.Condit PARAMETERS.BarPos(CURRENT.Volume)]; 
             
             % CURRENT Frame, time & condition (can also be valuable for debugging)
             FrameTimes = [FrameTimes; FrameTimesUpdate]; %#ok<AGROW>
@@ -258,7 +255,7 @@ try
     BEHAVIOUR.EventTime = Events;
     BEHAVIOUR.TargetData = TargetData;
     
-    Data = Save2TSV(FrameTimes, BEHAVIOUR, PARAMETERS);
+    Data = Save2TSV(FrameTimes, BEHAVIOUR, PARAMETERS, StimRect);
     
     FeedbackScreen(Win, PARAMETERS, Rect, Data)
 
@@ -266,9 +263,11 @@ try
     PARAMETERS = rmfield(PARAMETERS, 'Stimulus');
     
     if IsOctave
-        save([PARAMETERS.OutputFilename '.mat'], '-mat7-binary');
+        save([PARAMETERS.OutputFilename '.mat'], '-mat7-binary', ...
+            'FrameTimes', 'BEHAVIOUR', 'PARAMETERS', 'KeyCodes', 'StartExpmt');
     else
-        save([PARAMETERS.OutputFilename '.mat'], '-v7.3');
+        save([PARAMETERS.OutputFilename '.mat'], '-v7.3', ...
+            'FrameTimes', 'BEHAVIOUR', 'PARAMETERS', 'KeyCodes', 'StartExpmt');
     end
     
     WaitSecs(4);

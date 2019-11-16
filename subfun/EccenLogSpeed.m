@@ -48,12 +48,14 @@ if IsRing
     % growing with inner ring ecc
     RingWidthVA = PARAMETERS.AppertureWidth + log(oldScaleInnerVA+1);
     ScaleInnerVA = ScaleVA2 - RingWidthVA;
-    ScaleInnerPix =  ScaleInnerVA * PPD; % in pixel
     
-    if ScaleInnerPix < 0
-        ScaleInnerPix = 0;
+    if ScaleInnerVA < 0
+        ScaleInnerVA = 0;
     end
     
+    ScaleInnerPix =  ScaleInnerVA * PPD; % in pixel
+    
+
     Ring.ScalePix = ScalePix;
     Ring.ScaleInnerPix = ScaleInnerPix;
     Ring.ScaleVA2 = ScaleVA2;
