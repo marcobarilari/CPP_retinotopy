@@ -205,6 +205,8 @@ try
         
         
         %% Draw stimulus
+        % we draw the background stimulus in full and overlay an aperture
+        % on top of it
         
         % Display background
         if PARAMETERS.RotateStimulus

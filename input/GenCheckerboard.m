@@ -10,6 +10,6 @@ Stimulus = RadialCheckerBoard([height/2 0], [-180 180], [7 5]);
 
 StimFrames = 8;
 
-save(fullfile(fileparts(mfilename), '..', 'input', 'Checkerboard.mat'), 'Stimulus', 'StimFrames');
+save(fullfile(fileparts(mfilename('fullpath')), '..', 'input', 'Checkerboard.mat'), 'Stimulus', 'StimFrames');
 
 fprintf('Done\n')

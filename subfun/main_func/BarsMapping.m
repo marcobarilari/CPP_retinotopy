@@ -132,7 +132,7 @@ try
     for Trial = 1 : length(PARAMETERS.Conditions)
 
         % Begin trial
-        TrialOutput.TrialOnset = GetSecs - StartExpmt;
+        TrialOnset = GetSecs - StartExpmt;
         
         % Stimulation sequence
         CURRENT.Condit = PARAMETERS.Conditions(Trial);
@@ -160,33 +160,33 @@ try
             
             
             %% Create Aperture
+            % aperture is the color of the background
+            
             Screen('FillRect', CircAperture, PARAMETERS.Background);
             
+            % We let the stimulus through
             Screen('FillOval', CircAperture, [0 0 0 0], CenterRect([0 0 repmat(StimRect(3), 1, 2)], Rect));
             
-            if mod(CURRENT.Condit, 90) ~= 0 && CURRENT.Volume > PARAMETERS.VolsPerCycle/2
-                
-                Screen('FillRect', CircAperture, PARAMETERS.Background);
-                
-            else
-                
-                Screen('FillRect', CircAperture, PARAMETERS.Background, ...
-                    [0 0 CURRENT.BarPos - BarWidth/2 Rect(4)]);
-                
-                Screen('FillRect', CircAperture, PARAMETERS.Background, ...
-                    [CURRENT.BarPos + BarWidth/2 0 Rect(3) Rect(4)]);
-            end
+            % Then we add the position of the bar aperture
+            Screen('FillRect', CircAperture, PARAMETERS.Background, ...
+                [0 0 CURRENT.BarPos - BarWidth/2 Rect(4)]);
+            
+            Screen('FillRect', CircAperture, PARAMETERS.Background, ...
+                [CURRENT.BarPos + BarWidth/2 0 Rect(3) Rect(4)]);
             
             
             %% Draw stimulus
-            % Rotate background movie?
-            BgdAngle = cos(GetSecs - TrialOutput.TrialOnset) * PARAMETERS.SineRotation;
+            % we draw the background stimulus in full and overlay an aperture
+            % on top of it
+        
+            % Rotate background movie
+            BgdAngle = cos(GetSecs - TrialOnset) * PARAMETERS.SineRotation;
             
             % Draw movie frame
             Screen('DrawTexture', Win, BgdTextures(CURRENT.Stim), StimRect, ...
                 CenterRect(StimRect, Rect), BgdAngle + CURRENT.Condit - 90);
             
-            % Draw aperture 
+            % Draw aperture and we rotate to match the required condition
             Screen('DrawTexture', Win, CircAperture, Rect, Rect, CURRENT.Condit - 90);
             
             % (and save if desired)
@@ -239,7 +239,7 @@ try
             end
             
             % Determine current volume
-            CURRENT.Volume = floor((CURRENT.Time - TrialOutput.TrialOnset) / PARAMETERS.TR) + 1;
+            CURRENT.Volume = floor((CURRENT.Time - TrialOnset) / PARAMETERS.TR) + 1;
 
             
         end

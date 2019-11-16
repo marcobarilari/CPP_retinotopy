@@ -1,7 +1,7 @@
 width = 1400;  % Define here the height of the screen minus a few pixels
 Phases = 0:10:355;
 
-addpath(genpath(fullfile(pwd, 'subfun')));
+addpath(genpath(fullfile(fileparts(mfilename), '..', 'subfun')));
 
 Stimulus = zeros(width, width, length(Phases));
 [X, Y] = meshgrid([-width/2:-1 1:width/2], [-width/2:-1 1:width/2]);
@@ -18,4 +18,4 @@ for pha = Phases
 end
 StimFrames = 1;
 
-save(fullfile(pwd, 'input', 'Ripples.mat'), 'Stimulus', 'StimFrames');
+save(fullfile(fileparts(mfilename('fullpath')), '..', 'input', 'Ripples.mat'), 'Stimulus', 'StimFrames');

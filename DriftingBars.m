@@ -21,7 +21,7 @@ if isempty(Subj)
     Run = input('Retinotopic run number? ');    
 end
 
-addpath(genpath(fullfile(pwd, 'subfun')));
+addpath(genpath(fullfile(fileparts(mfilename('fullpath')), 'subfun')));
 
 Task = 'retinotopydriftbar';
 
