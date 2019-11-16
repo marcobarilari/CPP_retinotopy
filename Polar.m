@@ -26,24 +26,28 @@ addpath(genpath(fullfile(pwd, 'subfun')));
 
 Task = 'retinotopypolar';
 
-Parameters = SetParameters(Subj, Run, Task, Stim);
+PARAMETERS = SetParameters(Subj, Run, Task, Stim);
 
 
 %% Experiment parameters
 % Stimulus type
-Parameters.Apperture = 'Wedge';
+PARAMETERS.Apperture = 'Wedge';
 % Width of wedge in degrees
-Parameters.AppertureWidth = 70;
+PARAMETERS.AppertureWidth = 70;
+% Stimulus cycles per run
+PARAMETERS.CyclesPerExpmt = 3; 
+% Volumes per cycle - sets the "speed" of the mapping - standard is to have VolsPerCycle * TR ~ 1 min
+PARAMETERS.VolsPerCycle = 5; 
 % Direction of cycling
-Parameters.Direction = Direc;
+PARAMETERS.Direction = Direc;
 % Background image rotates
-Parameters.RotateStimulus = true;
+PARAMETERS.RotateStimulus = true;
 % Angle rotation back & forth
-Parameters.SineRotation = 5;
+PARAMETERS.SineRotation = 5;
 
 
 %% Run the experiment
-RetinotopicMapping(Parameters, Emul, Debug);
+[Data, PARAMETERS] = RetinotopicMapping(PARAMETERS, Emul, Debug);
 
 PlotResults(Data, PARAMETERS)
 

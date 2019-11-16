@@ -31,7 +31,7 @@ PARAMETERS.EventCentral
 
 %% Experimental Parameters
 PARAMETERS.Apperture = 'Bar';
-PARAMETERS.VolumesPerTrial = 6;
+PARAMETERS.VolsPerCycle = 6;
 PARAMETERS.Conditions = [90 45 0 135 270 225 180 315];  % Stimulus conditions in each block defined by number
 PARAMETERS.Conditions = [90 45 0 135];
 

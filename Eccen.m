@@ -35,6 +35,10 @@ PARAMETERS = SetParameters(Subj, Run, Task, Stim);
 PARAMETERS.Apperture='Ring';
 % Width of ring in degree of visual field at time = 0
 PARAMETERS.AppertureWidth = 1;
+% Stimulus cycles per run
+PARAMETERS.CyclesPerExpmt = 3; 
+% Volumes per cycle - sets the "speed" of the mapping - standard is to have VolsPerCycle * TR ~ 1 min
+PARAMETERS.VolsPerCycle = 5; 
 % Direction of cycling
 PARAMETERS.Direction = Direc;
 % Background image rotates

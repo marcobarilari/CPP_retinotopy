@@ -4,9 +4,11 @@ function FeedbackScreen(Win, PARAMETERS, Rect, Data)
 % other then a response to the second target can also be counted as a
 % reponse for the first one
 
+Target = 4;
+Response = 5;
 
-IsTarget = find(Data(:,2)==3);
-IsResp = Data(:,2)==4;
+IsTarget = find(Data(:,2)==Target);
+IsResp = Data(:,2)==Response;
 
 Hit = 0;
 Miss = 0;

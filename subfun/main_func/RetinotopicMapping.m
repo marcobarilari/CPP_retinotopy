@@ -114,7 +114,7 @@ try
     
     %% Wait for start of experiment
     if Emulate == 1
-        KbPressWait
+        [~, Key, ~] = KbPressWait;
         WaitSecs(PARAMETERS.TR*PARAMETERS.Dummies);
     else
         [MyPort] = WaitForScanTrigger(PARAMETERS);

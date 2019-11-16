@@ -65,7 +65,7 @@ switch PARAMETERS.Apperture
         Header = {'onset', 'trial_type', 'duration', 'bar_angle', 'bar_width', ...
                   'x_target_pos', 'y_target_pos', 'target_width', ...
                   'bar_position'};
-        StimData(:, [2 9]) = [Bar*ones(size(FrameTimes,1),1); ... % 'trial_type'
+        StimData(:, [2 9]) = [Bar*ones(size(FrameTimes,1),1), ... % 'trial_type'
                                 FrameTimes(:,4)]; % Bar position along the axis defined by the 
 end
 
@@ -83,7 +83,7 @@ end
 
 %% Prepare target data
 TargetData = nan(size(BEHAVIOUR.TargetData,1), NbColumns);
-TargetData(:, [1:3 6:7]) = [...
+TargetData(:, [1:3 6:8]) = [...
     BEHAVIOUR.TargetData(:,1), ... 'Onset'
     Target*ones(size(BEHAVIOUR.TargetData,1),1), ... 'trial_type'
     diff(BEHAVIOUR.TargetData(:,1:2), 1, 2), ... 'duration'

@@ -19,6 +19,7 @@ ivx = EyeTrackInit(PARAMETERS);
 % Event timings
 % Events is a vector that says when (in seconds from the start of the
 % experiment) a target should be presented.
+PARAMETERS.CyclesPerExpmt = length(PARAMETERS.Conditions);
 Events = CreateEventsTiming(PARAMETERS);
 
 % Configure scanner
@@ -45,7 +46,7 @@ try
     %% Load background movie
     StimRect = [0 0 repmat(size(PARAMETERS.Stimulus,1), 1, 2)];
     
-    BarWidth = StimRect(3)/PARAMETERS.VolumesPerTrial;
+    BarWidth = StimRect(3)/PARAMETERS.VolsPerCycle;
     PARAMETERS.AppertureWidth = BarWidth / PPD; % Width of bar in degrees of VA (needed for saving)
     
     BgdTextures = LoadBckGrnd(PARAMETERS, Win);
@@ -54,7 +55,7 @@ try
     %% Initialize
     CircAperture = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
     if SaveAps
-        ApFrm = zeros(100, 100, PARAMETERS.VolumesPerTrial * length(PARAMETERS.Conditions));
+        ApFrm = zeros(100, 100, PARAMETERS.VolsPerCycle * length(PARAMETERS.Conditions));
         SavWin = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
     end
     
@@ -77,7 +78,7 @@ try
     CURRENT.Volume = 0;
 
     % Set parameters drifting bars and add to parameters list for saving
-    DriftPerVol = StimRect(3) / PARAMETERS.VolumesPerTrial;
+    DriftPerVol = StimRect(3) / PARAMETERS.VolsPerCycle;
     BarPos = [0 : DriftPerVol : StimRect(3)-DriftPerVol] + (Rect(3)/2-StimRect(3)/2) + DriftPerVol/2;
     PARAMETERS.DriftPerVol = DriftPerVol;
     PARAMETERS.BarPos = BarPos;
@@ -138,7 +139,7 @@ try
         
         CURRENT.Volume = 1;
         
-        while CURRENT.Volume <= PARAMETERS.VolumesPerTrial
+        while CURRENT.Volume <= PARAMETERS.VolsPerCycle
 
             CURRENT.Time = GetSecs - StartExpmt;
             
@@ -163,7 +164,7 @@ try
             
             Screen('FillOval', CircAperture, [0 0 0 0], CenterRect([0 0 repmat(StimRect(3), 1, 2)], Rect));
             
-            if mod(CURRENT.Condit, 90) ~= 0 && CURRENT.Volume > PARAMETERS.VolumesPerTrial/2
+            if mod(CURRENT.Condit, 90) ~= 0 && CURRENT.Volume > PARAMETERS.VolsPerCycle/2
                 
                 Screen('FillRect', CircAperture, PARAMETERS.Background);
                 

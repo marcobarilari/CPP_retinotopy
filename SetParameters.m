@@ -3,8 +3,11 @@ function PARAMETERS = SetParameters(Subj, Run, Task, Stim)
 checkDependencies()
 
 % Initialize the parameters variable
-PARAMETERS = struct;    
+PARAMETERS = struct;  
 
+% Volumes per cycle - sets the "speed" of the mapping - standard is to have VolsPerCycle * TR ~ 1 min
+% e.g PARAMETERS.VolsPerCycle = ceil(60/PARAMETERS.TR); 
+% PARAMETERS.VolsPerCycle = ceil(5/PARAMETERS.TR); 
 
 %% Output directory
 PARAMETERS.TargetDir = fullfile(fileparts(mfilename('fullpath')), 'output');
@@ -53,11 +56,7 @@ PARAMETERS.Dummies = 0;
 PARAMETERS.viewDist = 30; 
 % horizontal width of screen (cm)
 PARAMETERS.xWidthScreen = 21.5; 
-% Stimulus cycles per run
-PARAMETERS.CyclesPerExpmt = 3; 
-% Volumes per cycle - sets the "speed" of the mapping - standard is to have VolsPerCycle * TR ~ 1 min
-% e.g PARAMETERS.VolsPerCycle = ceil(60/PARAMETERS.TR); 
-PARAMETERS.VolsPerCycle = ceil(60/PARAMETERS.TR); 
+
 PARAMETERS.FixationSize = .15; % in degrees VA
 
 % Target parameters
