@@ -1,4 +1,6 @@
 function Data = Save2TSV(FrameTimes, BEHAVIOUR, PARAMETERS)
+% Saves a BIDS compatible events.tsv files to
+%
 % onset 	REQUIRED. Onset (in seconds) of the event measured from the beginning of the acquisition
 % of the first volume in the corresponding task imaging data file. If any acquired scans have been
 % discarded before forming the imaging data file, ensure that a time of 0 corresponds to the first
@@ -117,7 +119,7 @@ end
 
 
 %% Print
-fid = fopen ([PARAMETERS.OutputFilename '.tsv'], 'w');
+fid = fopen ([PARAMETERS.OutputFilename '_events.tsv'], 'w');
 
 % print header
 for iHeader = 1:numel(Header)
@@ -151,5 +153,10 @@ for iLine = 1:size(Data,1)
 end
 
 fclose (fid);
+
+
+%% Print JSON file
+PrintJSONfile(PARAMETERS)
+
 
 end

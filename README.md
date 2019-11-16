@@ -10,6 +10,11 @@
 | or [Octave](https://www.gnu.org/software/octave/)        | 4.?          |
 | [Psychtoolbox](http://psychtoolbox.org/)                 | v3.15         |
 
+mpm install -i fullpath_to_this_folder/dependencies.txt
+
+mpm install -i fullfile(pwd, dependencies.txt) -c PTB_retinotopy
+
+
 ## Do it yourself
 
 Some things will need to be changed to match your needs. Most of it should be in the `SetParameters.m` function.
