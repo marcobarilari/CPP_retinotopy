@@ -2,11 +2,11 @@ clear
 close all 
 clc
 
-height = 1440;    % Define here the height of the screen 
+Height = 1440;    % Define here the height of the screen 
 
 addpath(genpath(fullfile(fileparts(mfilename), '..', 'subfun')));
 
-Stimulus = RadialCheckerBoard([height/2 0], [-180 180], [7 5]);
+Stimulus = RadialCheckerBoard([Height/2 0], [-180 180], [7 5]);
 
 StimFrames = 8;
 

@@ -29,11 +29,13 @@ PARAMETERS.EventCentral = true;
 
 %% Experimental Parameters
 PARAMETERS.Apperture = 'Bar';
-PARAMETERS.VolsPerCycle = 6;
-PARAMETERS.Conditions = [90 45 0 135 270 225 180 315];  % Stimulus conditions in each block defined by number
-PARAMETERS.Conditions = [90 45 0 135];
 
-PARAMETERS.SineRotation = 10;  % Rotating movie back & forth by this angle
+PARAMETERS.VolsPerCycle = 6;
+
+% Stimulus conditions in each block defined by number
+PARAMETERS.Conditions = [90 45 0 135 270 225 180 315];  
+ % Rotating movie back & forth by this angle
+PARAMETERS.SineRotation = 10; 
 
 
 %% Run the experiment

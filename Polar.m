@@ -43,7 +43,7 @@ PARAMETERS.Direction = Direc;
 % Background image rotates
 PARAMETERS.RotateStimulus = true;
 % Angle rotation back & forth
-PARAMETERS.SineRotation = 5;
+PARAMETERS.SineRotation = 10;
 
 
 %% Run the experiment

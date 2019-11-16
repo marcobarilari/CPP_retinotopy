@@ -106,7 +106,7 @@ PARAMETERS.OutputDir = fullfile(PARAMETERS.TargetDir, Subj, 'func');
 [~,~,~] = mkdir(PARAMETERS.OutputDir);
 
 % create base name for output files
-% departure from BIDS: append dates to base filenae
+% departure from BIDS specification: append dates to base filenae
 DateFormat = 'yyyymmdd-HHMM';
 PARAMETERS.OutputFilename = fullfile(PARAMETERS.OutputDir, ...
     sprintf('%s_%s_%s_%s', ...
