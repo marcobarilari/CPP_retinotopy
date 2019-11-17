@@ -14,6 +14,8 @@ function [Data, PARAMETERS] = RetinotopicMapping(PARAMETERS, Emulate, Debug)
 % CURRENT: structure to keep track of which frame, refreshcycle, time, angle...
 % RING: structure to keep of several information about the annulus size
 
+SaveApert = false;
+
 %% Setup
 
 
@@ -42,14 +44,11 @@ Events = CreateEventsTiming(PARAMETERS);
 try
     
     %% Initialize PTB
-    if Debug
-        PsychDebugWindowConfiguration
-    end
     
     % Define escapte key and response button
     KeyCodes = SetupKeyCodes;
     
-    [Win, Rect, ~, ifi] = InitPTB(PARAMETERS);
+    [Win, Rect, ~, ifi] = InitPTB(PARAMETERS, Debug);
     
     % compute pixels per degree and apply conversion
     PPD = GetPPD(Rect, PARAMETERS.xWidthScreen , PARAMETERS.viewDist);
@@ -63,8 +62,7 @@ try
     
     
     %% Initialize
-    AppTexture = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
-    
+
     Data = [];
     TargetData = [];
     FrameTimes = [];  % To collet info about the frames
@@ -83,6 +81,8 @@ try
     
     BEHAVIOUR.Response = [];
     BEHAVIOUR.ResponseTime = [];
+    
+    Apertures = [];
 
     % Set parameters for rings
     if IsRing
@@ -96,6 +96,19 @@ try
     
     CycleDuration = PARAMETERS.TR * PARAMETERS.VolsPerCycle;
     CyclingEnd = CycleDuration * PARAMETERS.CyclesPerExpmt;
+    
+    % Create aperture texture
+   AppertTexture = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
+    
+   % In case we want to save the aperture to facilitate pRF modelling
+    if SaveApert
+        [~,~,~] = mkdir(PARAMETERS.Aperture.TargetDir);
+        Apertures.Frames = nan(...
+            PARAMETERS.Aperture.Dimension, ...
+            PARAMETERS.Aperture.Dimension, ...
+            720);
+        SavWin = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
+    end
     
     
     %% Stand by screen
@@ -122,18 +135,7 @@ try
     
     EyeTrackStart(ivx, PARAMETERS)
     
-    % Abort if Escape was pressed
-    if Key(KeyCodes.Escape)
-        % Abort screen
-        Screen('FillRect', Win, PARAMETERS.Background, Rect);
-        DrawFormattedText(Win, 'Experiment was aborted!', 'center', 'center', ...
-            PARAMETERS.Foreground);
-        CleanUp
-        disp(' ');
-        disp('Experiment aborted by user!');
-        disp(' ');
-        return
-    end
+    QUIT = ExperimentAborted(Key, KeyCodes, Win, PARAMETERS, Rect);
 
 
     %% Start cycling the stimulus
@@ -141,10 +143,17 @@ try
     
     rft = Screen('Flip', Win);
     
+    NewAperture = true;
+    
     
     %% Loop until the end of last cycle
     while CURRENT.Time < CyclingEnd
         
+        
+        if QUIT
+            CleanUp
+            return
+        end
         
         %% Update Frame number
         CURRENT.Refresh = CURRENT.Refresh + 1;
@@ -180,16 +189,16 @@ try
         
         
         %% Create apperture texture
-        Screen('Fillrect', AppTexture, PARAMETERS.Background);
+        Screen('Fillrect', AppertTexture, PARAMETERS.Background);
         
         FrameTimesUpdate = [CURRENT.Time CURRENT.Frame CURRENT.Angle];
         
         if IsRing
             
-            Screen('FillOval', AppTexture, [0 0 0 0], ...
+            Screen('FillOval', AppertTexture, [0 0 0 0], ...
                 CenterRectOnPoint([0 0 repmat(RING.ScalePix,1,2)], Rect(3)/2, Rect(4)/2 ));
             
-            Screen('FillOval', AppTexture, [PARAMETERS.Background 255], ...
+            Screen('FillOval', AppertTexture, [PARAMETERS.Background 255], ...
                 CenterRectOnPoint([0 0 repmat(RING.ScaleInnerPix,1,2)], Rect(3)/2, Rect(4)/2 ));
             
             FrameTimesUpdate = [FrameTimesUpdate, ...
@@ -197,13 +206,26 @@ try
             
         else
             
-            Screen('FillArc', AppTexture, [0 0 0 0], ...
+            Screen('FillArc', AppertTexture, [0 0 0 0], ...
                 CenterRect([0 0 repmat(StimRect(4),1,2)], Rect), CURRENT.Angle, PARAMETERS.AppertureWidth);
             
         end
         
         % CURRENT Frame, time & condition (can also be valuable for debugging)
         FrameTimes = [FrameTimes; FrameTimesUpdate]; %#ok<AGROW>
+        
+        % (and save if desired)
+        if SaveApert && NewAperture
+            Screen('DrawTexture', SavWin, AppertTexture);
+            CurApImg = Screen('GetImage', SavWin, CenterRect(StimRect, Rect));
+            CurApImg = ~CurApImg(:,:,1);
+            
+            % store frame, its angle and its distance to the center
+            Apertures.Frames(:, :, round(RING.ScaleInnerPix)+1 ) = ...
+                imresize(CurApImg, [PARAMETERS.Aperture.Dimension PARAMETERS.Aperture.Dimension]);
+            Apertures.Inner( round(RING.ScaleInnerPix)+1 ) = RING.ScaleInnerPix;
+            Apertures.Outer( round(RING.ScaleInnerPix)+1 ) = RING.ScalePix;
+        end
         
         
         %% Draw stimulus
@@ -224,7 +246,7 @@ try
             CenterRect(StimRect, Rect), BgdAngle + SineRotate);
         
         % Draw aperture
-        Screen('DrawTexture', Win, AppTexture);
+        Screen('DrawTexture', Win, AppertTexture);
         
         % Draw fixation
         Screen('FillOval', Win, PARAMETERS.Foreground, ...
@@ -247,12 +269,7 @@ try
         
         %% Behavioural response
         [BEHAVIOUR, PrevKeypr, QUIT] = GetBehResp(KeyCodes, Win, PARAMETERS, Rect, PrevKeypr, BEHAVIOUR, StartExpmt);
-        
-        if QUIT
-            CleanUp
-            return
-        end
-        
+
     end
     
     
@@ -274,13 +291,7 @@ try
     % clear stim from structure and a few variables to save memory
     PARAMETERS = rmfield(PARAMETERS, 'Stimulus');
 
-    if IsOctave
-        save([PARAMETERS.OutputFilename '.mat'], '-mat7-binary', ...
-            'FrameTimes', 'BEHAVIOUR', 'PARAMETERS', 'KeyCodes', 'StartExpmt');
-    else
-        save([PARAMETERS.OutputFilename '.mat'], '-v7.3', ...
-            'FrameTimes', 'BEHAVIOUR', 'PARAMETERS', 'KeyCodes', 'StartExpmt');
-    end
+    SaveToMat(PARAMETERS, FrameTimes, BEHAVIOUR, KeyCodes, StartExpmt)
 
     WaitSecs(4);
     
@@ -302,6 +313,9 @@ try
     FarewellScreen(Win, PARAMETERS, Rect)
     
     CleanUp
+    
+    %% Save apertures
+    SaveApertures(SaveApert, PARAMETERS, Apertures)
     
     
 catch

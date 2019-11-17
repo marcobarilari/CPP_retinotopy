@@ -1,4 +1,4 @@
-function BarsMapping(PARAMETERS, Emulate, Debug, SaveAps)
+function BarsMapping(PARAMETERS, Emulate, Debug, SaveApert)
 %Bars_Mapping(PARAMETERS, Emulate, SaveAps)
 %
 % Runs the drifting bar protocol for mapping population receptive fields.
@@ -6,7 +6,7 @@ function BarsMapping(PARAMETERS, Emulate, Debug, SaveAps)
 %
 
 if nargin < 4
-    SaveAps = true;
+    SaveApert = true;
 end
 
 
@@ -29,13 +29,10 @@ Events = CreateEventsTiming(PARAMETERS);
 try
     
     %% Initialize PTB
-    if Debug
-        PsychDebugWindowConfiguration
-    end
-    
+   
     KeyCodes = SetupKeyCodes;
     
-    [Win, Rect, ~, ifi] = InitPTB(PARAMETERS);
+    [Win, Rect, ~, ifi] = InitPTB(PARAMETERS, Debug);
 
     % compute pixels per degree and apply conversion
     PPD = GetPPD(Rect, PARAMETERS.xWidthScreen , PARAMETERS.viewDist);
@@ -50,20 +47,7 @@ try
     
     
     %% Initialize
-    CircAperture = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
-    
-    % In case we want to save the aperture to facilitate pRF modelling
-    if SaveAps
-        [~,~,~] = mkdir(PARAMETERS.Aperture.TargetDir);
-        Apertures.Frames = zeros(...
-            PARAMETERS.Aperture.Dimension, ...
-            PARAMETERS.Aperture.Dimension, ...
-            PARAMETERS.VolsPerCycle * length(PARAMETERS.Conditions));
-        SavWin = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
-    else
-        Apertures = [];
-    end
-    
+
     % Background variables
     CURRENT.Frame = 0;
     CURRENT.Stim = 1;
@@ -80,6 +64,8 @@ try
     
     FrameTimes = [];
     
+    Apertures = [];
+    
     CURRENT.Volume = 0;
 
     % Set parameters drifting bars and add to parameters list for saving
@@ -87,6 +73,19 @@ try
     BarPos = [0 : BarWidth : StimRect(3)-BarWidth] + (Rect(3)/2-StimRect(3)/2) + BarWidth/2;
     PARAMETERS.AppertureWidth = BarWidth / PPD; % Width of bar in degrees of VA (needed for saving)
     PARAMETERS.BarPos = (BarPos - Rect(3)/2) / PPD; % in VA
+    
+    % Create aperture texture
+    AppertTexture = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
+    
+    % In case we want to save the aperture to facilitate pRF modelling
+    if SaveApert
+        [~,~,~] = mkdir(PARAMETERS.Aperture.TargetDir);
+        Apertures.Frames = zeros(...
+            PARAMETERS.Aperture.Dimension, ...
+            PARAMETERS.Aperture.Dimension, ...
+            PARAMETERS.VolsPerCycle * length(PARAMETERS.Conditions));
+        SavWin = Screen('MakeTexture', Win, 127 * ones(Rect([4 3])));
+    end
     
     %% Standby screen
     Screen('FillRect', Win, PARAMETERS.Background, Rect);
@@ -113,18 +112,7 @@ try
     
     EyeTrackStart(ivx, PARAMETERS)
     
-    % Abort if Escape was pressed
-    if Key(KeyCodes.Escape)
-        % Abort screen
-        Screen('FillRect', Win, PARAMETERS.Background, Rect);
-        DrawFormattedText(Win, 'Experiment was aborted!', 'center', 'center', ...
-            PARAMETERS.Foreground);
-        CleanUp
-        disp(' ');
-        disp('Experiment aborted by user!');
-        disp(' ');
-        return
-    end
+    QUIT = ExperimentAborted(Key, KeyCodes, Win, PARAMETERS, Rect);
     
     
     %% Start cycling the stimulus
@@ -147,13 +135,16 @@ try
         
         while CURRENT.Volume <= PARAMETERS.VolsPerCycle
 
+            if QUIT
+                return
+            end
+            
             CURRENT.Time = GetSecs - StartExpmt;
             
             % we change the aperture with every volume
+            NewAperture = true;
             if PreviousVolume==CURRENT.Volume
                 NewAperture = false;
-            else
-                NewAperture = true;
             end
             
             %% Determine current frame
@@ -166,7 +157,7 @@ try
                 CURRENT.Frame = 1;
                 CURRENT.Stim = CURRENT.Stim + 1;
             end
-            SaveAps = true;
+
             if CURRENT.Stim > size(PARAMETERS.Stimulus, length(size(PARAMETERS.Stimulus)))
                 CURRENT.Stim = 1;
             end
@@ -175,16 +166,16 @@ try
             %% Create Aperture
             % aperture is the color of the background
             
-            Screen('FillRect', CircAperture, PARAMETERS.Background);
+            Screen('FillRect', AppertTexture, PARAMETERS.Background);
             
             % We let the stimulus through
-            Screen('FillOval', CircAperture, [0 0 0 0], CenterRect([0 0 repmat(StimRect(3), 1, 2)], Rect));
+            Screen('FillOval', AppertTexture, [0 0 0 0], CenterRect([0 0 repmat(StimRect(3), 1, 2)], Rect));
             
             % Then we add the position of the bar aperture
-            Screen('FillRect', CircAperture, PARAMETERS.Background, ...
+            Screen('FillRect', AppertTexture, PARAMETERS.Background, ...
                 [0 0 CURRENT.BarPos - BarWidth/2 Rect(4)]);
             
-            Screen('FillRect', CircAperture, PARAMETERS.Background, ...
+            Screen('FillRect', AppertTexture, PARAMETERS.Background, ...
                 [CURRENT.BarPos + BarWidth/2 0 Rect(3) Rect(4)]);
             
             
@@ -200,11 +191,11 @@ try
                 CenterRect(StimRect, Rect), BgdAngle + CURRENT.Condit - 90);
             
             % Draw aperture and we rotate to match the required condition
-            Screen('DrawTexture', Win, CircAperture, Rect, Rect, CURRENT.Condit - 90);
+            Screen('DrawTexture', Win, AppertTexture, Rect, Rect, CURRENT.Condit - 90);
             
             % (and save if desired)
-            if SaveAps && NewAperture
-                Screen('DrawTexture', SavWin, CircAperture, Rect, Rect, CURRENT.Condit - 90);
+            if SaveApert && NewAperture
+                Screen('DrawTexture', SavWin, AppertTexture, Rect, Rect, CURRENT.Condit - 90);
                 CurApImg = Screen('GetImage', SavWin, CenterRect(StimRect, Rect));
                 CurApImg = ~CurApImg(:,:,1);
                 
@@ -252,11 +243,7 @@ try
             %% Behavioural response
             [BEHAVIOUR, PrevKeypr, QUIT] = ...
                 GetBehResp(KeyCodes, Win, PARAMETERS, Rect, PrevKeypr, BEHAVIOUR, StartExpmt);
-            
-            if QUIT
-                return
-            end
-            
+
             % Determine current volume
             PreviousVolume=CURRENT.Volume;
             CURRENT.Volume = floor((CURRENT.Time - TrialOnset) / PARAMETERS.TR) + 1;
@@ -285,13 +272,7 @@ try
     % clear stim from structure and a few variables to save memory
     PARAMETERS = rmfield(PARAMETERS, 'Stimulus');
     
-    if IsOctave
-        save([PARAMETERS.OutputFilename '.mat'], '-mat7-binary', ...
-            'FrameTimes', 'BEHAVIOUR', 'PARAMETERS', 'KeyCodes', 'StartExpmt');
-    else
-        save([PARAMETERS.OutputFilename '.mat'], '-v7.3', ...
-            'FrameTimes', 'BEHAVIOUR', 'PARAMETERS', 'KeyCodes', 'StartExpmt');
-    end
+    SaveToMat(PARAMETERS, FrameTimes, BEHAVIOUR, KeyCodes, StartExpmt)
     
     WaitSecs(4);
     
@@ -316,7 +297,7 @@ try
     
     
     %% Save apertures
-    SaveApertures(SaveAps, PARAMETERS, Apertures)
+    SaveApertures(SaveApert, PARAMETERS, Apertures)
 
     
 catch

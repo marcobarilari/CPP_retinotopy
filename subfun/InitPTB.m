@@ -1,4 +1,8 @@
-function [Win, Rect, oldRes, ifi] = InitPTB(PARAMETERS)
+function [Win, Rect, oldRes, ifi] = InitPTB(PARAMETERS, Debug)
+
+if Debug
+    PsychDebugWindowConfiguration
+end
 
 screenid = PARAMETERS.Screen;
 
