@@ -1,41 +1,41 @@
 function PlotResults(Data, PARAMETERS)
 
-if isempty(Data)
-    return
-end
+    if isempty(Data)
+        return
+    end
 
-close all
+    close all;
 
-figure(1)
+    figure(1);
 
-hold on
+    hold on;
 
-IsStim = Data(:,2)<3;
-IsTarget = Data(:,2)==3;
-IsResp = Data(:,2)==4;
+    IsStim = Data(:, 2) < 3;
+    IsTarget = Data(:, 2) == 3;
+    IsResp = Data(:, 2) == 4;
 
-% plot stim
-switch PARAMETERS.Apperture
-    case 'Ring'
-        plot(Data(IsStim,1), Data(IsStim,9))
-        plot(Data(IsStim,1), Data(IsStim,10))
-        Legend = {'outer', 'inner', 'target', 'response'};
-        
-    case 'Wedge'
-        plot(Data(IsStim,1), Data(IsStim,4))
-        Legend = {'angle', 'target', 'response'};
-end
+    % plot stim
+    switch PARAMETERS.Apperture
+        case 'Ring'
+            plot(Data(IsStim, 1), Data(IsStim, 9));
+            plot(Data(IsStim, 1), Data(IsStim, 10));
+            Legend = {'outer', 'inner', 'target', 'response'};
 
-% plot target and responses
-stem(Data(IsTarget,1), 5*ones(sum(IsTarget),1), '-k')
-stem(Data(IsResp,1), 5*ones(sum(IsResp),1), '-r')
+        case 'Wedge'
+            plot(Data(IsStim, 1), Data(IsStim, 4));
+            Legend = {'angle', 'target', 'response'};
+    end
 
-legend(Legend)
+    % plot target and responses
+    stem(Data(IsTarget, 1), 5 * ones(sum(IsTarget), 1), '-k');
+    stem(Data(IsResp, 1), 5 * ones(sum(IsResp), 1), '-r');
 
-plot([0 Data(end,1)], [0 0], '-k')
+    legend(Legend);
 
-axis tight
+    plot([0 Data(end, 1)], [0 0], '-k');
 
-xlabel('time (seconds)')
+    axis tight;
+
+    xlabel('time (seconds)');
 
 end
