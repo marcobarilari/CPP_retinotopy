@@ -17,7 +17,8 @@ function [] = optimRetMapping()
     for iWidth = 1:length(widthRingRange)
         for iCycle = 1:length(cycleDurRange)
             X = [sin(time(:, iWidth, iCycle) * 2 * pi / cycleDur(1, iWidth, iCycle)), ...
-                cos(time(:, iWidth, iCycle) * 2 * pi / cycleDur(1, iWidth, iCycle)), ones(length(timeSpan), 1)];
+                cos(time(:, iWidth, iCycle) * 2 * pi / cycleDur(1, iWidth, iCycle)), ...
+                ones(length(timeSpan), 1)];
             [param, dev, stats] = glmfit(X, Y(:, iWidth, iCycle), 'normal');
             ResVar = dev * 1 / (length(timeSpan) - 3) ;
             F(iWidth, iCycle) = (sum(param(1:2).^2) / 3) / ResVar;
