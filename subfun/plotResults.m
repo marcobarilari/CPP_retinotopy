@@ -1,6 +1,6 @@
-function plotResults(Data, PARAMETERS)
+function plotResults(data, cfg)
 
-    if isempty(Data)
+    if isempty(data)
         return
     end
 
@@ -10,29 +10,29 @@ function plotResults(Data, PARAMETERS)
 
     hold on;
 
-    IsStim = Data(:, 2) < 3;
-    IsTarget = Data(:, 2) == 3;
-    IsResp = Data(:, 2) == 4;
+    IsStim = data(:, 2) < 3;
+    IsTarget = data(:, 2) == 3;
+    IsResp = data(:, 2) == 4;
 
     % plot stim
-    switch PARAMETERS.Apperture
+    switch cfg.Apperture
         case 'Ring'
-            plot(Data(IsStim, 1), Data(IsStim, 9));
-            plot(Data(IsStim, 1), Data(IsStim, 10));
+            plot(data(IsStim, 1), data(IsStim, 9));
+            plot(data(IsStim, 1), data(IsStim, 10));
             Legend = {'outer', 'inner', 'target', 'response'};
 
         case 'Wedge'
-            plot(Data(IsStim, 1), Data(IsStim, 4));
+            plot(data(IsStim, 1), data(IsStim, 4));
             Legend = {'angle', 'target', 'response'};
     end
 
     % plot target and responses
-    stem(Data(IsTarget, 1), 5 * ones(sum(IsTarget), 1), '-k');
-    stem(Data(IsResp, 1), 5 * ones(sum(IsResp), 1), '-r');
+    stem(data(IsTarget, 1), 5 * ones(sum(IsTarget), 1), '-k');
+    stem(data(IsResp, 1), 5 * ones(sum(IsResp), 1), '-r');
 
     legend(Legend);
 
-    plot([0 Data(end, 1)], [0 0], '-k');
+    plot([0 data(end, 1)], [0 0], '-k');
 
     axis tight;
 

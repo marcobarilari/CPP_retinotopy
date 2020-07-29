@@ -1,4 +1,4 @@
-function PrintJSONfile(PARAMETERS)
+function PrintJSONfile(cfg)
     % saves a BIDS compatible data dictionary for the events.tsv files
 
     if isempty(which('jsonwrite'))
@@ -9,9 +9,9 @@ function PrintJSONfile(PARAMETERS)
 
         opts.indent = '    ';
 
-        filename = [PARAMETERS.OutputFilename '_events.json'];
+        filename = [cfg.OutputFilename '_events.json'];
 
-        switch PARAMETERS.Apperture
+        switch cfg.Apperture
 
             case 'Bar'
                 Header = struct( ...

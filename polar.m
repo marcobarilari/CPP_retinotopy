@@ -22,19 +22,19 @@ function polar(direc, stim, emul, debug)
 
     %% Experiment parameters
 
-    expParameters.task = 'retinotopyPolar';
+    cfg.task.name = 'retinotopy polar';
 
     % Stimulus type
-    expParameters.aperture.type = 'Wedge';
+    cfg.aperture.type = 'Wedge';
     % Width of wedge in degrees
-    expParameters.aperture.width = 70;
+    cfg.aperture.width = 70;
     % Direction of cycling
-    expParameters.direction = direc;
+    cfg.direction = direc;
 
     %% Set defaults
 
-    expParameters.stim = stim;
-    cfg.debug = debug;
+    cfg.stim = stim;
+    cfg.debug.do = debug;
 
     if ~emul
         cfg.testingDevice = 'mri';
@@ -42,22 +42,22 @@ function polar(direc, stim, emul, debug)
         cfg.testingDevice = 'pc';
     end
 
-    expParameters.extraColumns.angle = struct( ...
+    cfg.extraColumns.angle = struct( ...
         'length', 1, ...
         'bids', struct( ...
         'LongName', 'position of the center of the wedge', ...
         'Units', 'degrees'));
 
-    expParameters.extraColumns.wedge_angle = struct( ...
+    cfg.extraColumns.wedge_angle = struct( ...
         'length', 1, ...
         'bids', struct( ...
         'LongName', 'angular width of the wedge', ...
         'Units', 'degrees'));
 
-    [cfg, expParameters] = setParameters(cfg, expParameters);
+    [cfg] = setParameters(cfg);
 
     %% Run the experiment
-    [data, expParameters] = retinotopicMapping(cfg, expParameters);
+    [data, cfg] = retinotopicMapping(cfg);
 
     %     plotResults(data, expParameters);
 
