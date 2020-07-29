@@ -103,7 +103,7 @@ function barsMapping(cfg)
             while current.volume <= cfg.volsPerCycle
 
                 checkAbort(cfg);
-                
+
                 current.time = GetSecs - cfg.experimentStart;
 
                 %% Determine current frame

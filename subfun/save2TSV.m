@@ -98,8 +98,6 @@ function Data = save2TSV(FrameTimes, BEHAVIOUR, cfg)
 
     end
 
-
-
     %% Print JSON file
     PrintJSONfile(cfg);
 

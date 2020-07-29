@@ -155,8 +155,8 @@ function [data, cfg] = retinotopicMapping(cfg)
                     [0 0 repmat(ring.innerRimPix, 1, 2)], ...
                     cfg.screen.winRect(3) / 2, cfg.screen.winRect(4) / 2));
 
-                %                 frameTimesUpdate = [frameTimesUpdate, ...
-                %                     ring.scalePix ring.scaleVA2 ring.scaleInnerPix ring.scaleInnerVA];
+                % frameTimesUpdate = [frameTimesUpdate, ...
+                %  ring.scalePix ring.scaleVA2 ring.scaleInnerPix ring.scaleInnerVA];
 
             else
 
