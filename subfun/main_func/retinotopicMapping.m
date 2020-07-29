@@ -1,4 +1,4 @@
-function [data, expParameters] = retinotopicMapping(cfg, expParameters)
+function [data, cfg] = retinotopicMapping(cfg)
     % retinotopicMapping(cfg, expParameters)
     %
     % Cyclic presentation with a rotating and/or expanding aperture.
@@ -7,14 +7,13 @@ function [data, expParameters] = retinotopicMapping(cfg, expParameters)
     % current: structure to keep track of which frame, refreshcycle, time, angle...
     % ring: structure to keep of several information about the annulus size
 
-    expParameters = userInputs(cfg, expParameters);
-    [cfg, expParameters] = createFilename(cfg, expParameters);
+    cfg = userInputs(cfg);
+    [cfg] = createFilename(cfg);
 
     % Prepare for the output logfiles with all
-    logFile.extraColumns = expParameters.extraColumns;
-    logFile = saveEventsFile('open', expParameters, logFile);
+    logFile.extraColumns = cfg.extraColumns;
+    logFile = saveEventsFile('open', cfg, logFile);
 
-    disp(expParameters);
     disp(cfg);
 
     %% Initialize
@@ -30,18 +29,18 @@ function [data, expParameters] = retinotopicMapping(cfg, expParameters)
     current.time = 0;
 
     % current inner radius of ring
-    ring.ringWidthVA = expParameters.aperture.width;
+    ring.ringWidthVA = cfg.aperture.width;
 
     target.wasTarget = false;
     target.trial_type = 'target';
     target.fileID = logFile.fileID;
     target.extraColumns = logFile.extraColumns;
-    target.target_width = expParameters.target.size;
+    target.target_width = cfg.target.size;
 
-    cycleDuration = expParameters.bids.MRI.RepetitionTime * expParameters.volsPerCycle;
-    cyclingEnd = cycleDuration * expParameters.cyclesPerExpmt;
+    cycleDuration = cfg.mri.repetitionTime * cfg.volsPerCycle;
+    cyclingEnd = cycleDuration * cfg.cyclesPerExpmt;
 
-    switch expParameters.aperture.type
+    switch cfg.aperture.type
         case 'Ring'
             isRing = true;
         otherwise
@@ -56,7 +55,7 @@ function [data, expParameters] = retinotopicMapping(cfg, expParameters)
 
     % targetsTimings is a vector that says when (in seconds from the start of the
     % experiment) a target should be presented.
-    targetsTimings = createTargetsTiming(expParameters);
+    targetsTimings = createTargetsTiming(cfg);
 
     %% Start
     try
@@ -73,21 +72,21 @@ function [data, expParameters] = retinotopicMapping(cfg, expParameters)
 
         % apply pixels per degree conversion
         target = degToPix('target_width', target, cfg);
-        expParameters = degToPix('fixationSize', expParameters, cfg);
+        cfg.fixation = degToPix('size', cfg.fixation, cfg);
 
         % Load background movie
-        expParameters = loadStim(expParameters);
-        stimRect = [0 0 size(expParameters.stimulus, 2) size(expParameters.stimulus, 1)];
-        bgdTextures = loadBckGrnd(expParameters.stimulus, cfg.win);
+        cfg = loadStim(cfg);
+        stimRect = [0 0 size(cfg.stimulus, 2) size(cfg.stimulus, 1)];
+        bgdTextures = loadBckGrnd(cfg.stimulus, cfg.screen.win);
 
         % Set parameters for rings
         if isRing
             % currentScale is scale of outer ring (exceeding screen until
             % inner ring reaches window boarder)
             ring.maxEcc = ...
-                cfg.FOV / 2 + ...
-                expParameters.aperture.width + ...
-                log(cfg.FOV / 2 + 1) ;
+                cfg.screen.FOV / 2 + ...
+                cfg.aperture.width + ...
+                log(cfg.screen.FOV / 2 + 1) ;
             % ring.CsFuncFact is used to expand with log increasing speed so
             % that ring is at ring.maxEcc at end of cycle
             ring.csFuncFact = ...
@@ -96,23 +95,23 @@ function [data, expParameters] = retinotopicMapping(cfg, expParameters)
         end
 
         % Create aperture texture
-        apertTexture = Screen('MakeTexture', cfg.win, 127 * ones(cfg.winRect([4 3])));
+        apertTexture = Screen('MakeTexture', cfg.screen.win, 127 * ones(cfg.screen.winRect([4 3])));
 
         % prepare the KbQueue to collect responses
         getResponse('init', cfg.keyboard.responseBox, cfg);
 
-        [el] = eyeTracker('Calibration', cfg, expParameters); %#ok<*NASGU>
+        [el] = eyeTracker('Calibration', cfg); %#ok<*NASGU>
 
-        standByScreen(cfg, expParameters);
+        standByScreen(cfg);
 
         %% Wait for start of experiment
         waitForTrigger(cfg);
 
-        eyeTracker('StartRecording', cfg, expParameters);
+        eyeTracker('StartRecording', cfg);
         getResponse('start', cfg.keyboard.responseBox);
 
         %% Start cycling the stimulus
-        rft = Screen('Flip', cfg.win);
+        rft = Screen('Flip', cfg.screen.win);
         cfg.experimentStart = rft;
 
         %% Loop until the end of last cycle
@@ -122,12 +121,12 @@ function [data, expParameters] = retinotopicMapping(cfg, expParameters)
 
             %% Update Frame number
             current.refresh = current.refresh + 1;
-            if current.refresh == expParameters.refreshPerStim
+            if current.refresh == cfg.refreshPerStim
 
                 current.refresh = 0;
                 current.frame = current.frame + 1;
 
-                if current.frame > size(expParameters.stimulus, ndims(expParameters.stimulus))
+                if current.frame > size(cfg.stimulus, ndims(cfg.stimulus))
                     current.frame = 1;
                 end
 
@@ -137,24 +136,24 @@ function [data, expParameters] = retinotopicMapping(cfg, expParameters)
             current.time = GetSecs - cfg.experimentStart;
 
             %% Create apperture texture
-            Screen('Fillrect', apertTexture, cfg.backgroundColor);
+            Screen('Fillrect', apertTexture, cfg.color.background);
 
             frameTimesUpdate = [current.time];
 
             if isRing
 
                 % expansion speed is log over eccentricity
-                [ring] = eccenLogSpeed(expParameters, cfg.ppd, ring, current.time);
+                [ring] = eccenLogSpeed(cfg, cfg.screen.ppd, ring, current.time);
 
                 Screen('FillOval', apertTexture, [0 0 0 0], ...
                     CenterRectOnPoint( ...
                     [0 0 repmat(ring.outerRimPix, 1, 2)], ...
-                    cfg.winRect(3) / 2, cfg.winRect(4) / 2));
+                    cfg.screen.winRect(3) / 2, cfg.screen.winRect(4) / 2));
 
-                Screen('FillOval', apertTexture, [cfg.backgroundColor 255], ...
+                Screen('FillOval', apertTexture, [cfg.color.background 255], ...
                     CenterRectOnPoint( ...
                     [0 0 repmat(ring.innerRimPix, 1, 2)], ...
-                    cfg.winRect(3) / 2, cfg.winRect(4) / 2));
+                    cfg.screen.winRect(3) / 2, cfg.screen.winRect(4) / 2));
 
                 %                 frameTimesUpdate = [frameTimesUpdate, ...
                 %                     ring.scalePix ring.scaleVA2 ring.scaleInnerPix ring.scaleInnerVA];
@@ -162,22 +161,22 @@ function [data, expParameters] = retinotopicMapping(cfg, expParameters)
             else
 
                 % Update angle for rotation of background and for apperture for wedge
-                switch expParameters.direction
+                switch cfg.direction
 
                     case '+'
                         current.angle = 90 - ...
-                            expParameters.aperture.width / 2 + ...
+                            cfg.aperture.width / 2 + ...
                             (current.time / cycleDuration) * 360;
                     case '-'
                         current.angle = 90 - ...
-                            expParameters.aperture.width / 2 - ...
+                            cfg.aperture.width / 2 - ...
                             (current.time / cycleDuration) * 360;
 
                 end
 
                 Screen('FillArc', apertTexture, [0 0 0 0], ...
-                    CenterRect([0 0 repmat(stimRect(4), 1, 2)], cfg.winRect), ...
-                    current.angle, expParameters.aperture.width);
+                    CenterRect([0 0 repmat(stimRect(4), 1, 2)], cfg.screen.winRect), ...
+                    current.angle, cfg.aperture.width);
 
                 %                 frameTimesUpdate = [frameTimesUpdate, current.angle];
 
@@ -190,54 +189,54 @@ function [data, expParameters] = retinotopicMapping(cfg, expParameters)
             % we draw the background stimulus in full and overlay an aperture on top of it
 
             % Display background
-            if expParameters.rotateStimulus
+            if cfg.rotateStimulus
                 bgdAngle = current.angle;
             else
                 bgdAngle = 0;
             end
 
             % Rotate background movie
-            sineRotate = cos(current.time) * expParameters.sineRotation;
+            sineRotate = cos(current.time) * cfg.sineRotation;
 
-            Screen('DrawTexture', cfg.win, bgdTextures(current.frame), stimRect, ...
-                CenterRect(stimRect, cfg.winRect), bgdAngle + sineRotate);
+            Screen('DrawTexture', cfg.screen.win, bgdTextures(current.frame), stimRect, ...
+                CenterRect(stimRect, cfg.screen.winRect), bgdAngle + sineRotate);
 
             % Draw aperture
-            Screen('DrawTexture', cfg.win, apertTexture);
+            Screen('DrawTexture', cfg.screen.win, apertTexture);
 
-            drawFixation(cfg, expParameters);
+            drawFixation(cfg);
 
             %% Draw target
-            [target] = drawTarget(target, targetsTimings, current, ring, cfg, expParameters);
+            [target] = drawTarget(target, targetsTimings, current, ring, cfg);
 
             %% Flip current frame
-            rft = Screen('Flip', cfg.win, rft + cfg.ifi);
+            rft = Screen('Flip', cfg.screen.win, rft + cfg.screen.ifi);
 
             %% Collect and save target info
             if target.isOnset
                 target.onset = rft - cfg.experimentStart;
             elseif target.isOffset
                 target.duration = (rft - cfg.experimentStart) - target.onset;
-                saveEventsFile('save', expParameters, target);
+                saveEventsFile('save', cfg, target);
             end
 
-            collectAndSaveResponses(cfg, expParameters, logFile, cfg.experimentStart);
+            collectAndSaveResponses(cfg, cfg, logFile, cfg.experimentStart);
 
         end
 
         %% End the experiment
-        drawFixation(cfg, expParameters);
-        endExpmt = Screen('Flip', cfg.win);
+        drawFixation(cfg);
+        endExpmt = Screen('Flip', cfg.screen.win);
 
         dispExpDur(endExpmt, cfg.experimentStart);
 
         getResponse('stop', cfg.keyboard.responseBox);
         getResponse('release', cfg.keyboard.responseBox);
 
-        saveEventsFile('close', expParameters, logFile);
+        saveEventsFile('close', cfg, logFile);
 
-        eyeTracker('StopRecordings', cfg, expParameters);
-        eyeTracker('Shutdown', cfg, expParameters);
+        eyeTracker('StopRecordings', cfg);
+        eyeTracker('Shutdown', cfg);
 
         %       data = feedbackScreen(cfg, expParameters);
 
@@ -248,11 +247,11 @@ function [data, expParameters] = retinotopicMapping(cfg, expParameters)
         %         data = save2TSV(frameTimes, behavior, expParameters);
 
         % clear stim from structure and a few variables to save memory
-        expParameters = rmfield(expParameters, 'stimulus');
+        cfg = rmfield(cfg, 'stimulus');
 
         matFile = fullfile( ...
-            expParameters.outputDir, ...
-            strrep(expParameters.fileName.events, 'tsv', 'mat'));
+            cfg.dir.output, ...
+            strrep(cfg.fileName.events, 'tsv', 'mat'));
         if IsOctave
             save(matFile, '-mat7-binary');
         else
@@ -260,15 +259,15 @@ function [data, expParameters] = retinotopicMapping(cfg, expParameters)
         end
 
         output = bids.util.tsvread( ...
-            fullfile(expParameters.subjectOutputDir, expParameters.modality, ...
-            expParameters.fileName.events));
+            fullfile(cfg.dir.outputSubject, cfg.fileName.modality, ...
+            cfg.fileName.events));
 
         disp(output);
 
         WaitSecs(4);
 
         %% Farewell screen
-        farewellScreen(cfg, expParameters);
+        farewellScreen(cfg);
 
         cleanUp;
 

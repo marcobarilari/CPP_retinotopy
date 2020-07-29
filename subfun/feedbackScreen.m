@@ -1,48 +1,48 @@
-function data = feedbackScreen(cfg, expParameters)
+function data = feedbackScreen(cfg)
     % data = feedbackScreen(cfg, expParameters);
     % gives feedback to the participant
     % the hit rate can be overestimated if there are 2 targets close to each
     % other then a response to the second target can also be counted as a
     % reponse for the first one
 
-    Target = 4;
-    Response = 5;
+    target = 4;
+    response = 5;
 
-    IsTarget = find(Data(:, 2) == Target);
-    IsResp = Data(:, 2) == Response;
+    isTarget = find(data(:, 2) == target);
+    isResp = data(:, 2) == response;
 
-    Hit = 0;
-    Miss = 0;
+    hit = 0;
+    miss = 0;
 
     % we check if there is a response in the response window (defined with
     % logical indexing) and update the appropriate counter
-    for iTarget = 1:numel(IsTarget)
+    for iTarget = 1:numel(isTarget)
 
-        RespWin = all([ ...
-            Data(:, 1) >= Data(IsTarget(iTarget), 1), ...
-            Data(:, 1) < (Data(IsTarget(iTarget), 1) + expParameters.RespWin)], 2);
+        respWin = all([ ...
+            data(:, 1) >= data(isTarget(iTarget), 1), ...
+            data(:, 1) < (data(isTarget(iTarget), 1) + cfg.respWin)], 2);
 
-        if any(all([RespWin IsResp], 2))
-            Hit = Hit + 1;
+        if any(all([respWin IsResp], 2))
+            hit = hit + 1;
         else
-            Miss = Miss + 1;
+            miss = miss + 1;
         end
 
     end
 
-    FA = sum(IsResp) - Hit;
+    fa = sum(IsResp) - hit;
 
-    Screen('FillRect', cfg.win, expParameters.backgroundColor, cfg.winRect);
+    Screen('FillRect',cfg.screen.win, cfg.color.background,cfg.screen.winRect);
 
-    DrawFormattedText(cfg.win, sprintf(expParameters.Hit, Hit, numel(IsTarget)), ...
-        'center', cfg.winRect(4) / 4, [0 255 0]);
+    DrawFormattedText(cfg.screen.win, sprintf(cfg.hit, hit, numel(isTarget)), ...
+        'center',cfg.screen.winRect(4) / 4, [0 255 0]);
 
-    DrawFormattedText(cfg.win, sprintf(expParameters.Miss, Miss, numel(IsTarget)), ...
-        'center', cfg.winRect(4) / 2, [255 0 0]);
+    DrawFormattedText(cfg.screen.win, sprintf(cfg.miss, miss, numel(isTarget)), ...
+        'center',cfg.screen.winRect(4) / 2, [255 0 0]);
 
-    DrawFormattedText(cfg.win, sprintf(expParameters.FA, FA), ...
-        'center', cfg.winRect(4) * 3 / 4, [255 0 0]);
+    DrawFormattedText(cfg.screen.win, sprintf(cfg.fA, fa), ...
+        'center',cfg.screen.winRect(4) * 3 / 4, [255 0 0]);
 
-    Screen('Flip', cfg.win);
+    Screen('Flip',cfg.screen.win);
 
 end

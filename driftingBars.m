@@ -20,18 +20,18 @@ function driftingBars(stim, emul, debug)
 
     %% Experimental Parameters
 
-    expParameters.task = 'retinotopyDriftBar';
+    cfg.task.name = 'retinotopy drifting bar';
 
     % Stimulus type
-    expParameters.aperture.type = 'Bar';
+    cfg.aperture.type = 'Bar';
 
     % Stimulus conditions in each block defined by number
-    expParameters.conditions = [90 45 0 135 270 225 180 315];
+    cfg.conditions = [90 45 0 135 270 225 180 315];
 
     %% Set defaults
 
-    expParameters.stim = stim;
-    cfg.debug = debug;
+    cfg.stim = stim;
+    cfg.debug.do = debug;
 
     if ~emul
         cfg.testingDevice = 'mri';
@@ -45,7 +45,7 @@ function driftingBars(stim, emul, debug)
     %         'LongName', 'angular width of the wedge', ...
     %         'Units', 'degrees'));
 
-    [cfg, expParameters] = setParameters(cfg, expParameters);
+    [cfg] = setParameters(cfg);
 
     %% Run the experiment
-    barsMapping(cfg, expParameters);
+    barsMapping(cfg);

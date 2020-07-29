@@ -1,6 +1,6 @@
-function apertureName = getApertureName(expParameters, apertures, iApert)
+function apertureName = getApertureName(cfg, apertures, iApert)
 
-    switch expParameters.aperture
+    switch cfg.aperture
         case 'Bar'
             apertureName = sprintf('bar_angle-%i_position-%02.2f.tif', ...
                 apertures.barAngle(iApert), ...

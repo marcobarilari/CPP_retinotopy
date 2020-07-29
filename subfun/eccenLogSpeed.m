@@ -1,11 +1,11 @@
-function [ring] = eccenLogSpeed(expParameters, PPD, ring, time)
+function [ring] = eccenLogSpeed(cfg, PPD, ring, time)
     % vary CurrScale so that expansion speed is log over eccentricity
     % cf. Tootell 1997; Swisher 2007; Warnking 2002 etc
 
-    TR = expParameters.bids.MRI.RepetitionTime;
-    cycleDuration = TR * expParameters.volsPerCycle;
+    TR = cfg.mri.repetitionTime;
+    cycleDuration = TR * cfg.volsPerCycle;
 
-    switch expParameters.aperture.type
+    switch cfg.aperture.type
         case 'Ring'
             isRing = true;
         otherwise
@@ -19,13 +19,13 @@ function [ring] = eccenLogSpeed(expParameters, PPD, ring, time)
         ringWidthVA = ring.ringWidthVA;
         maxEcc = ring.maxEcc;
 
-        switch expParameters.direction
+        switch cfg.direction
             case '+'
                 % current visual angle linear in time
                 outerRimVA = 0 + mod(time, cycleDuration) / cycleDuration * maxEcc;
                 % ensure some foveal stimulation at beginning (which is hidden by fixation cross otherwise)
-                if outerRimVA < expParameters.fixationSize
-                    outerRimVA = expParameters.fixationSize + .1;
+                if outerRimVA < cfg.fixation.size
+                    outerRimVA = cfg.fixation.size + .1;
                 end
             case '-'
                 outerRimVA = maxEcc - mod(time, cycleDuration) / cycleDuration * maxEcc;
@@ -46,7 +46,7 @@ function [ring] = eccenLogSpeed(expParameters, PPD, ring, time)
         end
 
         % growing with inner ring ecc
-        ringWidthVA = expParameters.aperture.width + log(oldScaleInnerVA + 1);
+        ringWidthVA = cfg.aperture.width + log(oldScaleInnerVA + 1);
         innerRimVA = newOuterRimVA - ringWidthVA;
 
         if innerRimVA < 0

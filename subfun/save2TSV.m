@@ -1,4 +1,4 @@
-function Data = save2TSV(FrameTimes, BEHAVIOUR, PARAMETERS)
+function Data = save2TSV(FrameTimes, BEHAVIOUR, cfg)
 
     % For Bars
     % FrameTimesUpdate = [CURRENT.Time CURRENT.Frame CURRENT.Condit CURRENT.BarPos];
@@ -30,7 +30,7 @@ function Data = save2TSV(FrameTimes, BEHAVIOUR, PARAMETERS)
         FrameTimes(:, 1), ... 'Onset'
         zeros(NbLines, 1)]; % Duration
 
-    switch PARAMETERS.Apperture
+    switch cfg.Apperture
 
         case 'Ring'
             Header = {'onset', 'trial_type', 'duration', 'ring_eccentricity', 'ring_width', ...
@@ -47,7 +47,7 @@ function Data = save2TSV(FrameTimes, BEHAVIOUR, PARAMETERS)
                 'x_target_pos', 'y_target_pos', 'target_width'};
             StimData(:, [2 4:5]) = [Wedge * ones(NbLines, 1), ... % 'trial_type'
                 rem(FrameTimes(:, 3), 360), ... % make sure that all angles are <= abs(360)
-                ones(NbLines, 1) * PARAMETERS.AppertureWidth]; % 'wedge angle'
+                ones(NbLines, 1) * cfg.AppertureWidth]; % 'wedge angle'
 
         case 'Bar'
             Header = {'onset', 'trial_type', 'duration', 'bar_angle', 'bar_width', ...
@@ -55,7 +55,7 @@ function Data = save2TSV(FrameTimes, BEHAVIOUR, PARAMETERS)
                 'bar_position', 'stimuli'};
             StimData(:, [2 4 5 9]) = [Bar * ones(NbLines, 1), ... % 'trial_type'
                 FrameTimes(:, 3), ... 'bar angle'
-                ones(NbLines, 1) * PARAMETERS.AppertureWidth, ... 'bar width'
+                ones(NbLines, 1) * cfg.AppertureWidth, ... 'bar width'
                 FrameTimes(:, 4)]; % bar position along the axis the bar moves along
 
     end
@@ -89,7 +89,7 @@ function Data = save2TSV(FrameTimes, BEHAVIOUR, PARAMETERS)
     Data = Data(I, :);
 
     % Remove columns of NaNs
-    switch PARAMETERS.Apperture
+    switch cfg.Apperture
 
         case 'Wedge'
             Data(:, 9:10) = [];
@@ -98,48 +98,9 @@ function Data = save2TSV(FrameTimes, BEHAVIOUR, PARAMETERS)
 
     end
 
-    %% Print
-    fid = fopen ([PARAMETERS.OutputFilename '_events.tsv'], 'w');
 
-    % print header
-    for iHeader = 1:numel(Header)
-        fprintf(fid, '%s\t', Header{iHeader});
-    end
-    fprintf(fid, '\n');
-
-    % print onsets, then figure out trial type and then print all the other data
-    for iLine = 1:size(Data, 1)
-
-        fprintf(fid, '%f\t', Data(iLine, 1));
-
-        switch Data(iLine, 2)
-            case Wedge
-                TrialType = 'wedge';
-            case Ring
-                TrialType = 'ring';
-            case Target
-                TrialType = 'target';
-            case Response
-                TrialType = 'response';
-            case Bar
-                TrialType = sprintf('bar_angle-%02.2f_pos-%02.2f', Data(iLine, 4), Data(iLine, 9));
-        end
-
-        fprintf(fid, '%s\t', TrialType);
-
-        fprintf(fid, '%f\t', Data(iLine, 3:size(Data, 2)));
-
-        switch Data(iLine, 2)
-            case Bar
-                sprintf('bar_angle-%i_position-%02.2f.tif\t', Data(iLine, 4), Data(iLine, 9));
-        end
-
-        fprintf(fid, '\n');
-    end
-
-    fclose (fid);
 
     %% Print JSON file
-    PrintJSONfile(PARAMETERS);
+    PrintJSONfile(cfg);
 
 end

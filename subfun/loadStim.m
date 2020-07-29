@@ -1,20 +1,20 @@
-function expParameters = loadStim(expParameters)
+function cfg = loadStim(cfg)
 
-    load(expParameters.stimFile);
+    load(cfg.stimFile);
 
-    [~, file] = fileparts(expParameters.stimFile);
+    [~, file] = fileparts(cfg.stimFile);
     if strcmpi(file, 'Checkerboard')
 
-        expParameters.stimulus(:, :, 1) = Stimulus;
-        expParameters.stimulus(:, :, 2) = uint8(invertContrastCogent(cogentImage(Stimulus)) * 255);
+        cfg.stimulus(:, :, 1) = Stimulus;
+        cfg.stimulus(:, :, 2) = uint8(invertContrastCogent(cogentImage(Stimulus)) * 255);
 
     else
 
-        expParameters.stimulus = Stimulus;
+        cfg.stimulus = Stimulus;
 
     end
 
-    expParameters.refreshPerStim = StimFrames;  % Video frames per stimulus frame
+    cfg.refreshPerStim = StimFrames;  % Video frames per stimulus frame
 
 end
 

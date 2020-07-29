@@ -23,19 +23,19 @@ function eccen(direc, stim, emul, debug)
 
     %% Experiment parameters
 
-    expParameters.task = 'retinotopyEccen';
+    cfg.task.name = 'retinotopy eccen';
 
     % Stimulus type
-    expParameters.aperture.type = 'Ring';
+    cfg.aperture.type = 'Ring';
     % Width of wedge in degrees
-    expParameters.aperture.width = 1;
+    cfg.aperture.width = 1;
     % Direction of cycling
-    expParameters.direction = direc;
+    cfg.direction = direc;
 
     %% Set defaults
 
-    expParameters.stim = stim;
-    cfg.debug = debug;
+    cfg.stim = stim;
+    cfg.debug.do = debug;
 
     if ~emul
         cfg.testingDevice = 'mri';
@@ -43,21 +43,21 @@ function eccen(direc, stim, emul, debug)
         cfg.testingDevice = 'pc';
     end
 
-    expParameters.extraColumns.ring_inner_rim = struct( ...
+    cfg.extraColumns.ring_inner_rim = struct( ...
         'length', 1, ...
         'bids', struct( ...
         'LongName', 'position of the inner rim of the ring', ...
         'Units', 'degrees  of visual angles'));
-    expParameters.extraColumns.ring_outer_rim = struct( ...
+    cfg.extraColumns.ring_outer_rim = struct( ...
         'length', 1, ...
         'bids', struct( ...
         'LongName', 'position of the outer rim of the ring', ...
         'Units', 'degrees  of visual angles'));
 
-    [cfg, expParameters] = setParameters(cfg, expParameters);
+    [cfg] = setParameters(cfg);
 
     %% Run the experiment
-    [data, expParameters] = retinotopicMapping(cfg, expParameters);
+    [data, cfg] = retinotopicMapping(cfg);
 
     %     plotResults(data, expParameters);
 

@@ -1,7 +1,7 @@
-function [target] = drawTarget(target, events, current, ring, cfg, expParameters)
+function [target] = drawTarget(target, events, current, ring, cfg)
 
-    win = cfg.win;
-    winRect =  cfg.winRect ;
+    win = cfg.screen.win;
+    winRect =  cfg.screen.winRect ;
 
     isTarget = false;
 
@@ -13,7 +13,7 @@ function [target] = drawTarget(target, events, current, ring, cfg, expParameters
 
     innerRimVA = [];
 
-    switch expParameters.aperture.type
+    switch cfg.aperture.type
         case 'Ring'
             isRing = true;
         otherwise
@@ -29,13 +29,13 @@ function [target] = drawTarget(target, events, current, ring, cfg, expParameters
     % check that the current time is superior to the start time and inferior to the end time of at
     % least one event
     currTargets = events - current.time;
-    if  any(all([currTargets > 0, currTargets < expParameters.target.duration], 2))
+    if  any(all([currTargets > 0, currTargets < cfg.target.duration], 2))
         isTarget = true;
     end
 
     % we wait for rings to be large enough to present some targets if
     % they are not just a change of color of the fixation dot
-    if all([isRing ; innerRimVA < expParameters.target.size ; ~expParameters.target.central])
+    if all([isRing ; innerRimVA < cfg.target.size ; ~cfg.target.central])
         isTarget = false;
     end
 
@@ -51,14 +51,14 @@ function [target] = drawTarget(target, events, current, ring, cfg, expParameters
         end
 
         % flicker the fixation dot
-        if expParameters.target.central
+        if cfg.target.central
             X = 0;
             Y = 0;
             % or display the target in the ring or wedge
         elseif isRing
             [X, Y] = pol2cart(target.rndAngle / 180 * pi, (outerRimPix / 2 + innerRimPix / 2) / 2);
         else
-            [X, Y] = pol2cart((90 + current.angle + expParameters.apperture.width / 2) ...
+            [X, Y] = pol2cart((90 + current.angle + cfg.apperture.width / 2) ...
                 / 180 * pi, target.rndScale);
         end
 
@@ -71,7 +71,7 @@ function [target] = drawTarget(target, events, current, ring, cfg, expParameters
 
         % Draw event
         Screen('FillOval', win, ...
-            expParameters.target.color, ...
+            cfg.target.color, ...
             [X - target_width / 2 ...
             Y - target_width / 2 ...
             X + target_width / 2 ...

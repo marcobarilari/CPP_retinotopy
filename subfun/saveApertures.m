@@ -1,10 +1,10 @@
-function saveApertures(saveAps, expParameters, apertures)
+function saveApertures(saveAps, cfg, apertures)
 
     if saveAps
 
         matFile = fullfile( ...
-            expParameters.outputDir, ...
-            strrep(expParameters.fileName.events, '.tsv', '_AperturesPRF.mat'));
+            cfg.outputDir, ...
+            strrep(cfg.fileName.events, '.tsv', '_AperturesPRF.mat'));
         if IsOctave
             save(matFile, '-mat7-binary');
         else
@@ -28,10 +28,10 @@ function saveApertures(saveAps, expParameters, apertures)
                 axis off;
                 axis square;
 
-                ApertureName = GetApertureName(expParameters, apertures, iApert);
+                apertureName = getApertureName(cfg, apertures, iApert);
 
                 print(gcf, ...
-                    fullfile(expParameters.aperture.targetDir, [ApertureName '.tif']), ...
+                    fullfile(cfg.aperture.outputDir, [ApertureName '.tif']), ...
                     '-dtiff');
             end
 
