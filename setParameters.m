@@ -117,7 +117,6 @@ function [cfg] = setMRI(cfg)
     % letter sent by the trigger to sync stimulation and volume acquisition
     cfg.mri.triggerKey = 't';
     cfg.mri.triggerNb = 4;
-    cfg.mri.triggerString = 'Waiting for the scanner';
     cfg.mri.repetitionTime = 1;
 
     cfg.bids.MRI.Instructions = 'Press the button everytime it changes color!';

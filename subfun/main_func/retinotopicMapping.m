@@ -225,10 +225,7 @@ function [data, cfg] = retinotopicMapping(cfg)
         end
 
         %% End the experiment
-        drawFixation(cfg);
-        endExpmt = Screen('Flip', cfg.screen.win);
-
-        dispExpDur(endExpmt, cfg.experimentStart);
+        dispExpDuration(cfg);
 
         getResponse('stop', cfg.keyboard.responseBox);
         getResponse('release', cfg.keyboard.responseBox);
