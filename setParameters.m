@@ -57,7 +57,8 @@ function [cfg] = setParameters(cfg)
     % expParameters.VolsPerCycle = ceil(5/expParameters.TR);
     cfg.volsPerCycle = 5;
 
-    cfg.fixation.size = .15; % in degrees VA
+    cfg.fixation.type = 'dot';
+    cfg.fixation.width = .15; % in degrees VA
 
     %% Eyetracker parameters
     cfg.eyeTracker.do = false;

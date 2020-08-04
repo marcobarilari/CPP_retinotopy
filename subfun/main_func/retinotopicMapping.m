@@ -57,7 +57,6 @@ function [data, cfg] = retinotopicMapping(cfg)
 
         % apply pixels per degree conversion
         target = degToPix('target_width', target, cfg);
-        cfg.fixation = degToPix('size', cfg.fixation, cfg);
 
         % Load background movie
         cfg = loadStim(cfg);
