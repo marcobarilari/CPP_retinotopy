@@ -40,13 +40,6 @@ function [data, cfg] = retinotopicMapping(cfg)
     cycleDuration = cfg.mri.repetitionTime * cfg.volsPerCycle;
     cyclingEnd = cycleDuration * cfg.cyclesPerExpmt;
 
-    switch cfg.aperture.type
-        case 'Ring'
-            isRing = true;
-        otherwise
-            isRing = false;
-    end
-
     %% Set up
 
     % TODO
@@ -80,7 +73,7 @@ function [data, cfg] = retinotopicMapping(cfg)
         bgdTextures = loadBckGrnd(cfg.stimulus, cfg.screen.win);
 
         % Set parameters for rings
-        if isRing
+        if strcmp(cfg.aperture.type ,'ring')
             % currentScale is scale of outer ring (exceeding screen until
             % inner ring reaches window boarder)
             ring.maxEcc = ...
@@ -139,8 +132,8 @@ function [data, cfg] = retinotopicMapping(cfg)
 
             frameTimesUpdate = [thisEvent.time];
 
-            if isRing
-
+            switch cfg.aperture.type
+                case 'ring'                 
                 % expansion speed is log over eccentricity
                 [ring] = eccenLogSpeed(cfg, cfg.screen.ppd, ring, thisEvent.time);
 
@@ -157,7 +150,7 @@ function [data, cfg] = retinotopicMapping(cfg)
                 % frameTimesUpdate = [frameTimesUpdate, ...
                 %  ring.scalePix ring.scaleVA2 ring.scaleInnerPix ring.scaleInnerVA];
 
-            else
+                case  'wedge'
 
                 % Update angle for rotation of background and for apperture for wedge
                 switch cfg.direction
@@ -177,9 +170,11 @@ function [data, cfg] = retinotopicMapping(cfg)
                     CenterRect([0 0 repmat(stimRect(4), 1, 2)], cfg.screen.winRect), ...
                     thisEvent.angle, cfg.aperture.width);
 
-                %                 frameTimesUpdate = [frameTimesUpdate, current.angle];
-
+                otherwise
+                    error('%s is not an aperture type I can handle.', cfg.aperture.type)
             end
+            
+            apertureTexture('make', cfg, thisEvent);
 
             % current Frame, time & condition (can also be valuable for debugging)
             frameTimes = [frameTimes; frameTimesUpdate]; %#ok<AGROW>
@@ -197,8 +192,10 @@ function [data, cfg] = retinotopicMapping(cfg)
             % Rotate background movie
             sineRotate = cos(thisEvent.time) * cfg.sineRotation;
 
-            Screen('DrawTexture', cfg.screen.win, bgdTextures(thisEvent.frame), stimRect, ...
-                CenterRect(stimRect, cfg.screen.winRect), bgdAngle + sineRotate);
+            Screen('DrawTexture', cfg.screen.win, bgdTextures(thisEvent.frame), ...
+                cfg.stimRect, ...
+                CenterRect(cfg.stimRect, cfg.screen.winRect), ...
+                bgdAngle + sineRotate);
 
             % Draw aperture
             apertureTexture('draw', cfg);

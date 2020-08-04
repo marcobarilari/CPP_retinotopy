@@ -25,7 +25,7 @@ function polar(direc, stim, emul, debug)
     cfg.task.name = 'retinotopy polar';
 
     % Stimulus type
-    cfg.aperture.type = 'Wedge';
+    cfg.aperture.type = 'wedge';
     % Width of wedge in degrees
     cfg.aperture.width = 70;
     % Direction of cycling

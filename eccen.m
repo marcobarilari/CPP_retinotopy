@@ -26,7 +26,7 @@ function eccen(direc, stim, emul, debug)
     cfg.task.name = 'retinotopy eccen';
 
     % Stimulus type
-    cfg.aperture.type = 'Ring';
+    cfg.aperture.type = 'ring';
     % Width of wedge in degrees
     cfg.aperture.width = 1;
     % Direction of cycling

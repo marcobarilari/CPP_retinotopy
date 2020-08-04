@@ -71,3 +71,4 @@ The loose style guide used here:
 - use `PascalCase`
 - structures that are passed around and centralize a lot of information (TARGET, BEHAVIOUR, PARAMETERS...) are in upper case
 - [McCabe complexity](https://en.wikipedia.org/wiki/Cyclomatic_complexity) has to be inferior to 15 (see `checkcode('foo.m', '-cyc')`)
+
