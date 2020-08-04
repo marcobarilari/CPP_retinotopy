@@ -37,8 +37,7 @@ function [data, cfg] = retinotopicMapping(cfg)
     target.extraColumns = logFile.extraColumns;
     target.target_width = cfg.target.size;
 
-    cycleDuration = cfg.mri.repetitionTime * cfg.volsPerCycle;
-    cyclingEnd = cycleDuration * cfg.cyclesPerExpmt;
+    cyclingEnd = cfg.mri.repetitionTime * cfg.volsPerCycle * cfg.cyclesPerExpmt;
 
     %% Set up
 
@@ -63,23 +62,6 @@ function [data, cfg] = retinotopicMapping(cfg)
         % Load background movie
         cfg = loadStim(cfg);
         bgdTextures = loadBckGrnd(cfg.stimulus, cfg.screen.win);
-
-        % Set parameters for rings
-        if strcmp(cfg.aperture.type ,'ring')
-            % currentScale is scale of outer ring (exceeding screen until
-            % inner ring reaches window boarder)
-            cfg.ring.maxEcc = ...
-                cfg.screen.FOV / 2 + ...
-                cfg.aperture.width + ...
-                log(cfg.screen.FOV / 2 + 1) ;
-            % ring.CsFuncFact is used to expand with log increasing speed so
-            % that ring is at ring.maxEcc at end of cycle
-            cfg.ring.csFuncFact = ...
-                1 / ...
-                ((cfg.ring.maxEcc + exp(1)) * ...
-                log(cfg.ring.maxEcc + exp(1)) - ...
-                (cfg.ring.maxEcc + exp(1))) ;
-        end
 
         % Create aperture texture
         cfg = apertureTexture('init', cfg);
@@ -122,43 +104,13 @@ function [data, cfg] = retinotopicMapping(cfg)
             % current Time stamp
             thisEvent.time = GetSecs - cfg.experimentStart;
 
-            %% Create apperture texture
+            [cfg, thisEvent] = apertureTexture('make', cfg, thisEvent);
 
             frameTimesUpdate = [thisEvent.time];
-
-            switch cfg.aperture.type
-                case 'ring'                 
-                    % expansion speed is log over eccentricity
-                    [cfg] = eccenLogSpeed(cfg, thisEvent.time);
-
-                    % frameTimesUpdate = [frameTimesUpdate, ...
-                    %  ring.scalePix ring.scaleVA2 ring.scaleInnerPix ring.scaleInnerVA];
-                    
-                case  'wedge'
-                    % Update angle for rotation of background and for apperture for wedge
-                    switch cfg.direction
-                        
-                        case '+'
-                            thisEvent.angle = 90 - ...
-                                cfg.aperture.width / 2 + ...
-                                (thisEvent.time / cycleDuration) * 360;
-                        case '-'
-                            thisEvent.angle = 90 - ...
-                                cfg.aperture.width / 2 - ...
-                                (thisEvent.time / cycleDuration) * 360;
-                            
-                    end
-                    
-                    % frameTimesUpdate = [frameTimesUpdate, current.angle];
-                    
-                otherwise
-                    error('%s is not an aperture type I can handle.', cfg.aperture.type)
-            end
-            
-            apertureTexture('make', cfg, thisEvent);
-
+            %  ring.scalePix ring.scaleVA2 ring.scaleInnerPix ring.scaleInnerVA];
+            % frameTimesUpdate = [frameTimesUpdate, current.angle];
             % current Frame, time & condition (can also be valuable for debugging)
-            frameTimes = [frameTimes; frameTimesUpdate]; %#ok<AGROW>
+%             frameTimes = [frameTimes; frameTimesUpdate]; %#ok<AGROW>
 
             %% Draw stimulus
             % we draw the background stimulus in full and overlay an aperture on top of it
