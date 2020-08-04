@@ -186,7 +186,7 @@ function barsMapping(cfg)
         end
 
         %% End the experiment
-        dispExpDuration(cfg);
+        cfg = getExperimentEnd(cfg);
 
         getResponse('stop', cfg.keyboard.responseBox);
         getResponse('release', cfg.keyboard.responseBox);

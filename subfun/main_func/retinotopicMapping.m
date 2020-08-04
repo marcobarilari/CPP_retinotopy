@@ -29,7 +29,7 @@ function [data, cfg] = retinotopicMapping(cfg)
     thisEvent.time = 0;
 
     % current inner radius of ring
-    ring.ringWidthVA = cfg.aperture.width;
+    cfg.ring.ringWidthVA = cfg.aperture.width;
 
     target.wasTarget = false;
     target.trial_type = 'target';
@@ -56,35 +56,29 @@ function [data, cfg] = retinotopicMapping(cfg)
         %% Initialize PTB
         [cfg] = initPTB(cfg);
 
-        % TODO
-        %         if ismac && noScreens > 1 % only if projector is also a screen
-        %             oldRes = Screen('Resolution', screenid, ...
-        %                 PARAMETERS.Resolution(1), PARAMETERS.Resolution(2), ...
-        %                   PARAMETERS.Resolution(3));
-        %         end
-
         % apply pixels per degree conversion
         target = degToPix('target_width', target, cfg);
         cfg.fixation = degToPix('size', cfg.fixation, cfg);
 
         % Load background movie
         cfg = loadStim(cfg);
-        stimRect = [0 0 size(cfg.stimulus, 2) size(cfg.stimulus, 1)];
         bgdTextures = loadBckGrnd(cfg.stimulus, cfg.screen.win);
 
         % Set parameters for rings
         if strcmp(cfg.aperture.type ,'ring')
             % currentScale is scale of outer ring (exceeding screen until
             % inner ring reaches window boarder)
-            ring.maxEcc = ...
+            cfg.ring.maxEcc = ...
                 cfg.screen.FOV / 2 + ...
                 cfg.aperture.width + ...
                 log(cfg.screen.FOV / 2 + 1) ;
             % ring.CsFuncFact is used to expand with log increasing speed so
             % that ring is at ring.maxEcc at end of cycle
-            ring.csFuncFact = ...
+            cfg.ring.csFuncFact = ...
                 1 / ...
-                ((ring.maxEcc + exp(1)) * log(ring.maxEcc + exp(1)) - (ring.maxEcc + exp(1))) ;
+                ((cfg.ring.maxEcc + exp(1)) * ...
+                log(cfg.ring.maxEcc + exp(1)) - ...
+                (cfg.ring.maxEcc + exp(1))) ;
         end
 
         % Create aperture texture
@@ -134,42 +128,29 @@ function [data, cfg] = retinotopicMapping(cfg)
 
             switch cfg.aperture.type
                 case 'ring'                 
-                % expansion speed is log over eccentricity
-                [ring] = eccenLogSpeed(cfg, cfg.screen.ppd, ring, thisEvent.time);
+                    % expansion speed is log over eccentricity
+                    [cfg] = eccenLogSpeed(cfg, thisEvent.time);
 
-                Screen('FillOval', cfg.aperture.texture, [0 0 0 0], ...
-                    CenterRectOnPoint( ...
-                    [0 0 repmat(ring.outerRimPix, 1, 2)], ...
-                    cfg.screen.winRect(3) / 2, cfg.screen.winRect(4) / 2));
-
-                Screen('FillOval', cfg.aperture.texture, [cfg.color.background 255], ...
-                    CenterRectOnPoint( ...
-                    [0 0 repmat(ring.innerRimPix, 1, 2)], ...
-                    cfg.screen.winRect(3) / 2, cfg.screen.winRect(4) / 2));
-
-                % frameTimesUpdate = [frameTimesUpdate, ...
-                %  ring.scalePix ring.scaleVA2 ring.scaleInnerPix ring.scaleInnerVA];
-
+                    % frameTimesUpdate = [frameTimesUpdate, ...
+                    %  ring.scalePix ring.scaleVA2 ring.scaleInnerPix ring.scaleInnerVA];
+                    
                 case  'wedge'
-
-                % Update angle for rotation of background and for apperture for wedge
-                switch cfg.direction
-
-                    case '+'
-                        thisEvent.angle = 90 - ...
-                            cfg.aperture.width / 2 + ...
-                            (thisEvent.time / cycleDuration) * 360;
-                    case '-'
-                        thisEvent.angle = 90 - ...
-                            cfg.aperture.width / 2 - ...
-                            (thisEvent.time / cycleDuration) * 360;
-
-                end
-
-                Screen('FillArc', cfg.aperture.texture, [0 0 0 0], ...
-                    CenterRect([0 0 repmat(stimRect(4), 1, 2)], cfg.screen.winRect), ...
-                    thisEvent.angle, cfg.aperture.width);
-
+                    % Update angle for rotation of background and for apperture for wedge
+                    switch cfg.direction
+                        
+                        case '+'
+                            thisEvent.angle = 90 - ...
+                                cfg.aperture.width / 2 + ...
+                                (thisEvent.time / cycleDuration) * 360;
+                        case '-'
+                            thisEvent.angle = 90 - ...
+                                cfg.aperture.width / 2 - ...
+                                (thisEvent.time / cycleDuration) * 360;
+                            
+                    end
+                    
+                    % frameTimesUpdate = [frameTimesUpdate, current.angle];
+                    
                 otherwise
                     error('%s is not an aperture type I can handle.', cfg.aperture.type)
             end
@@ -203,7 +184,7 @@ function [data, cfg] = retinotopicMapping(cfg)
             drawFixation(cfg);
 
             %% Draw target
-            [target] = drawTarget(target, targetsTimings, thisEvent, ring, cfg);
+            [target] = drawTarget(target, targetsTimings, thisEvent, cfg);
 
             %% Flip current frame
             rft = Screen('Flip', cfg.screen.win, rft + cfg.screen.ifi);
