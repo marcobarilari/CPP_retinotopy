@@ -21,12 +21,12 @@ function [data, cfg] = retinotopicMapping(cfg)
     frameTimes = [];  % To collect info about the frames
 
     % current stimulus Frame
-    current.frame = 1;
+    thisEvent.frame = 1;
     % current video Refresh
-    current.refresh = 0;
+    thisEvent.refresh = 0;
     % current Angle of wedge
-    current.angle = 0;
-    current.time = 0;
+    thisEvent.angle = 0;
+    thisEvent.time = 0;
 
     % current inner radius of ring
     ring.ringWidthVA = cfg.aperture.width;
@@ -95,7 +95,7 @@ function [data, cfg] = retinotopicMapping(cfg)
         end
 
         % Create aperture texture
-        apertTexture = Screen('MakeTexture', cfg.screen.win, 127 * ones(cfg.screen.winRect([4 3])));
+        cfg = apertureTexture('init', cfg);
 
         % prepare the KbQueue to collect responses
         getResponse('init', cfg.keyboard.responseBox, cfg);
@@ -115,42 +115,41 @@ function [data, cfg] = retinotopicMapping(cfg)
         cfg.experimentStart = rft;
 
         %% Loop until the end of last cycle
-        while current.time < cyclingEnd
+        while thisEvent.time < cyclingEnd
 
             checkAbort(cfg);
 
             %% Update Frame number
-            current.refresh = current.refresh + 1;
-            if current.refresh == cfg.refreshPerStim
+            thisEvent.refresh = thisEvent.refresh + 1;
+            if thisEvent.refresh == cfg.refreshPerStim
 
-                current.refresh = 0;
-                current.frame = current.frame + 1;
+                thisEvent.refresh = 0;
+                thisEvent.frame = thisEvent.frame + 1;
 
-                if current.frame > size(cfg.stimulus, ndims(cfg.stimulus))
-                    current.frame = 1;
+                if thisEvent.frame > size(cfg.stimulus, ndims(cfg.stimulus))
+                    thisEvent.frame = 1;
                 end
 
             end
 
             % current Time stamp
-            current.time = GetSecs - cfg.experimentStart;
+            thisEvent.time = GetSecs - cfg.experimentStart;
 
             %% Create apperture texture
-            Screen('Fillrect', apertTexture, cfg.color.background);
 
-            frameTimesUpdate = [current.time];
+            frameTimesUpdate = [thisEvent.time];
 
             if isRing
 
                 % expansion speed is log over eccentricity
-                [ring] = eccenLogSpeed(cfg, cfg.screen.ppd, ring, current.time);
+                [ring] = eccenLogSpeed(cfg, cfg.screen.ppd, ring, thisEvent.time);
 
-                Screen('FillOval', apertTexture, [0 0 0 0], ...
+                Screen('FillOval', cfg.aperture.texture, [0 0 0 0], ...
                     CenterRectOnPoint( ...
                     [0 0 repmat(ring.outerRimPix, 1, 2)], ...
                     cfg.screen.winRect(3) / 2, cfg.screen.winRect(4) / 2));
 
-                Screen('FillOval', apertTexture, [cfg.color.background 255], ...
+                Screen('FillOval', cfg.aperture.texture, [cfg.color.background 255], ...
                     CenterRectOnPoint( ...
                     [0 0 repmat(ring.innerRimPix, 1, 2)], ...
                     cfg.screen.winRect(3) / 2, cfg.screen.winRect(4) / 2));
@@ -164,19 +163,19 @@ function [data, cfg] = retinotopicMapping(cfg)
                 switch cfg.direction
 
                     case '+'
-                        current.angle = 90 - ...
+                        thisEvent.angle = 90 - ...
                             cfg.aperture.width / 2 + ...
-                            (current.time / cycleDuration) * 360;
+                            (thisEvent.time / cycleDuration) * 360;
                     case '-'
-                        current.angle = 90 - ...
+                        thisEvent.angle = 90 - ...
                             cfg.aperture.width / 2 - ...
-                            (current.time / cycleDuration) * 360;
+                            (thisEvent.time / cycleDuration) * 360;
 
                 end
 
-                Screen('FillArc', apertTexture, [0 0 0 0], ...
+                Screen('FillArc', cfg.aperture.texture, [0 0 0 0], ...
                     CenterRect([0 0 repmat(stimRect(4), 1, 2)], cfg.screen.winRect), ...
-                    current.angle, cfg.aperture.width);
+                    thisEvent.angle, cfg.aperture.width);
 
                 %                 frameTimesUpdate = [frameTimesUpdate, current.angle];
 
@@ -190,24 +189,24 @@ function [data, cfg] = retinotopicMapping(cfg)
 
             % Display background
             if cfg.rotateStimulus
-                bgdAngle = current.angle;
+                bgdAngle = thisEvent.angle;
             else
                 bgdAngle = 0;
             end
 
             % Rotate background movie
-            sineRotate = cos(current.time) * cfg.sineRotation;
+            sineRotate = cos(thisEvent.time) * cfg.sineRotation;
 
-            Screen('DrawTexture', cfg.screen.win, bgdTextures(current.frame), stimRect, ...
+            Screen('DrawTexture', cfg.screen.win, bgdTextures(thisEvent.frame), stimRect, ...
                 CenterRect(stimRect, cfg.screen.winRect), bgdAngle + sineRotate);
 
             % Draw aperture
-            Screen('DrawTexture', cfg.screen.win, apertTexture);
+            apertureTexture('draw', cfg);
 
             drawFixation(cfg);
 
             %% Draw target
-            [target] = drawTarget(target, targetsTimings, current, ring, cfg);
+            [target] = drawTarget(target, targetsTimings, thisEvent, ring, cfg);
 
             %% Flip current frame
             rft = Screen('Flip', cfg.screen.win, rft + cfg.screen.ifi);
@@ -225,7 +224,7 @@ function [data, cfg] = retinotopicMapping(cfg)
         end
 
         %% End the experiment
-        dispExpDuration(cfg);
+        cfg = getExperimentEnd(cfg);
 
         getResponse('stop', cfg.keyboard.responseBox);
         getResponse('release', cfg.keyboard.responseBox);
