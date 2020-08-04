@@ -57,14 +57,11 @@ function [cfg] = setParameters(cfg)
     % expParameters.VolsPerCycle = ceil(5/expParameters.TR);
     cfg.volsPerCycle = 5;
 
-    cfg.fixation.type = 'dot';
-    cfg.fixation.width = .15; % in degrees VA
+    cfg.fixation.type = 'bestFixation'; %dot bestFixation
+    cfg.fixation.width = .2; % in degrees VA
 
     %% Eyetracker parameters
     cfg.eyeTracker.do = false;
-    %     cfg.eyeTrackerParam.host = '10.41.111.213';  % SMI machine ip: '10.41.111.213'
-    %     cfg.eyeTrackerParam.Port = 4444;
-    %     cfg.eyeTrackerParam.Window = 1;
 
     %% Saving aperture parameters (for pRF)
     cfg.aperture.outputDir = fullfile(cfg.dir.output, 'stimuli');
