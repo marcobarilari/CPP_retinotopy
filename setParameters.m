@@ -58,7 +58,7 @@ function [cfg] = setParameters(cfg)
     cfg.volsPerCycle = 5;
 
     cfg.fixation.type = 'bestFixation'; %dot bestFixation
-    cfg.fixation.width = .2; % in degrees VA
+    cfg.fixation.width = .1; % in degrees VA
 
     %% Eyetracker parameters
     cfg.eyeTracker.do = false;

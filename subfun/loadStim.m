@@ -1,4 +1,6 @@
 function cfg = loadStim(cfg)
+    
+    fprintf('Loading file: %s\n', cfg.stimFile)
 
     load(cfg.stimFile);
 
