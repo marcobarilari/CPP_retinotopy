@@ -1,6 +1,6 @@
 function cfg = loadStim(cfg)
-    
-    fprintf('Loading file: %s\n', cfg.stimFile)
+
+    fprintf('Loading file: %s\n', cfg.stimFile);
 
     load(cfg.stimFile);
 
@@ -17,7 +17,7 @@ function cfg = loadStim(cfg)
     end
 
     cfg.refreshPerStim = StimFrames;  % Video frames per stimulus frame
-    
+
     cfg.stimRect = [0 0 size(cfg.stimulus, 2) size(cfg.stimulus, 1)];
 
 end

@@ -22,7 +22,7 @@ function [target] = drawTarget(target, events, thisEvent, cfg)
     % they are not just a change of color of the fixation dot
     if ~cfg.target.central && ...
             strcmp(cfg.aperture.type, 'ring') && ...
-            cfg.ring.ring_inner_rim < cfg.target.size ; ...
+            cfg.ring.ring_inner_rim < cfg.target.size
         isTarget = false;
     end
 
@@ -46,8 +46,8 @@ function [target] = drawTarget(target, events, thisEvent, cfg)
             innerRimPix = cfg.ring.innerRimPix;
             [X, Y] = pol2cart(target.rndAngle / 180 * pi, (outerRimPix / 2 + innerRimPix / 2) / 2);
         elseif ~cfg.target.central && strcmp(cfg.aperture.type, 'wedge')
-            [X, Y] = pol2cart((90 + thisEvent.angle + cfg.aperture.width / 2) ...
-                / 180 * pi, target.rndScale);
+            [X, Y] = pol2cart((90 + thisEvent.angle + cfg.aperture.width / 2) / ...
+                180 * pi, target.rndScale);
         end
 
         target.x_target_pos = X;

@@ -109,7 +109,7 @@ function [data, cfg] = retinotopicMapping(cfg)
             %  ring.scalePix ring.scaleVA2 ring.scaleInnerPix ring.scaleInnerVA];
             % frameTimesUpdate = [frameTimesUpdate, current.angle];
             % current Frame, time & condition (can also be valuable for debugging)
-%             frameTimes = [frameTimes; frameTimesUpdate]; %#ok<AGROW>
+            %             frameTimes = [frameTimes; frameTimesUpdate]; %#ok<AGROW>
 
             %% Draw stimulus
             % we draw the background stimulus in full and overlay an aperture on top of it
