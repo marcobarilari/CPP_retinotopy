@@ -1,4 +1,6 @@
 function eccen(debug, direc, stim, emul)
+    % eccen(debug, direc, stim, emul)
+    %
     % Eccentricity mapping: does the retinotopy with an contracting or
     % expanding ring
     %   direc : '+' or '-' for clockwise or anticlockwise

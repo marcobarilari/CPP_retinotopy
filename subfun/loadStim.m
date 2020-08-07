@@ -19,6 +19,9 @@ function cfg = loadStim(cfg)
     cfg.refreshPerStim = StimFrames;  % Video frames per stimulus frame
 
     cfg.stimRect = [0 0 size(cfg.stimulus, 2) size(cfg.stimulus, 1)];
+    if strcmp(cfg.aperture.type, 'bar')
+        cfg.stimRect = [0 0 repmat(size(cfg.stimulus, 1), 1, 2)];
+    end
 
 end
 

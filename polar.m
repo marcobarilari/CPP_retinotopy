@@ -1,4 +1,6 @@
 function polar(debug, direc, stim, emul)
+    % polar(debug, direc, stim, emul)
+    %
     % Polar mapping: does the retinotopy with a rotating wedge
     %   direc : '+' or '-' for clockwise or anticlockwise
     %   stim :  Stimulus file name e.g. 'Checkerboard'

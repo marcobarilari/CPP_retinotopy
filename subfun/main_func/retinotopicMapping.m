@@ -1,5 +1,5 @@
 function [data, cfg] = retinotopicMapping(cfg)
-    % retinotopicMapping(cfg, expParameters)
+    % retinotopicMapping(cfg)
     %
     % Cyclic presentation with a rotating and/or expanding aperture.
     % Behind the aperture a background is displayed as a movie.
@@ -148,7 +148,7 @@ function [data, cfg] = retinotopicMapping(cfg)
                 saveEventsFile('save', cfg, target);
             end
 
-            collectAndSaveResponses(cfg, cfg, logFile, cfg.experimentStart);
+            collectAndSaveResponses(cfg, logFile, cfg.experimentStart);
 
         end
 
@@ -174,14 +174,7 @@ function [data, cfg] = retinotopicMapping(cfg)
         % clear stim from structure and a few variables to save memory
         cfg = rmfield(cfg, 'stimulus');
 
-        matFile = fullfile( ...
-            cfg.dir.output, ...
-            strrep(cfg.fileName.events, 'tsv', 'mat'));
-        if IsOctave
-            save(matFile, '-mat7-binary');
-        else
-            save(matFile, '-v7.3');
-        end
+        createBoldJson(cfg, cfg);
 
         output = bids.util.tsvread( ...
             fullfile(cfg.dir.outputSubject, cfg.fileName.modality, ...

@@ -101,7 +101,7 @@ end
 
 function [cfg] = setKeyboards(cfg)
     cfg.keyboard.escapeKey = 'ESCAPE';
-    cfg.keyboard.responseKey = {'space'};
+    cfg.keyboard.responseKey = {'space', 't'};
     cfg.keyboard.keyboard = [];
     cfg.keyboard.responseBox = [];
 
@@ -117,7 +117,7 @@ function [cfg] = setMRI(cfg)
     cfg.mri.triggerNb = 4;
     cfg.mri.repetitionTime = 1;
 
-    cfg.bids.MRI.Instructions = 'Press the button everytime it changes color!';
+    cfg.bids.MRI.Instructions = 'Press the button everytime a red dot appears!';
     cfg.bids.MRI.TaskDescription = [];
 
 end
