@@ -1,20 +1,22 @@
-function polar(direc, stim, emul, debug)
+function polar(debug, direc, stim, emul)
+    % polar(debug, direc, stim, emul)
+    %
     % Polar mapping: does the retinotopy with a rotating wedge
     %   direc : '+' or '-' for clockwise or anticlockwise
     %   stim :  Stimulus file name e.g. 'Checkerboard'
     %   emul :  0 = Triggered by scanner, 1 = Trigger by keypress
     %   debug : will play the experiment with PTB transparency
 
-    if nargin < 1
-        direc = '-';
-    end
-    if nargin < 2
-        stim = 'Checkerboard.mat';
-    end
-    if nargin < 3
+    if nargin < 4 || isempty(emul)
         emul = 1;
     end
-    if nargin < 4
+    if nargin < 3 || isempty(stim)
+        stim = 'Checkerboard.mat';
+    end
+    if nargin < 2 || isempty(dir)
+        direc = '-';
+    end
+    if nargin < 1 || isempty(debug)
         debug = 1;
     end
 
@@ -25,7 +27,7 @@ function polar(direc, stim, emul, debug)
     cfg.task.name = 'retinotopy polar';
 
     % Stimulus type
-    cfg.aperture.type = 'Wedge';
+    cfg.aperture.type = 'wedge';
     % Width of wedge in degrees
     cfg.aperture.width = 70;
     % Direction of cycling

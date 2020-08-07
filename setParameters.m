@@ -57,13 +57,11 @@ function [cfg] = setParameters(cfg)
     % expParameters.VolsPerCycle = ceil(5/expParameters.TR);
     cfg.volsPerCycle = 5;
 
-    cfg.fixation.size = .15; % in degrees VA
+    cfg.fixation.type = 'bestFixation'; % dot bestFixation
+    cfg.fixation.width = .1; % in degrees VA
 
     %% Eyetracker parameters
     cfg.eyeTracker.do = false;
-    %     cfg.eyeTrackerParam.host = '10.41.111.213';  % SMI machine ip: '10.41.111.213'
-    %     cfg.eyeTrackerParam.Port = 4444;
-    %     cfg.eyeTrackerParam.Window = 1;
 
     %% Saving aperture parameters (for pRF)
     cfg.aperture.outputDir = fullfile(cfg.dir.output, 'stimuli');
@@ -103,7 +101,7 @@ end
 
 function [cfg] = setKeyboards(cfg)
     cfg.keyboard.escapeKey = 'ESCAPE';
-    cfg.keyboard.responseKey = {'space'};
+    cfg.keyboard.responseKey = {'space', 't'};
     cfg.keyboard.keyboard = [];
     cfg.keyboard.responseBox = [];
 
@@ -117,10 +115,9 @@ function [cfg] = setMRI(cfg)
     % letter sent by the trigger to sync stimulation and volume acquisition
     cfg.mri.triggerKey = 't';
     cfg.mri.triggerNb = 4;
-    cfg.mri.triggerString = 'Waiting for the scanner';
     cfg.mri.repetitionTime = 1;
 
-    cfg.bids.MRI.Instructions = 'Press the button everytime it changes color!';
+    cfg.bids.MRI.Instructions = 'Press the button everytime a red dot appears!';
     cfg.bids.MRI.TaskDescription = [];
 
 end
