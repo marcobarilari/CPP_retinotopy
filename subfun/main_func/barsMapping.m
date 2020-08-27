@@ -51,6 +51,13 @@ function barsMapping(cfg)
         
         [cfg] = initPTB(cfg);
         
+        cfg.magnify.scalingFactor = 1;
+        if cfg.magnify.do == 1
+            % by how much all the stimulus and aperture are magnified
+            % to fill the whole width of the screen
+            cfg.magnify.scalingFactor = cfg.screen.winRect(3) / cfg.screen.winRect(4);
+        end
+        
         % apply pixels per degree conversion
         target = degToPix('target_width', target, cfg);
         
