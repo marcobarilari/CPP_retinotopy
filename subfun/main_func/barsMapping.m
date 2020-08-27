@@ -84,8 +84,8 @@ function barsMapping(cfg)
         getResponse('start', cfg.keyboard.responseBox);
         
         %% Start cycling the stimulus
-        rft = Screen('Flip', cfg.screen.win);
-        cfg.experimentStart = rft;
+        cfg = getExperimentStart(cfg);
+        rft = cfg.experimentStart;
         
         barInfo.experimentStarted = false;
         
@@ -107,10 +107,10 @@ function barsMapping(cfg)
             while thisEvent.volume <= cfg.volsPerCycle
                 
                 checkAbort(cfg);
-
+                
                 %% Determine current frame
                 
-                thisEvent.frame = thisEvent.frame + 1;    
+                thisEvent.frame = thisEvent.frame + 1;
                 if thisEvent.frame > cfg.refreshPerStim
                     thisEvent.frame = 1;
                     thisEvent.stim = thisEvent.stim + 1;
@@ -124,7 +124,7 @@ function barsMapping(cfg)
                 
                 thisEvent.time = GetSecs - cfg.experimentStart;
                 thisEvent.barPosPix = cfg.aperture.barPosPix(thisEvent.volume);
-
+                
                 [cfg, thisEvent] = apertureTexture('make', cfg, thisEvent);
                 
                 %% Draw stimulus
@@ -199,11 +199,11 @@ function barsMapping(cfg)
         WaitSecs(1);
         
         %% Save
-
+        
         % clear stim from structure and a few variables to save memory
         cfg = rmfield(cfg, 'stimulus');
         
-        createBoldJson(cfg, cfg);
+        createJson(cfg, cfg);
         
         output = bids.util.tsvread( ...
             fullfile(cfg.dir.outputSubject, cfg.fileName.modality, ...

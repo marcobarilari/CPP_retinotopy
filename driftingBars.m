@@ -7,7 +7,7 @@ function driftingBars(debug, stim, emul)
     %   Emul :  0 = Triggered by scanner, 1 = Trigger by keypress
     
     if nargin < 1 || isempty(debug)
-        debug = 1;
+        debug = 0;
     end
     if nargin < 2  || isempty(stim)
         stim = 'Ripples.mat';
@@ -26,7 +26,8 @@ function driftingBars(debug, stim, emul)
     cfg.aperture.type = 'bar';
     
     % Stimulus conditions in each block defined by number
-    cfg.conditions = [90 45 0 135 270 225 180 315];
+    cfg.conditions = [90 45 135 270 225 315 90 45 135 270 225 315];
+    
     cfg.magnify.do = 1;
     
     %% Set defaults
