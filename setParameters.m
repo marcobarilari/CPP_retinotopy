@@ -2,7 +2,7 @@ function [cfg] = setParameters(cfg)
 
     cfg.verbose = false;
 
-    cfg.debug.transpWin = true;
+    cfg.debug.transpWin = false;
     cfg.debug.smallWin = false;
 
     cfg.dir.output = fullfile(fileparts(mfilename('fullpath')), 'output');
@@ -27,13 +27,13 @@ function [cfg] = setParameters(cfg)
     % Need to find a set of parameters that give 85-90% accuracy.
 
     % Probability of a target event
-    cfg.target.probability = 0.025;
+    cfg.target.probability = 0.02;
     % Duration of a target event in ms
-    cfg.target.duration = 0.15;
+    cfg.target.duration = 0.1;
     % diameter of target circle in degrees VA
     cfg.target.size = .15;
     % rgb color of the target
-    cfg.target.color = [255 200 200];
+    cfg.target.color = [255 100 100];
     % is the fixation dot the only possible location of the target?
     % setting this to true might induce more saccade (not formally tested)
     cfg.target.central = true;
@@ -53,7 +53,7 @@ function [cfg] = setParameters(cfg)
     cfg.volsPerCycle = 20;
 
     cfg.fixation.type = 'bestFixation'; % dot bestFixation
-    cfg.fixation.width = .1; % in degrees VA
+    cfg.fixation.width = .15; % in degrees VA
 
     %% Eyetracker parameters
     cfg.eyeTracker.do = false;
@@ -110,7 +110,7 @@ end
 function [cfg] = setMRI(cfg)
     % letter sent by the trigger to sync stimulation and volume acquisition
     cfg.mri.triggerKey = 't';
-    cfg.mri.triggerNb = 0;
+    cfg.mri.triggerNb = 5;
     cfg.mri.repetitionTime = 1.8;
 
     cfg.bids.MRI.Instructions = 'Press the button everytime a red dot appears!';

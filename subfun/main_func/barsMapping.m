@@ -4,6 +4,9 @@ function barsMapping(cfg)
     % Runs the drifting bar protocol for mapping population receptive fields.
     % If SaveAps is true it saves the aperture mask for each volume (for pRF).
     
+    %TODO
+    % - apply scaling factor automatically to stimulus
+    
     cfg = userInputs(cfg);
     cfg = createFilename(cfg);
     
@@ -67,7 +70,7 @@ function barsMapping(cfg)
         
         % Create aperture texture
         cfg = apertureTexture('init', cfg);
-        barInfo.bar_width = cfg.aperture.width;
+        
         
         % prepare the KbQueue to collect responses
         getResponse('init', cfg.keyboard.responseBox, cfg);
@@ -156,6 +159,8 @@ function barsMapping(cfg)
                     isOnset = true;
                 end
                 
+                barInfo.bar_width = cfg.aperture.width;
+                
                 [barInfo, isOffset] = saveOnOffset(...
                     isOffset, ...
                     barInfo, cfg, rft);
@@ -164,8 +169,10 @@ function barsMapping(cfg)
                 barInfo.experimentStarted = true;
                 
                 % update info for the next round
+                barInfo.bar_width = cfg.aperture.width;
                 barInfo.bar_angle = thisEvent.condition;
                 barInfo.bar_position = cfg.aperture.barPos(thisEvent.volume);
+                
                 
                 target = getOnset(target.isOnset, target, cfg, rft);
                 target = saveOnOffset(...

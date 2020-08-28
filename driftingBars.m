@@ -13,7 +13,7 @@ function driftingBars(debug, stim, emul)
         stim = 'Ripples.mat';
     end
     if nargin < 3  || isempty(emul)
-        emul = 1;
+        emul = 0;
     end
 
     initEnv();
