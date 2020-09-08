@@ -148,6 +148,8 @@ function barsMapping(cfg)
                 
                 [target] = drawTarget(target, targetsTimings, thisEvent, cfg);
                 
+                drawFieldOfVIew(cfg);
+                
                 %% Flip current frame
                 rft = Screen('Flip', cfg.screen.win, rft + cfg.screen.ifi);
                 

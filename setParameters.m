@@ -137,11 +137,17 @@ function [cfg, expParameters] = setMonitor(cfg, expParameters)
     end
 
     % Resolution [width height refresh_rate]
-    cfg.screen.resolution = [800 600 60];
+    cfg.screen.resolution = {1024, 768, []};
+    
+    % to use to draw the actual field of view of the participant
+    % [width height]
+    cfg.screen.effectiveFieldOfView = [500 300];
 
     cfg.text.color = cfg.color.black;
     cfg.text.font = 'Courier New';
     cfg.text.size = 18;
     cfg.text.style = 1;
+    
+    
 
 end
