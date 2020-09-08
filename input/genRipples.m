@@ -1,6 +1,6 @@
 % Define here the height of the screen minus a few pixels
 
-Height = 1080;
+Height = 1000;
 
 Phases = 0:10:355;
 

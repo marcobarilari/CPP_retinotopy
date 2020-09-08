@@ -1,7 +1,7 @@
 function [target] = drawTarget(target, events, thisEvent, cfg)
 
     win = cfg.screen.win;
-    winRect =  cfg.screen.winRect ;
+    winRect =  cfg.screen.winRect;
 
     isTarget = false;
 

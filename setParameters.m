@@ -2,13 +2,8 @@ function [cfg] = setParameters(cfg)
 
     cfg.verbose = false;
 
-    if cfg.debug.do
-        cfg.debug.transpWin = true;
-        cfg.debug.smallWin = false;
-    else
-        cfg.debug.transpWin = false;
-        cfg.debug.smallWin = false;
-    end
+    cfg.debug.transpWin = false;
+    cfg.debug.smallWin = false;
 
     cfg.dir.output = fullfile(fileparts(mfilename('fullpath')), 'output');
 
@@ -32,13 +27,13 @@ function [cfg] = setParameters(cfg)
     % Need to find a set of parameters that give 85-90% accuracy.
 
     % Probability of a target event
-    cfg.target.probability = 0.1;
+    cfg.target.probability = 0.02;
     % Duration of a target event in ms
-    cfg.target.duration = 0.15;
+    cfg.target.duration = 0.1;
     % diameter of target circle in degrees VA
     cfg.target.size = .15;
     % rgb color of the target
-    cfg.target.color = [255 200 200];
+    cfg.target.color = [255 100 100];
     % is the fixation dot the only possible location of the target?
     % setting this to true might induce more saccade (not formally tested)
     cfg.target.central = true;
@@ -49,16 +44,16 @@ function [cfg] = setParameters(cfg)
     cfg.sineRotation = 10;
 
     % Stimulus cycles per run
-    cfg.cyclesPerExpmt = 3;
+    cfg.cyclesPerExpmt = 5;
 
     % Volumes per cycle - sets the "speed" of the mapping -
     % standard is to have VolsPerCycle * TR ~ 1 min
     % e.g expParameters.VolsPerCycle = ceil(60/expParameters.TR);
     % expParameters.VolsPerCycle = ceil(5/expParameters.TR);
-    cfg.volsPerCycle = 5;
+    cfg.volsPerCycle = 20;
 
     cfg.fixation.type = 'bestFixation'; % dot bestFixation
-    cfg.fixation.width = .1; % in degrees VA
+    cfg.fixation.width = .15; % in degrees VA
 
     %% Eyetracker parameters
     cfg.eyeTracker.do = false;
@@ -72,8 +67,6 @@ function [cfg] = setParameters(cfg)
 
     %% DO NOT TOUCH
     if cfg.debug.do
-        %         expParameters.verbose = true;
-        %         cfg.verbose = true;
         cfg.cyclesPerExpmt = 4;
     end
 
@@ -101,7 +94,10 @@ end
 
 function [cfg] = setKeyboards(cfg)
     cfg.keyboard.escapeKey = 'ESCAPE';
-    cfg.keyboard.responseKey = {'space', 't'};
+    cfg.keyboard.responseKey = { ...
+        'r', 'g', 'y', 'b', ...
+        'd', 'n', 'z', 'e', ...
+        't'}; % dnze rgyb
     cfg.keyboard.keyboard = [];
     cfg.keyboard.responseBox = [];
 
@@ -114,8 +110,8 @@ end
 function [cfg] = setMRI(cfg)
     % letter sent by the trigger to sync stimulation and volume acquisition
     cfg.mri.triggerKey = 't';
-    cfg.mri.triggerNb = 4;
-    cfg.mri.repetitionTime = 1;
+    cfg.mri.triggerNb = 5;
+    cfg.mri.repetitionTime = 1.8;
 
     cfg.bids.MRI.Instructions = 'Press the button everytime a red dot appears!';
     cfg.bids.MRI.TaskDescription = [];
@@ -135,13 +131,18 @@ function [cfg, expParameters] = setMonitor(cfg, expParameters)
     % Monitor parameters
     cfg.screen.monitorWidth = 42; % in cm
     cfg.screen.monitorDistance = 134; % distance from the screen in cm
+
     if strcmpi(cfg.testingDevice, 'mri')
-        cfg.screen.monitorWidth = 42; % in cm
-        cfg.screen.monitorDistance = 134; % distance from the screen in cm
+        cfg.screen.monitorWidth = 25;
+        cfg.screen.monitorDistance = 95;
     end
 
     % Resolution [width height refresh_rate]
-    cfg.screen.resolution = [800 600 60];
+    cfg.screen.resolution = {1024, 768, []};
+
+    % to use to draw the actual field of view of the participant
+    % [width height]
+    cfg.screen.effectiveFieldOfView = [500 300];
 
     cfg.text.color = cfg.color.black;
     cfg.text.font = 'Courier New';
