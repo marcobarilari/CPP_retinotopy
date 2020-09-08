@@ -131,6 +131,7 @@ function [cfg, expParameters] = setMonitor(cfg, expParameters)
     % Monitor parameters
     cfg.screen.monitorWidth = 42; % in cm
     cfg.screen.monitorDistance = 134; % distance from the screen in cm
+
     if strcmpi(cfg.testingDevice, 'mri')
         cfg.screen.monitorWidth = 25;
         cfg.screen.monitorDistance = 95;
@@ -138,7 +139,7 @@ function [cfg, expParameters] = setMonitor(cfg, expParameters)
 
     % Resolution [width height refresh_rate]
     cfg.screen.resolution = {1024, 768, []};
-    
+
     % to use to draw the actual field of view of the participant
     % [width height]
     cfg.screen.effectiveFieldOfView = [500 300];
@@ -147,7 +148,5 @@ function [cfg, expParameters] = setMonitor(cfg, expParameters)
     cfg.text.font = 'Courier New';
     cfg.text.size = 18;
     cfg.text.style = 1;
-    
-    
 
 end
