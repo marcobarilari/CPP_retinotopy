@@ -27,9 +27,7 @@ function driftingBars(debug, stim, emul)
     
     % Stimulus conditions in each block defined by number
     cfg.conditions = [90 45 135 270 225 315 90 45 135 270 225 315];
-    
-    cfg.magnify.do = 1;
-    
+     
     %% Set defaults
     
     cfg.stim = stim;
