@@ -284,6 +284,8 @@ function varargout = postInitializationSetup(varargin)
     % apply pixels per degree conversion
     target = degToPix('target_width', target, cfg);
     
+    cfg.stimRect = [0 0 cfg.stimWidth cfg.stimWidth];
+    
     % get the details about the destination rectangle where we want to draw the
     % stimulus
     cfg.destinationRect = cfg.stimRect;
@@ -300,7 +302,7 @@ function varargout = postInitializationSetup(varargin)
         cfg.dot.speedPixPerFrame = cfg.dot.speedPix / cfg.screen.monitorRefresh;
         
         % dots are displayed on a square
-        cfg.dot.matrixWidth = cfg.stimWidth;
+        cfg.dot.matrixWidth = cfg.destinationRect(3);
         cfg.dot.number = round(cfg.dot.density * ...
             (cfg.dot.matrixWidth / cfg.screen.ppd)^2);
         
