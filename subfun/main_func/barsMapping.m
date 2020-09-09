@@ -52,49 +52,18 @@ function barsMapping(cfg)
         
         %% Initialize PTB
         
-        [cfg] = initPTB(cfg);
-        
-        % apply pixels per degree conversion
-        target = degToPix('target_width', target, cfg);
-        
-        
-        
-        
-        
-        
-        
-        % Convert some values from degrees to pixels
-        cfg.dot = degToPix('size', cfg.dot, cfg);
-        cfg.dot = degToPix('speed', cfg.dot, cfg);
-        
-        % Get dot speeds in pixels per frame
-        cfg.dot.speedPixPerFrame = cfg.dot.speedPix / cfg.screen.monitorRefresh;
-        
-        
-        
-        
-        
-        
         % Load background movie
         cfg = loadStim(cfg);
         
+        [cfg] = initPTB(cfg);
         
-        
-        
-        bgdTextures = loadBckGrnd(cfg.stimulus, cfg.screen.win);
-        
-        
-        % dots are displayed on a square
-        cfg.dot.matrixWidth = cfg.stimRect(3);
-        cfg.dot.number = round(cfg.dot.density * ...
-            (cfg.dot.matrixWidth / cfg.screen.ppd)^2);
+        [cfg, target] = postInitializationSetup(cfg, target);
 
-        cfg = dotTexture('init', cfg);
-        
-        
-        
-        
-        
+        if strcmp(cfg.stim, 'dot')
+            cfg = dotTexture('init', cfg);
+        else
+            bgdTextures = loadBckGrnd(cfg.stimulus, cfg.screen.win);
+        end
         
         % Create aperture texture
         cfg = apertureTexture('init', cfg);
@@ -310,5 +279,39 @@ function barsMapping(cfg)
         cleanUp;
         psychrethrow(psychlasterror);
     end
+    
+end
+
+
+function varargout = postInitializationSetup(varargin)
+    % varargout = postInitializatinSetup(varargin)
+    
+    % generic function to finalize some set up after psychtoolbox has been
+    % initialized
+    
+    [cfg, target] = deal(varargin{:});
+    
+    % apply pixels per degree conversion
+    target = degToPix('target_width', target, cfg);
+    
+    if strcmp(cfg.stim, 'dot')
+        
+        cfg.dot = degToPix('size', cfg.dot, cfg);
+        cfg.dot = degToPix('speed', cfg.dot, cfg);
+        
+        cfg.dot.speedPixPerFrame = cfg.dot.speedPix / cfg.screen.monitorRefresh;
+        
+        % dots are displayed on a square
+        cfg.dot.matrixWidth = cfg.stimRect(3);
+        cfg.dot.number = round(cfg.dot.density * ...
+            (cfg.dot.matrixWidth / cfg.screen.ppd)^2);
+        
+    end
+    
+%     [0 0 cfg.stimWidth cfg.stimWidth]
+%     
+%     cfg.dest
+    
+    varargout = {cfg, target};
     
 end
