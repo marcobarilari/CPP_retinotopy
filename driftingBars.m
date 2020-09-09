@@ -26,7 +26,7 @@ function driftingBars(debug, stim, emul)
     cfg.aperture.type = 'bar';
 
     % Stimulus conditions in each block defined by number
-    cfg.conditions = [90 45 135 270 225 315 90 45 135 270 225 315];
+    cfg.conditions = [45 90 135 270 225 315 90 45 135 270 225 315];
 
     %% Set defaults
 

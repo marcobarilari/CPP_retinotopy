@@ -1,4 +1,17 @@
-function cfg = loadStim(cfg)
+function cfg = checkGenerateLoadStim(cfg)
+    % cfg = loadStim(cfg)
+    %
+    % load background stimulus or generate if it does not exist or if it does
+    % not match the requirement
+    %
+    % output
+    %
+    % cfg.stimRect: dimension of the stimulus
+    % cfg.stimulus: the stimulus itself
+    % cfg.refreshPerStim: number of screen refresh spent on each frame of the
+    %   stimulus
+    % 
+    % See: generateStimulus()
     
     cfg.stimRect = [0 0 cfg.stimWidth cfg.stimWidth];
     

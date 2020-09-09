@@ -55,8 +55,7 @@ function barsMapping(cfg)
         
         %% Initialize PTB
         
-        % Load background movie
-        cfg = loadStim(cfg);
+        cfg = checkGenerateLoadStim(cfg);
         
         [cfg] = initPTB(cfg);
         
@@ -172,7 +171,7 @@ function barsMapping(cfg)
                     % draw the background texture centered on screen
                     Screen('DrawTexture', cfg.screen.win, bgdTextures(thisEvent.stim), ...
                         cfg.stimRect, ...
-                        CenterRect(cfg.stimRect, cfg.screen.winRect), ...
+                        CenterRect(cfg.destinationRect, cfg.screen.winRect), ...
                         bgdAngle + thisEvent.condition - 90);
 
                 end
@@ -284,6 +283,14 @@ function varargout = postInitializationSetup(varargin)
     
     % apply pixels per degree conversion
     target = degToPix('target_width', target, cfg);
+    
+    % get the details about the destination rectangle where we want to draw the
+    % stimulus
+    cfg.destinationRect = cfg.stimRect;
+    if isfield(cfg, 'stimDestWidth') && ~isempty(cfg.stimDestWidth)
+        cfg.destinationRect = [0 0 cfg.stimDestWidth cfg.stimDestWidth];
+        cfg.scalingFactor = cfg.destinationRect(3) / cfg.stimRect(3);
+    end
     
     if strcmp(cfg.stim, 'dot')
         

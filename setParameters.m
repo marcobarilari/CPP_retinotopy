@@ -40,8 +40,12 @@ function [cfg] = setParameters(cfg)
     % Angle rotation back & forth
     cfg.sineRotation = 10;
     
+    % width of the stimulus to generate (to make things simple choose the height
+    % of your screen resolution
     cfg.stimWidth = 1080;
-    cfg.stimDestWidth = 500;
+    
+    % will magnify the stim until it reaches that width in pixel
+    cfg.stimDestWidth = 1500;
 
     cfg = setDotsParameters(cfg);
 

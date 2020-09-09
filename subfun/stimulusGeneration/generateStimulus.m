@@ -1,4 +1,24 @@
 function generateStimulus(cfg)
+    % generateStimulus(cfg)
+    %
+    % The mat file of the background stimulus is saved in the folder ['..', '..', 'input']
+    % can also generate a figure of the stimulus.
+    %
+    % Generating the stimulus can be VERY slow on octave.
+    %
+    % main "inputs"
+    % 
+    % - cfg.stim can be 'Ripples', 'checkerboard', 'colRipples'
+    % - width is that of the stimulus in pixels
+    %
+    % stimulus dimensions are:
+    % - [width height number_of_frames] 
+    % - [width height colors number_of_frames] for colRipples
+    %
+    % stimFrames is the number of screen refresh that will be spent on each
+    % stimulus frame: increase this number to get something that changes slower
+    %
+    % See checkGenerateLoadStim()
     
     pringFig = false;
     if nargin < 1
