@@ -22,28 +22,8 @@ function [cfg] = setParameters(cfg)
     [cfg] = setMRI(cfg);
     [cfg] = setKeyboards(cfg);
 
-    % Target parameters
-    % Changing those parameters might affect participant's performance
-    % Need to find a set of parameters that give 85-90% accuracy.
-
-    % Probability of a target event
-    cfg.target.probability = 0.02;
-    % Duration of a target event in ms
-    cfg.target.duration = 0.1;
-    % diameter of target circle in degrees VA
-    cfg.target.size = .15;
-    % rgb color of the target
-    cfg.target.color = [255 100 100];
-    % is the fixation dot the only possible location of the target?
-    % setting this to true might induce more saccade (not formally tested)
-    cfg.target.central = true;
-
-    % Background image rotates
-    cfg.rotateStimulus = true;
-    % Angle rotation back & forth
-    cfg.sineRotation = 10;
-
     % Stimulus cycles per run
+    % I think this is needed to run but is not actually USED !!!!
     cfg.cyclesPerExpmt = 5;
 
     % Volumes per cycle - sets the "speed" of the mapping -
@@ -52,8 +32,21 @@ function [cfg] = setParameters(cfg)
     % expParameters.VolsPerCycle = ceil(5/expParameters.TR);
     cfg.volsPerCycle = 10;
 
+    %% Stimulus
+    cfg.stimFile = fullfile(fileparts(mfilename), 'input', [cfg.stim '.mat']);
+    % Background image rotates
+    cfg.rotateStimulus = true;
+    % Angle rotation back & forth
+    cfg.sineRotation = 10;
+    
+    cfg.stimWidth = 500;
+
+    cfg = setDotsParameters(cfg);
+
+    cfg = setTargetParameters(cfg);
+
     cfg.fixation.type = 'bestFixation'; % dot bestFixation
-    cfg.fixation.width = .2; % in degrees VA
+    cfg.fixation.width = .15; % in degrees VA
 
     %% Eyetracker parameters
     cfg.eyeTracker.do = false;
@@ -62,33 +55,6 @@ function [cfg] = setParameters(cfg)
     cfg.aperture.outputDir = fullfile(cfg.dir.output, 'stimuli');
     cfg.aperture.dimension = 200;
 
-    %% Stimulus
-    cfg.stimFile = fullfile(fileparts(mfilename), 'input', [cfg.stim '.mat']);
-    
-    
-    
-    
-    
-    % Speed in visual angles / second
-    cfg.dot.speed = 0.1;
-    % Coherence Level (0-1)
-    cfg.dot.coherence = 1;
-    % Number of dots per visual angle square.
-    cfg.dot.density = 2;
-    % Dot life time in seconds
-    cfg.dot.lifeTime = 1000;
-    % proportion of dots killed per frame
-    cfg.dot.proportionKilledPerFrame = 0;
-    % Dot Size (dot width) in visual angles.
-    cfg.dot.size = .2;
-    cfg.dot.color = cfg.color.white;
-    cfg.design.motionType = 'translation';
-    cfg.timing.eventDuration = 1000;
-
-    
-    
-    
-    
     %% DO NOT TOUCH
     if cfg.debug.do
         cfg.cyclesPerExpmt = 4;
@@ -162,7 +128,7 @@ function [cfg, expParameters] = setMonitor(cfg, expParameters)
     end
 
     % Resolution [width height refresh_rate]
-    cfg.screen.resolution = {1024, 768, []};
+%     cfg.screen.resolution = {1024, 768, []};
 
     % to use to draw the actual field of view of the participant
     % [width height]
@@ -172,5 +138,50 @@ function [cfg, expParameters] = setMonitor(cfg, expParameters)
     cfg.text.font = 'Courier New';
     cfg.text.size = 18;
     cfg.text.style = 1;
+
+end
+
+function cfg = setDotsParameters(cfg)
+
+    % Speed in visual angles / second
+    cfg.dot.speed = 0.1;
+    % Coherence Level (0-1)
+    cfg.dot.coherence = 1;
+    % Number of dots per visual angle square.
+    cfg.dot.density = 2;
+    % Dot life time in seconds
+    cfg.dot.lifeTime = 1000;
+    % proportion of dots killed per frame
+    cfg.dot.proportionKilledPerFrame = 0;
+    % Dot Size (dot width) in visual angles.
+    cfg.dot.size = .2;
+    cfg.dot.color = cfg.color.white;
+
+    cfg.design.motionType = 'translation';
+
+    cfg.timing.eventDuration = 1000;
+end
+
+function cfg = setTargetParameters(cfg)
+
+    % Target parameters
+    % Changing those parameters might affect participant's performance
+    % Need to find a set of parameters that give 85-90% accuracy.
+
+    % Probability of a target event
+    % TO DO: define propotion over WHAT !!!! Give some sort of unit
+    cfg.target.probability = 0.02;
+    %
+    %
+
+    % Duration of a target event in ms
+    cfg.target.duration = 0.1;
+    % diameter of target circle in degrees VA
+    cfg.target.size = .15;
+    % rgb color of the target
+    cfg.target.color = [255 100 100];
+    % is the fixation dot the only possible location of the target?
+    % setting this to true might induce more saccade (not formally tested)
+    cfg.target.central = true;
 
 end
