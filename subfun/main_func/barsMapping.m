@@ -103,41 +103,28 @@ function barsMapping(cfg)
             thisEvent.previousVolume = 0;
             thisEvent.stim = 1;
             
-            
-            
-            
-            
-            thisEvent.direction = 0;
-            thisEvent.speed = cfg.dot.speedPix;
-            
-            dots = initDots(cfg, thisEvent);
-            
-            
-            
-            
-            
-            
             while thisEvent.volume <= cfg.volsPerCycle
                 
                 checkAbort(cfg);
                 
-                
-                
-                
-                
-                
-                
-                [dots] = updateDots(dots, cfg);
-                
-                thisEvent.dot.positions = (dots.positions - cfg.dot.matrixWidth / 2)';
-                
-                dotTexture('make', cfg, thisEvent);
-                
-                
-                
-                
-                
-                
+                if strcmp(cfg.stim, 'dot')
+                    
+                    thisEvent.speed = cfg.dot.speedPix;
+                    
+                    if thisEvent.volume ~= thisEvent.previousVolume
+
+                            thisEvent.direction = rand * 360;
+                            
+                            dots = initDots(cfg, thisEvent);
+                        
+                    end
+                    
+                    [dots] = updateDots(dots, cfg);
+                    
+                    thisEvent.dot.positions = (dots.positions - cfg.dot.matrixWidth / 2)';
+                    
+                    dotTexture('make', cfg, thisEvent);
+                end
                 
                 %% Determine current frame
                 
@@ -165,7 +152,7 @@ function barsMapping(cfg)
                 % Draw background stimulus at a given rotation
                 bgdAngle = cos(GetSecs - trialOnset) * cfg.sineRotation;
                 
-                
+                if strcmp(cfg.stim, 'dot')
                 
                 
                 %                 Screen('DrawTexture', cfg.screen.win, bgdTextures(thisEvent.stim), ...
@@ -175,7 +162,7 @@ function barsMapping(cfg)
                 
                 
                 
-                dotTexture('draw', cfg, thisEvent);
+                    dotTexture('draw', cfg, thisEvent);
                 
                 
                 
@@ -198,16 +185,7 @@ function barsMapping(cfg)
                 % detect the of an event and the beginning of a new one
                 if thisEvent.volume ~= thisEvent.previousVolume
                     isOffset = true && barInfo.experimentStarted;
-                    isOnset = true;
-                    
-                    
-                    thisEvent.direction = rand * 360;
-                    
-                    dots = initDots(cfg, thisEvent);
-                    
-                    
-                    
-                    
+                    isOnset = true;                    
                 end
                 
                 barInfo.bar_width = cfg.aperture.width;
