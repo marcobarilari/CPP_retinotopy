@@ -10,7 +10,7 @@ function driftingBars(debug, stim, emul)
         debug = 1;
     end
     if nargin < 2  || isempty(stim)
-        stim = 'Ripples.mat';
+        stim = 'ripples';
     end
     if nargin < 3  || isempty(emul)
         emul = 0;
@@ -31,9 +31,8 @@ function driftingBars(debug, stim, emul)
     %% Set defaults
 
     cfg.stim = stim;
-    
-    cfg.stim = 'dot';
-    
+%     cfg.stim = 'dot';
+
     cfg.debug.do = debug;
 
     if ~emul

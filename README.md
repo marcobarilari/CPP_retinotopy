@@ -84,6 +84,8 @@ Get in touch by reporting an issue or sending a pull request
 
 Original version by [Sam Schwarzkopf](https://sampendu.net/sam-schwarzkopf/) (27th July 2010)
 
+For more recent version of the same code () check it here on OSF: [DOI 10.17605/OSF.IO/2RGSM](https://osf.io/2rgsm/)
+
 Some modifications (esp for eye tracking) have been done by [Tim Rohe](https://scholar.google.de/citations?user=mFO_FSAAAAAJ&hl=de).
 
 Code cleaning and refactoring was done by Rémi Gau.

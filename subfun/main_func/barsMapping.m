@@ -18,6 +18,9 @@ function barsMapping(cfg)
     
     %% Initialize
     
+    %------------------------------------------------------------------------------
+    % REFACTOR THIS
+    %  
     % current stimulus Frame
     thisEvent.frame = 1;
     thisEvent.time = 0;
@@ -58,7 +61,7 @@ function barsMapping(cfg)
         [cfg] = initPTB(cfg);
         
         [cfg, target] = postInitializationSetup(cfg, target);
-
+        
         if strcmp(cfg.stim, 'dot')
             cfg = dotTexture('init', cfg);
         else
@@ -107,15 +110,18 @@ function barsMapping(cfg)
                 
                 checkAbort(cfg);
                 
+                %------------------------------------------------------------------------------
+                % REFACTOR THIS
+                %                
                 if strcmp(cfg.stim, 'dot')
                     
                     thisEvent.speed = cfg.dot.speedPix;
                     
                     if thisEvent.volume ~= thisEvent.previousVolume
-
-                            thisEvent.direction = rand * 360;
-                            
-                            dots = initDots(cfg, thisEvent);
+                        
+                        thisEvent.direction = rand * 360;
+                        
+                        dots = initDots(cfg, thisEvent);
                         
                     end
                     
@@ -124,19 +130,24 @@ function barsMapping(cfg)
                     thisEvent.dot.positions = (dots.positions - cfg.dot.matrixWidth / 2)';
                     
                     dotTexture('make', cfg, thisEvent);
+                    
+                else
+                    
+                    % Determine current frame
+                    thisEvent.frame = thisEvent.frame + 1;
+                    if thisEvent.frame > cfg.refreshPerStim
+                        thisEvent.frame = 1;
+                        thisEvent.stim = thisEvent.stim + 1;
+                    end
+                    
+                    if thisEvent.stim > size(cfg.stimulus, ...
+                            length(size(cfg.stimulus)))
+                        thisEvent.stim = 1;
+                    end
+                    
                 end
+                %------------------------------------------------------------------------------
                 
-                %% Determine current frame
-                
-                thisEvent.frame = thisEvent.frame + 1;
-                if thisEvent.frame > cfg.refreshPerStim
-                    thisEvent.frame = 1;
-                    thisEvent.stim = thisEvent.stim + 1;
-                end
-                if thisEvent.stim > size(cfg.stimulus, ...
-                        length(size(cfg.stimulus)))
-                    thisEvent.stim = 1;
-                end
                 
                 %% Get info about this event and the bar
                 
@@ -153,22 +164,19 @@ function barsMapping(cfg)
                 bgdAngle = cos(GetSecs - trialOnset) * cfg.sineRotation;
                 
                 if strcmp(cfg.stim, 'dot')
-                
-                
-                %                 Screen('DrawTexture', cfg.screen.win, bgdTextures(thisEvent.stim), ...
-                %                     cfg.stimRect, ...
-                %                     CenterRect(cfg.stimRect, cfg.screen.winRect), ...
-                %                     bgdAngle + thisEvent.condition - 90);
-                
-                
-                
+                    
                     dotTexture('draw', cfg, thisEvent);
-                
-                
-                
-                
-                
-                
+                    
+                else
+                    
+                    % draw the background texture centered on screen
+                    Screen('DrawTexture', cfg.screen.win, bgdTextures(thisEvent.stim), ...
+                        cfg.stimRect, ...
+                        CenterRect(cfg.stimRect, cfg.screen.winRect), ...
+                        bgdAngle + thisEvent.condition - 90);
+
+                end
+
                 [cfg, thisEvent] = apertureTexture('draw', cfg, thisEvent);
                 
                 drawFixation(cfg);
@@ -182,10 +190,13 @@ function barsMapping(cfg)
                 
                 %% Collect and save target / stim / response info if necessary
                 
+                %------------------------------------------------------------------------------
+                % REFACTOR THIS
+                %
                 % detect the of an event and the beginning of a new one
                 if thisEvent.volume ~= thisEvent.previousVolume
                     isOffset = true && barInfo.experimentStarted;
-                    isOnset = true;                    
+                    isOnset = true;
                 end
                 
                 barInfo.bar_width = cfg.aperture.width;
@@ -206,6 +217,8 @@ function barsMapping(cfg)
                 target = saveOnOffset( ...
                     target.isOffset, ...
                     target, cfg, rft);
+               %-------------------------------------------------------------------------------
+                
                 
                 collectAndSaveResponses(cfg, logFile, cfg.experimentStart);
                 
@@ -263,7 +276,7 @@ end
 
 function varargout = postInitializationSetup(varargin)
     % varargout = postInitializatinSetup(varargin)
-    
+    % 
     % generic function to finalize some set up after psychtoolbox has been
     % initialized
     
@@ -280,15 +293,11 @@ function varargout = postInitializationSetup(varargin)
         cfg.dot.speedPixPerFrame = cfg.dot.speedPix / cfg.screen.monitorRefresh;
         
         % dots are displayed on a square
-        cfg.dot.matrixWidth = cfg.stimRect(3);
+        cfg.dot.matrixWidth = cfg.stimWidth;
         cfg.dot.number = round(cfg.dot.density * ...
             (cfg.dot.matrixWidth / cfg.screen.ppd)^2);
         
     end
-    
-%     [0 0 cfg.stimWidth cfg.stimWidth]
-%     
-%     cfg.dest
     
     varargout = {cfg, target};
     

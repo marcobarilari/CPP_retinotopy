@@ -4,11 +4,13 @@ function generateStimulus(cfg)
     if nargin < 1
         close all
         width = 1080;
-        cfg.stim = 'colRipples'; %ripples %checkerboard %colRipples
-        pringFig = true;
+        cfg.stim = 'Ripples'; %ripples %checkerboard %colRipples
+        pringFig = false;
+    else
+        width = cfg.stimWidth;
     end
     
-    fprintf('Generating background stimulus\n');
+    fprintf('Generating background stimulus.\n');
     
     switch lower(cfg.stim)
         
@@ -59,5 +61,5 @@ function generateStimulus(cfg)
         end
     end
     
-    fprintf('Done\n');
+    fprintf('Done.\n');
 end

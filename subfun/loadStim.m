@@ -1,11 +1,28 @@
 function cfg = loadStim(cfg)
+    
+    cfg.stimRect = [0 0 cfg.stimWidth cfg.stimWidth];
+    
+    if strcmpi(cfg.stim, 'dot')
+        cfg.refreshPerStim = 1;  % Video frames per stimulus frame
+        return
+    end
 
     fprintf('Loading file: %s\n', cfg.stimFile);
+    
+    if ~exist(cfg.stimFile, 'file')
+        fprintf('File not found.\n');
+        generateStimulus(cfg);
+    end
 
     load(cfg.stimFile);
+    
+    if size(stimulus,1) ~= cfg.stimWidth
+        fprintf('Stimulus does not have the right dimension.\n');
+        generateStimulus(cfg);
+        load(cfg.stimFile);
+    end
 
-    [~, file] = fileparts(cfg.stimFile);
-    if strcmpi(file, 'checkerboard')
+    if strcmpi(cfg.stim, 'checkerboard')
 
         cfg.stimulus(:, :, 1) = stimulus;
         cfg.stimulus(:, :, 2) = uint8(invertContrastCogent(cogentImage(stimulus)) * 255);
@@ -17,8 +34,6 @@ function cfg = loadStim(cfg)
     end
 
     cfg.refreshPerStim = stimFrames;  % Video frames per stimulus frame
-
-    cfg.stimRect = [0 0 size(cfg.stimulus, 2) size(cfg.stimulus, 1)];
 
 end
 

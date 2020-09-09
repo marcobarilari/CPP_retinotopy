@@ -34,12 +34,14 @@ function [cfg] = setParameters(cfg)
 
     %% Stimulus
     cfg.stimFile = fullfile(fileparts(mfilename), 'input', [cfg.stim '.mat']);
+    
     % Background image rotates
     cfg.rotateStimulus = true;
     % Angle rotation back & forth
     cfg.sineRotation = 10;
     
-    cfg.stimWidth = 500;
+    cfg.stimWidth = 1080;
+    cfg.stimDestWidth = 500;
 
     cfg = setDotsParameters(cfg);
 
@@ -150,7 +152,7 @@ function cfg = setDotsParameters(cfg)
     % Number of dots per visual angle square.
     cfg.dot.density = 2;
     % Dot life time in seconds
-    cfg.dot.lifeTime = 1000;
+    cfg.dot.lifeTime = Inf;
     % proportion of dots killed per frame
     cfg.dot.proportionKilledPerFrame = 0;
     % Dot Size (dot width) in visual angles.
@@ -159,7 +161,7 @@ function cfg = setDotsParameters(cfg)
 
     cfg.design.motionType = 'translation';
 
-    cfg.timing.eventDuration = 1000;
+    cfg.timing.eventDuration = Inf;
 end
 
 function cfg = setTargetParameters(cfg)
