@@ -231,7 +231,7 @@ function barsMapping(cfg)
         
         %       data = feedbackScreen(cfg);
         
-        WaitSecs(1);
+        waitFor(cfg, 1);
         
         %% Save
         
@@ -246,7 +246,7 @@ function barsMapping(cfg)
         
         disp(output);
         
-        WaitSecs(4);
+        waitFor(cfg, 4);
         
         %% Farewell screen
         farewellScreen(cfg);
