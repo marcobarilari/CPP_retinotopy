@@ -31,6 +31,9 @@ function driftingBars(debug, stim, emul)
     %% Set defaults
 
     cfg.stim = stim;
+    
+    cfg.stim = 'dot';
+    
     cfg.debug.do = debug;
 
     if ~emul

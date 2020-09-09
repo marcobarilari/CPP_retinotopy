@@ -2,7 +2,7 @@ function [cfg] = setParameters(cfg)
 
     cfg.verbose = false;
 
-    cfg.debug.transpWin = false;
+    cfg.debug.transpWin = true;
     cfg.debug.smallWin = false;
 
     cfg.dir.output = fullfile(fileparts(mfilename('fullpath')), 'output');
@@ -50,10 +50,10 @@ function [cfg] = setParameters(cfg)
     % standard is to have VolsPerCycle * TR ~ 1 min
     % e.g expParameters.VolsPerCycle = ceil(60/expParameters.TR);
     % expParameters.VolsPerCycle = ceil(5/expParameters.TR);
-    cfg.volsPerCycle = 20;
+    cfg.volsPerCycle = 10;
 
     cfg.fixation.type = 'bestFixation'; % dot bestFixation
-    cfg.fixation.width = .15; % in degrees VA
+    cfg.fixation.width = .2; % in degrees VA
 
     %% Eyetracker parameters
     cfg.eyeTracker.do = false;
@@ -62,9 +62,33 @@ function [cfg] = setParameters(cfg)
     cfg.aperture.outputDir = fullfile(cfg.dir.output, 'stimuli');
     cfg.aperture.dimension = 200;
 
-    %% Stimulus movie
-    cfg.stimFile = fullfile(fileparts(mfilename), 'input', cfg.stim);
+    %% Stimulus
+    cfg.stimFile = fullfile(fileparts(mfilename), 'input', [cfg.stim '.mat']);
+    
+    
+    
+    
+    
+    % Speed in visual angles / second
+    cfg.dot.speed = 0.1;
+    % Coherence Level (0-1)
+    cfg.dot.coherence = 1;
+    % Number of dots per visual angle square.
+    cfg.dot.density = 2;
+    % Dot life time in seconds
+    cfg.dot.lifeTime = 1000;
+    % proportion of dots killed per frame
+    cfg.dot.proportionKilledPerFrame = 0;
+    % Dot Size (dot width) in visual angles.
+    cfg.dot.size = .2;
+    cfg.dot.color = cfg.color.white;
+    cfg.design.motionType = 'translation';
+    cfg.timing.eventDuration = 1000;
 
+    
+    
+    
+    
     %% DO NOT TOUCH
     if cfg.debug.do
         cfg.cyclesPerExpmt = 4;
@@ -110,7 +134,7 @@ end
 function [cfg] = setMRI(cfg)
     % letter sent by the trigger to sync stimulation and volume acquisition
     cfg.mri.triggerKey = 't';
-    cfg.mri.triggerNb = 5;
+    cfg.mri.triggerNb = 1;
     cfg.mri.repetitionTime = 1.8;
 
     cfg.bids.MRI.Instructions = 'Press the button everytime a red dot appears!';
