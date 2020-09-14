@@ -34,17 +34,17 @@ function [cfg] = setParameters(cfg)
 
     %% Stimulus
     cfg.stimFile = fullfile(fileparts(mfilename), 'input', [cfg.stim '.mat']);
-    
+
     % Background image rotates
     cfg.rotateStimulus = true;
     % Angle rotation back & forth
     cfg.sineRotation = 10;
-    
+
     % width of the stimulus to generate (to make things simple choose the height
     % of your screen resolution)
     % when using dots this is the size of the square where the dots are drawn
     cfg.stimWidth = 1080;
-    
+
     % will magnify the stim until it reaches that width in pixel
     %     cfg.stimDestWidth = 500;
 
@@ -137,7 +137,7 @@ function [cfg, expParameters] = setMonitor(cfg, expParameters)
     end
 
     % Resolution [width height refresh_rate]
-%     cfg.screen.resolution = {1024, 768, []};
+    %     cfg.screen.resolution = {1024, 768, []};
 
     % to use to draw the actual field of view of the participant
     % [width height]

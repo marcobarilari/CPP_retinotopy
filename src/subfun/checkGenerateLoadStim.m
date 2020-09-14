@@ -9,7 +9,7 @@ function cfg = checkGenerateLoadStim(cfg)
     % cfg.stimulus: the stimulus itself
     % cfg.refreshPerStim: number of screen refresh spent on each frame of the
     %   stimulus
-    % 
+    %
     % See: generateStimulus()
 
     if strcmpi(cfg.stim, 'dot')
@@ -18,15 +18,15 @@ function cfg = checkGenerateLoadStim(cfg)
     end
 
     fprintf('Loading file: %s\n', cfg.stimFile);
-    
+
     if ~exist(cfg.stimFile, 'file')
         fprintf('File not found.\n');
         generateStimulus(cfg);
     end
 
     load(cfg.stimFile);
-    
-    if size(stimulus,1) ~= cfg.stimWidth
+
+    if size(stimulus, 1) ~= cfg.stimWidth
         fprintf('Stimulus does not have the right dimension.\n');
         generateStimulus(cfg);
         load(cfg.stimFile);
