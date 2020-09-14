@@ -5,7 +5,7 @@ function [cfg] = setParameters(cfg)
     cfg.debug.transpWin = true;
     cfg.debug.smallWin = false;
 
-    cfg.dir.output = fullfile(fileparts(mfilename('fullpath')), 'output');
+    cfg.dir.output = fullfile(fileparts(mfilename('fullpath')), '..', 'output');
 
     %% Splash screens
     cfg.welcome = 'Please fixate the black dot at all times!';
@@ -40,8 +40,15 @@ function [cfg] = setParameters(cfg)
     % Angle rotation back & forth
     cfg.sineRotation = 10;
     
+    % width of the stimulus to generate (to make things simple choose the height
+    % of your screen resolution)
+    % when using dots this is the size of the square where the dots are drawn
     cfg.stimWidth = 1080;
-    cfg.stimDestWidth = 500;
+    
+    % will magnify the stim until it reaches that width in pixel
+    %     cfg.stimDestWidth = 500;
+
+    cfg.stimDestWidth = 2048;
 
     cfg = setDotsParameters(cfg);
 
@@ -89,7 +96,7 @@ function [cfg] = setKeyboards(cfg)
     cfg.keyboard.responseKey = { ...
         'r', 'g', 'y', 'b', ...
         'd', 'n', 'z', 'e', ...
-        't'}; % dnze rgyb
+        't'};
     cfg.keyboard.keyboard = [];
     cfg.keyboard.responseBox = [];
 
@@ -120,9 +127,9 @@ function [cfg, expParameters] = setMonitor(cfg, expParameters)
     cfg.color.background = [127 127 127];
     cfg.color.foreground = cfg.color.black;
 
-    % Monitor parameters
-    cfg.screen.monitorWidth = 42; % in cm
-    cfg.screen.monitorDistance = 134; % distance from the screen in cm
+    % Monitor parameters (in cm)
+    cfg.screen.monitorWidth = 42;
+    cfg.screen.monitorDistance = 134;
 
     if strcmpi(cfg.testingDevice, 'mri')
         cfg.screen.monitorWidth = 25;

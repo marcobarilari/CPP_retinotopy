@@ -1,7 +1,17 @@
-function cfg = loadStim(cfg)
-    
-    cfg.stimRect = [0 0 cfg.stimWidth cfg.stimWidth];
-    
+function cfg = checkGenerateLoadStim(cfg)
+    % cfg = loadStim(cfg)
+    %
+    % load background stimulus or generate if it does not exist or if it does
+    % not match the requirement
+    %
+    % output
+    %
+    % cfg.stimulus: the stimulus itself
+    % cfg.refreshPerStim: number of screen refresh spent on each frame of the
+    %   stimulus
+    % 
+    % See: generateStimulus()
+
     if strcmpi(cfg.stim, 'dot')
         cfg.refreshPerStim = 1;  % Video frames per stimulus frame
         return
