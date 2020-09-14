@@ -5,7 +5,7 @@ function [cfg] = setParameters(cfg)
     cfg.debug.transpWin = true;
     cfg.debug.smallWin = false;
 
-    cfg.dir.output = fullfile(fileparts(mfilename('fullpath')), 'output');
+    cfg.dir.output = fullfile(fileparts(mfilename('fullpath')), '..', 'output');
 
     %% Splash screens
     cfg.welcome = 'Please fixate the black dot at all times!';
@@ -46,7 +46,9 @@ function [cfg] = setParameters(cfg)
     cfg.stimWidth = 1080;
     
     % will magnify the stim until it reaches that width in pixel
-    cfg.stimDestWidth = 500;
+    %     cfg.stimDestWidth = 500;
+
+    cfg.stimDestWidth = 2048;
 
     cfg = setDotsParameters(cfg);
 

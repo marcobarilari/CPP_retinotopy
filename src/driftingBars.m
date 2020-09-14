@@ -10,7 +10,7 @@ function driftingBars(debug, stim, emul)
         debug = 1;
     end
     if nargin < 2  || isempty(stim)
-        stim = 'dot'; %ripples
+        stim = 'ripples'; %ripples dot
     end
     if nargin < 3  || isempty(emul)
         emul = 0;

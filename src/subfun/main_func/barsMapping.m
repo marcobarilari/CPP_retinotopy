@@ -56,6 +56,7 @@ function barsMapping(cfg)
         %% Initialize PTB
         
         cfg = checkGenerateLoadStim(cfg);
+        cfg.refreshPerStim = 4;
         
         [cfg] = initPTB(cfg);
         
