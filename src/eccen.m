@@ -12,7 +12,7 @@ function eccen(debug, direc, stim, emul)
         emul = 1;
     end
     if nargin < 3 || isempty(stim)
-        stim = 'checkerboard';
+        stim = 'dot'; % 'checkerboard';
     end
     if nargin < 2 || isempty(dir)
         direc = '-';

@@ -159,14 +159,14 @@ function barsMapping(cfg)
                 % we draw the background stimulus in full and overlay an aperture
                 % on top of it
 
-                % Draw background stimulus at a given rotation
-                bgdAngle = cos(GetSecs - trialOnset) * cfg.sineRotation;
-
                 if strcmp(cfg.stim, 'dot')
 
                     dotTexture('draw', cfg, thisEvent);
 
                 else
+
+                    % Draw background stimulus at a given rotation
+                    bgdAngle = cos(GetSecs - trialOnset) * cfg.sineRotation;
 
                     % draw the background texture centered on screen
                     Screen('DrawTexture', cfg.screen.win, bgdTextures(thisEvent.stim), ...

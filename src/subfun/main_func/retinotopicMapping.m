@@ -59,7 +59,12 @@ function [data, cfg] = retinotopicMapping(cfg)
 
         % Load background movie
         cfg = checkGenerateLoadStim(cfg);
-        bgdTextures = loadBckGrnd(cfg.stimulus, cfg.screen.win);
+
+        if strcmp(cfg.stim, 'dot')
+            cfg = dotTexture('init', cfg);
+        else
+            bgdTextures = loadBckGrnd(cfg.stimulus, cfg.screen.win);
+        end
 
         % Create aperture texture
         cfg = apertureTexture('init', cfg);
@@ -86,9 +91,34 @@ function [data, cfg] = retinotopicMapping(cfg)
 
             checkAbort(cfg);
 
+            % ------------------------------------------------------------------------------
+            % REFACTOR THIS
+            %
+
             %% Update Frame number
             thisEvent.refresh = thisEvent.refresh + 1;
-            if thisEvent.refresh == cfg.refreshPerStim
+
+            if strcmp(cfg.stim, 'dot')
+
+                thisEvent.speed = cfg.dot.speedPix;
+
+                if thisEvent.refresh == 1
+
+                    thisEvent.direction = rand * 360;
+
+                    dots = initDots(cfg, thisEvent);
+                elseif thisEvent.refresh == 60
+
+                    thisEvent.refresh = 0;
+                end
+
+                [dots] = updateDots(dots, cfg);
+
+                thisEvent.dot.positions = (dots.positions - cfg.dot.matrixWidth / 2)';
+
+                dotTexture('make', cfg, thisEvent);
+
+            elseif thisEvent.refresh >= cfg.refreshPerStim
 
                 thisEvent.refresh = 0;
                 thisEvent.frame = thisEvent.frame + 1;
@@ -98,6 +128,7 @@ function [data, cfg] = retinotopicMapping(cfg)
                 end
 
             end
+            % ------------------------------------------------------------------------------
 
             % current Time stamp
             thisEvent.time = GetSecs - cfg.experimentStart;
@@ -110,20 +141,28 @@ function [data, cfg] = retinotopicMapping(cfg)
             % we draw the background stimulus in full and overlay an aperture on top of it
 
             % Display background
-            if cfg.rotateStimulus
-                bgdAngle = thisEvent.angle;
+
+            if strcmp(cfg.stim, 'dot')
+
+                dotTexture('draw', cfg, thisEvent);
+
             else
+
                 bgdAngle = 0;
+                if cfg.rotateStimulus
+                    bgdAngle = thisEvent.angle;
+                end
+
+                % Rotate background movie
+                sineRotate = cos(thisEvent.time) * cfg.sineRotation;
+
+                Screen('DrawTexture', cfg.screen.win, bgdTextures(thisEvent.frame), ...
+                    cfg.stimRect, ...
+                    CenterRect(cfg.destinationRect, cfg.screen.winRect), ...
+                    bgdAngle + sineRotate);
+
             end
 
-            % Rotate background movie
-            sineRotate = cos(thisEvent.time) * cfg.sineRotation;
-
-            Screen('DrawTexture', cfg.screen.win, bgdTextures(thisEvent.frame), ...
-                cfg.stimRect, ...
-                CenterRect(cfg.destinationRect, cfg.screen.winRect), ...
-                bgdAngle + sineRotate);
-            
             % Draw aperture
             apertureTexture('draw', cfg);
 
@@ -162,7 +201,6 @@ function [data, cfg] = retinotopicMapping(cfg)
 
         WaitSecs(1);
 
-
         % clear stim from structure and a few variables to save memory
         cfg = rmfield(cfg, 'stimulus');
 
@@ -188,7 +226,6 @@ function [data, cfg] = retinotopicMapping(cfg)
 
 end
 
-
 function varargout = postInitializationSetup(varargin)
     % varargout = postInitializatinSetup(varargin)
     %
@@ -210,19 +247,19 @@ function varargout = postInitializationSetup(varargin)
         cfg.scalingFactor = cfg.destinationRect(3) / cfg.stimRect(3);
     end
 
-%     if strcmp(cfg.stim, 'dot')
-% 
-%         cfg.dot = degToPix('size', cfg.dot, cfg);
-%         cfg.dot = degToPix('speed', cfg.dot, cfg);
-% 
-%         cfg.dot.speedPixPerFrame = cfg.dot.speedPix / cfg.screen.monitorRefresh;
-% 
-%         % dots are displayed on a square
-%         cfg.dot.matrixWidth = cfg.destinationRect(3);
-%         cfg.dot.number = round(cfg.dot.density * ...
-%             (cfg.dot.matrixWidth / cfg.screen.ppd)^2);
-% 
-%     end
+    if strcmp(cfg.stim, 'dot')
+
+        cfg.dot = degToPix('size', cfg.dot, cfg);
+        cfg.dot = degToPix('speed', cfg.dot, cfg);
+
+        cfg.dot.speedPixPerFrame = cfg.dot.speedPix / cfg.screen.monitorRefresh;
+
+        % dots are displayed on a square
+        cfg.dot.matrixWidth = cfg.destinationRect(3);
+        cfg.dot.number = round(cfg.dot.density * ...
+            (cfg.dot.matrixWidth / cfg.screen.ppd)^2);
+
+    end
 
     varargout = {cfg, target};
 
