@@ -55,12 +55,16 @@ function [data, cfg] = retinotopicMapping(cfg)
         %% Initialize PTB
         [cfg] = initPTB(cfg);
 
-        % apply pixels per degree conversion
-        target = degToPix('target_width', target, cfg);
+        [cfg, target] = postInitializationSetup(cfg, target);
 
         % Load background movie
-        cfg = loadStim(cfg);
-        bgdTextures = loadBckGrnd(cfg.stimulus, cfg.screen.win);
+        cfg = checkGenerateLoadStim(cfg);
+
+        if strcmp(cfg.stim, 'dot')
+            cfg = dotTexture('init', cfg);
+        else
+            bgdTextures = loadBckGrnd(cfg.stimulus, cfg.screen.win);
+        end
 
         % Create aperture texture
         cfg = apertureTexture('init', cfg);
@@ -87,9 +91,34 @@ function [data, cfg] = retinotopicMapping(cfg)
 
             checkAbort(cfg);
 
+            % ------------------------------------------------------------------------------
+            % REFACTOR THIS
+            %
+
             %% Update Frame number
             thisEvent.refresh = thisEvent.refresh + 1;
-            if thisEvent.refresh == cfg.refreshPerStim
+
+            if strcmp(cfg.stim, 'dot')
+
+                thisEvent.speed = cfg.dot.speedPix;
+
+                if thisEvent.refresh == 1
+
+                    thisEvent.direction = rand * 360;
+
+                    dots = initDots(cfg, thisEvent);
+                elseif thisEvent.refresh == 60
+
+                    thisEvent.refresh = 0;
+                end
+
+                [dots] = updateDots(dots, cfg);
+
+                thisEvent.dot.positions = (dots.positions - cfg.dot.matrixWidth / 2)';
+
+                dotTexture('make', cfg, thisEvent);
+
+            elseif thisEvent.refresh >= cfg.refreshPerStim
 
                 thisEvent.refresh = 0;
                 thisEvent.frame = thisEvent.frame + 1;
@@ -99,6 +128,7 @@ function [data, cfg] = retinotopicMapping(cfg)
                 end
 
             end
+            % ------------------------------------------------------------------------------
 
             % current Time stamp
             thisEvent.time = GetSecs - cfg.experimentStart;
@@ -106,28 +136,32 @@ function [data, cfg] = retinotopicMapping(cfg)
             [cfg, thisEvent] = apertureTexture('make', cfg, thisEvent);
 
             frameTimesUpdate = [thisEvent.time];
-            %  ring.scalePix ring.scaleVA2 ring.scaleInnerPix ring.scaleInnerVA];
-            % frameTimesUpdate = [frameTimesUpdate, current.angle];
-            % current Frame, time & condition (can also be valuable for debugging)
-            %             frameTimes = [frameTimes; frameTimesUpdate]; %#ok<AGROW>
 
             %% Draw stimulus
             % we draw the background stimulus in full and overlay an aperture on top of it
 
             % Display background
-            if cfg.rotateStimulus
-                bgdAngle = thisEvent.angle;
+
+            if strcmp(cfg.stim, 'dot')
+
+                dotTexture('draw', cfg, thisEvent);
+
             else
+
                 bgdAngle = 0;
+                if cfg.rotateStimulus
+                    bgdAngle = thisEvent.angle;
+                end
+
+                % Rotate background movie
+                sineRotate = cos(thisEvent.time) * cfg.sineRotation;
+
+                Screen('DrawTexture', cfg.screen.win, bgdTextures(thisEvent.frame), ...
+                    cfg.stimRect, ...
+                    CenterRect(cfg.destinationRect, cfg.screen.winRect), ...
+                    bgdAngle + sineRotate);
+
             end
-
-            % Rotate background movie
-            sineRotate = cos(thisEvent.time) * cfg.sineRotation;
-
-            Screen('DrawTexture', cfg.screen.win, bgdTextures(thisEvent.frame), ...
-                cfg.stimRect, ...
-                CenterRect(cfg.stimRect, cfg.screen.winRect), ...
-                bgdAngle + sineRotate);
 
             % Draw aperture
             apertureTexture('draw', cfg);
@@ -167,10 +201,6 @@ function [data, cfg] = retinotopicMapping(cfg)
 
         WaitSecs(1);
 
-        %% Save
-        % TODO
-        %         data = save2TSV(frameTimes, behavior, expParameters);
-
         % clear stim from structure and a few variables to save memory
         cfg = rmfield(cfg, 'stimulus');
 
@@ -193,5 +223,44 @@ function [data, cfg] = retinotopicMapping(cfg)
         cleanUp;
         psychrethrow(psychlasterror);
     end
+
+end
+
+function varargout = postInitializationSetup(varargin)
+    % varargout = postInitializatinSetup(varargin)
+    %
+    % generic function to finalize some set up after psychtoolbox has been
+    % initialized
+
+    [cfg, target] = deal(varargin{:});
+
+    % apply pixels per degree conversion
+    target = degToPix('target_width', target, cfg);
+
+    cfg.stimRect = [0 0 cfg.stimWidth cfg.stimWidth];
+
+    % get the details about the destination rectangle where we want to draw the
+    % stimulus
+    cfg.destinationRect = cfg.stimRect;
+    if isfield(cfg, 'stimDestWidth') && ~isempty(cfg.stimDestWidth)
+        cfg.destinationRect = [0 0 cfg.stimDestWidth cfg.stimDestWidth];
+        cfg.scalingFactor = cfg.destinationRect(3) / cfg.stimRect(3);
+    end
+
+    if strcmp(cfg.stim, 'dot')
+
+        cfg.dot = degToPix('size', cfg.dot, cfg);
+        cfg.dot = degToPix('speed', cfg.dot, cfg);
+
+        cfg.dot.speedPixPerFrame = cfg.dot.speedPix / cfg.screen.monitorRefresh;
+
+        % dots are displayed on a square
+        cfg.dot.matrixWidth = cfg.destinationRect(3);
+        cfg.dot.number = round(cfg.dot.density * ...
+            (cfg.dot.matrixWidth / cfg.screen.ppd)^2);
+
+    end
+
+    varargout = {cfg, target};
 
 end

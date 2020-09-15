@@ -18,6 +18,9 @@ function barsMapping(cfg)
 
     %% Initialize
 
+    % ------------------------------------------------------------------------------
+    % REFACTOR THIS
+    %
     % current stimulus Frame
     thisEvent.frame = 1;
     thisEvent.time = 0;
@@ -52,14 +55,18 @@ function barsMapping(cfg)
 
         %% Initialize PTB
 
+        cfg = checkGenerateLoadStim(cfg);
+        cfg.refreshPerStim = 4;
+
         [cfg] = initPTB(cfg);
 
-        % apply pixels per degree conversion
-        target = degToPix('target_width', target, cfg);
+        [cfg, target] = postInitializationSetup(cfg, target);
 
-        % Load background movie
-        cfg = loadStim(cfg);
-        bgdTextures = loadBckGrnd(cfg.stimulus, cfg.screen.win);
+        if strcmp(cfg.stim, 'dot')
+            cfg = dotTexture('init', cfg);
+        else
+            bgdTextures = loadBckGrnd(cfg.stimulus, cfg.screen.win);
+        end
 
         % Create aperture texture
         cfg = apertureTexture('init', cfg);
@@ -103,17 +110,43 @@ function barsMapping(cfg)
 
                 checkAbort(cfg);
 
-                %% Determine current frame
+                % ------------------------------------------------------------------------------
+                % REFACTOR THIS
+                %
+                if strcmp(cfg.stim, 'dot')
 
-                thisEvent.frame = thisEvent.frame + 1;
-                if thisEvent.frame > cfg.refreshPerStim
-                    thisEvent.frame = 1;
-                    thisEvent.stim = thisEvent.stim + 1;
+                    thisEvent.speed = cfg.dot.speedPix;
+
+                    if thisEvent.volume ~= thisEvent.previousVolume
+
+                        thisEvent.direction = rand * 360;
+
+                        dots = initDots(cfg, thisEvent);
+
+                    end
+
+                    [dots] = updateDots(dots, cfg);
+
+                    thisEvent.dot.positions = (dots.positions - cfg.dot.matrixWidth / 2)';
+
+                    dotTexture('make', cfg, thisEvent);
+
+                else
+
+                    % Determine current frame
+                    thisEvent.frame = thisEvent.frame + 1;
+                    if thisEvent.frame > cfg.refreshPerStim
+                        thisEvent.frame = 1;
+                        thisEvent.stim = thisEvent.stim + 1;
+                    end
+
+                    if thisEvent.stim > size(cfg.stimulus, ...
+                            length(size(cfg.stimulus)))
+                        thisEvent.stim = 1;
+                    end
+
                 end
-                if thisEvent.stim > size(cfg.stimulus, ...
-                        length(size(cfg.stimulus)))
-                    thisEvent.stim = 1;
-                end
+                % ------------------------------------------------------------------------------
 
                 %% Get info about this event and the bar
 
@@ -126,13 +159,22 @@ function barsMapping(cfg)
                 % we draw the background stimulus in full and overlay an aperture
                 % on top of it
 
-                % Rotate background movie
-                bgdAngle = cos(GetSecs - trialOnset) * cfg.sineRotation;
-                % Draw movie frame
-                Screen('DrawTexture', cfg.screen.win, bgdTextures(thisEvent.stim), ...
-                    cfg.stimRect, ...
-                    CenterRect(cfg.stimRect, cfg.screen.winRect), ...
-                    bgdAngle + thisEvent.condition - 90);
+                if strcmp(cfg.stim, 'dot')
+
+                    dotTexture('draw', cfg, thisEvent);
+
+                else
+
+                    % Draw background stimulus at a given rotation
+                    bgdAngle = cos(GetSecs - trialOnset) * cfg.sineRotation;
+
+                    % draw the background texture centered on screen
+                    Screen('DrawTexture', cfg.screen.win, bgdTextures(thisEvent.stim), ...
+                        cfg.stimRect, ...
+                        CenterRect(cfg.destinationRect, cfg.screen.winRect), ...
+                        bgdAngle + thisEvent.condition - 90);
+
+                end
 
                 [cfg, thisEvent] = apertureTexture('draw', cfg, thisEvent);
 
@@ -147,6 +189,9 @@ function barsMapping(cfg)
 
                 %% Collect and save target / stim / response info if necessary
 
+                % ------------------------------------------------------------------------------
+                % REFACTOR THIS
+                %
                 % detect the of an event and the beginning of a new one
                 if thisEvent.volume ~= thisEvent.previousVolume
                     isOffset = true && barInfo.experimentStarted;
@@ -171,6 +216,7 @@ function barsMapping(cfg)
                 target = saveOnOffset( ...
                     target.isOffset, ...
                     target, cfg, rft);
+                % -------------------------------------------------------------------------------
 
                 collectAndSaveResponses(cfg, logFile, cfg.experimentStart);
 
@@ -196,7 +242,7 @@ function barsMapping(cfg)
 
         %       data = feedbackScreen(cfg);
 
-        WaitSecs(1);
+        waitFor(cfg, 1);
 
         %% Save
 
@@ -211,7 +257,7 @@ function barsMapping(cfg)
 
         disp(output);
 
-        WaitSecs(4);
+        waitFor(cfg, 4);
 
         %% Farewell screen
         farewellScreen(cfg);
@@ -222,5 +268,44 @@ function barsMapping(cfg)
         cleanUp;
         psychrethrow(psychlasterror);
     end
+
+end
+
+function varargout = postInitializationSetup(varargin)
+    % varargout = postInitializatinSetup(varargin)
+    %
+    % generic function to finalize some set up after psychtoolbox has been
+    % initialized
+
+    [cfg, target] = deal(varargin{:});
+
+    % apply pixels per degree conversion
+    target = degToPix('target_width', target, cfg);
+
+    cfg.stimRect = [0 0 cfg.stimWidth cfg.stimWidth];
+
+    % get the details about the destination rectangle where we want to draw the
+    % stimulus
+    cfg.destinationRect = cfg.stimRect;
+    if isfield(cfg, 'stimDestWidth') && ~isempty(cfg.stimDestWidth)
+        cfg.destinationRect = [0 0 cfg.stimDestWidth cfg.stimDestWidth];
+        cfg.scalingFactor = cfg.destinationRect(3) / cfg.stimRect(3);
+    end
+
+    if strcmp(cfg.stim, 'dot')
+
+        cfg.dot = degToPix('size', cfg.dot, cfg);
+        cfg.dot = degToPix('speed', cfg.dot, cfg);
+
+        cfg.dot.speedPixPerFrame = cfg.dot.speedPix / cfg.screen.monitorRefresh;
+
+        % dots are displayed on a square
+        cfg.dot.matrixWidth = cfg.destinationRect(3);
+        cfg.dot.number = round(cfg.dot.density * ...
+            (cfg.dot.matrixWidth / cfg.screen.ppd)^2);
+
+    end
+
+    varargout = {cfg, target};
 
 end

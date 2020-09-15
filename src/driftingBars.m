@@ -10,7 +10,7 @@ function driftingBars(debug, stim, emul)
         debug = 1;
     end
     if nargin < 2  || isempty(stim)
-        stim = 'Ripples.mat';
+        stim = 'dot'; % ripples dot
     end
     if nargin < 3  || isempty(emul)
         emul = 0;
@@ -26,11 +26,12 @@ function driftingBars(debug, stim, emul)
     cfg.aperture.type = 'bar';
 
     % Stimulus conditions in each block defined by number
-    cfg.conditions = [90 45 135 270 225 315 90 45 135 270 225 315];
+    cfg.conditions = [45 90 135 270 225 315 90 45 135 270 225 315];
 
     %% Set defaults
 
     cfg.stim = stim;
+
     cfg.debug.do = debug;
 
     if ~emul
