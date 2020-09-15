@@ -11,7 +11,7 @@ function polar(debug, direc, stim, emul)
         emul = 1;
     end
     if nargin < 3 || isempty(stim)
-        stim = 'Checkerboard.mat';
+        stim = 'checkerboard';
     end
     if nargin < 2 || isempty(dir)
         direc = '-';
