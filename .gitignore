@@ -1,6 +1,8 @@
 *.m~
 *.mat
 octave-workspace
-Sub-*
+*.asv
 sub-*
 *.tif
+*.png
+

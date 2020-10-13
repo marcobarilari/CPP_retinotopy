@@ -1,7 +1,8 @@
-function polar(debug, direc, stim, emul)
-    % polar(debug, direc, stim, emul)
+function eccen(debug, direc, stim, emul)
+    % eccen(debug, direc, stim, emul)
     %
-    % Polar mapping: does the retinotopy with a rotating wedge
+    % Eccentricity mapping: does the retinotopy with an contracting or
+    % expanding ring
     %   direc : '+' or '-' for clockwise or anticlockwise
     %   stim :  Stimulus file name e.g. 'Checkerboard'
     %   emul :  0 = Triggered by scanner, 1 = Trigger by keypress
@@ -11,7 +12,7 @@ function polar(debug, direc, stim, emul)
         emul = 1;
     end
     if nargin < 3 || isempty(stim)
-        stim = 'Checkerboard.mat';
+        stim = 'dot'; % 'checkerboard';
     end
     if nargin < 2 || isempty(dir)
         direc = '-';
@@ -24,12 +25,12 @@ function polar(debug, direc, stim, emul)
 
     %% Experiment parameters
 
-    cfg.task.name = 'retinotopy polar';
+    cfg.task.name = 'retinotopy eccen';
 
     % Stimulus type
-    cfg.aperture.type = 'wedge';
+    cfg.aperture.type = 'ring';
     % Width of wedge in degrees
-    cfg.aperture.width = 70;
+    cfg.aperture.width = 1;
     % Direction of cycling
     cfg.direction = direc;
 
@@ -44,17 +45,16 @@ function polar(debug, direc, stim, emul)
         cfg.testingDevice = 'pc';
     end
 
-    cfg.extraColumns.angle = struct( ...
+    cfg.extraColumns.ring_inner_rim = struct( ...
         'length', 1, ...
         'bids', struct( ...
-        'LongName', 'position of the center of the wedge', ...
-        'Units', 'degrees'));
-
-    cfg.extraColumns.wedge_angle = struct( ...
+        'LongName', 'position of the inner rim of the ring', ...
+        'Units', 'degrees  of visual angles'));
+    cfg.extraColumns.ring_outer_rim = struct( ...
         'length', 1, ...
         'bids', struct( ...
-        'LongName', 'angular width of the wedge', ...
-        'Units', 'degrees'));
+        'LongName', 'position of the outer rim of the ring', ...
+        'Units', 'degrees  of visual angles'));
 
     [cfg] = setParameters(cfg);
 
